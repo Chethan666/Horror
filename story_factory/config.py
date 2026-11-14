@@ -211,8 +211,10 @@ DEFAULTS: dict[str, Any] = {
     # free without keys (Kokoro, free picture services, synthesized sound); with FAL_KEY the paid
     # models below are used.
     "stills": {
-        # Spending cap per video in USD (estimates from `prices`); past it, free fallbacks.
-        "max_usd": 10.0,
+        # Spending cap per video in USD (estimates from `prices`); past it, a picture keeps its best try and a
+        # beat no painter could paint borrows its neighbour's. A 10-minute episode costs about $12 (mostly Google
+        # credits); the preflight agent says when an episode will not fit.
+        "max_usd": 15.0,
         # The channel's house look, sent with every picture: "cinematic" (stills from a dark horror
         # film) or "illustrated" (a painted graphic novel). A non-empty "style" replaces the look's text.
         "look": "cinematic",

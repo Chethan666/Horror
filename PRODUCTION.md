@@ -225,8 +225,8 @@ use a local folder, never generate, how close an effect must match).
 
 **Cost.** About $12 for a 10-minute episode: about $10.50 of pictures and checks, under $1 of
 score and about $0.40 of screening from the Google credits, and about $1 of narration on fal.
-Turning on the moving shots (Veo) adds about $5-12. Capped by `stills.max_usd` (default $10:
-raise it to about 15 for full episodes; the preflight agent says when an episode will not fit).
+Turning on the moving shots (Veo) adds about $5-12. Capped by `stills.max_usd` (default $15; the
+preflight agent says when an episode will not fit).
 
 **Outputs:** `video.mp4` (1440p), `thumbnail_1-3.jpg`, `captions.srt`,
 `metadata.json`, `beats.json`, `contact_sheet.jpg`, `preview_60s.mp4`, `narration.wav`,

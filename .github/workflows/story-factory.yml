@@ -27,7 +27,7 @@
 #   mode=video: pipeline 2 turns the next approved story (or story_id) into a video (film-still
 #               pictures under camera moves, host + teller + character voices, music; made by the agent
 #               team in production/stills), saved as an artifact named video-<run number> for 14 days.
-#               overrides: stills.max_usd=10, stills.motion=none (pictures held still);
+#               overrides: stills.max_usd=20, stills.motion=none (pictures held still);
 #               "resume=<run number>" picks a failed run up where it stopped (its media cache, kept 3 days,
 #               is restored: nothing it paid for is bought again); "redo=12,31:no_text_on_the_wall" with
 #               resume=<the run you watched> repaints only those beats (underscores are spaces)
