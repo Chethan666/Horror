@@ -75,11 +75,19 @@ class YouTube:
         description = str(meta.get("description", ""))
         if meta.get("credit"):
             description += f"\n\n{meta['credit']}"
-        body = {"snippet": {"title": str(meta.get("title", ""))[:100], "description": description[:5000],
-                            "tags": [str(t) for t in meta.get("tags", [])][:30], "categoryId": CATEGORY_ENTERTAINMENT},
-                "status": status}
+        body: dict[str, Any] = {"snippet": {"title": str(meta.get("title", ""))[:100], "description": description[:5000],
+                                            "tags": [str(t) for t in meta.get("tags", [])][:30],
+                                            "categoryId": CATEGORY_ENTERTAINMENT,
+                                            "defaultLanguage": "en", "defaultAudioLanguage": "en"},
+                                "status": status}
+        parts = "snippet,status"
+        localized = {lang: {"title": str(v.get("title", ""))[:100], "description": str(v.get("description", ""))[:5000]}
+                     for lang, v in (meta.get("localizations") or {}).items() if isinstance(v, dict) and v.get("title")}
+        if localized:  # viewers see the title and description in their own language
+            body["localizations"] = localized
+            parts += ",localizations"
         size = video.stat().st_size
-        _, headers, _ = self.http(f"{UPLOAD}/videos?uploadType=resumable&part=snippet,status", method="POST",
+        _, headers, _ = self.http(f"{UPLOAD}/videos?uploadType=resumable&part={parts}", method="POST",
                                   data=json.dumps(body).encode(),
                                   headers={**self.auth, "Content-Type": "application/json; charset=UTF-8",
                                            "X-Upload-Content-Type": "video/mp4", "X-Upload-Content-Length": str(size)})
@@ -132,7 +140,24 @@ class YouTube:
                     out[vid]["avg_view_percentage"] = float(rows[0][0])
             except YouTubeError as exc:
                 log.info("No retention for %s (%s)", vid, str(exc)[:120])
+            curve = self.retention(vid)
+            if curve:
+                out[vid]["retention"] = curve
         return out
+
+    def retention(self, video_id: str) -> list[tuple[float, float]]:
+        """The audience retention curve: (share of the video, share of its viewers still watching), up
+        to 100 points. Empty for a video with too few views or before YouTube has processed it."""
+        query = urllib.parse.urlencode({"ids": "channel==MINE", "startDate": "2020-01-01", "endDate": "2100-01-01",
+                                        "metrics": "audienceWatchRatio", "dimensions": "elapsedVideoTimeRatio",
+                                        "filters": f"video=={video_id}"})
+        try:
+            _, _, payload = self.http(f"{ANALYTICS}?{query}", headers=self.auth)
+        except YouTubeError as exc:
+            log.info("No retention curve for %s (%s)", video_id, str(exc)[:120])
+            return []
+        rows = json.loads(payload).get("rows") or []
+        return [(float(r[0]), float(r[1])) for r in rows if len(r) >= 2]
 
 
 def publish(yt: YouTube, folder: Path, privacy: str = "private", publish_at: str | None = None) -> dict[str, Any]:
@@ -145,7 +170,10 @@ def publish(yt: YouTube, folder: Path, privacy: str = "private", publish_at: str
                        ("captions", lambda: (folder / "captions.srt").exists() and
                         yt.captions(video_id, folder / "captions.srt")),
                        # The API can post the comment; pinning it is one click in YouTube Studio.
-                       ("comment", lambda: meta.get("pinned_comment") and yt.comment(video_id, meta["pinned_comment"]))):
+                       ("comment", lambda: meta.get("pinned_comment") and yt.comment(video_id, meta["pinned_comment"])),
+                       *[(f"captions_{lang}", (lambda lang=lang, name=name: (folder / name).exists() and
+                                               yt.captions(video_id, folder / name, language=lang, name=lang)))
+                         for lang, name in sorted((meta.get("captions") or {}).items())]):
         try:
             call()
             done["steps"].append(step)

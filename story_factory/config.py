@@ -292,12 +292,33 @@ DEFAULTS: dict[str, Any] = {
         "set_design": True, "location_sheets": 3,
         # How many scare beats are painted by the strongest painter (`chains.scare`, about $0.15 each).
         "scare_shots": 4,
+        # Scares are rationed: at most `scares_per_minute` (never more than `max_scares`, at least one), so
+        # each keeps its force; the most important keep their stinger and their build-up in the edit.
+        "scares_per_minute": 0.35, "max_scares": 3,
+        # The reveal ladder: the threat is shown more as the story nears its climax, fully at most this often.
+        "max_full_reveals": 1,
+        # The rhythm follows the tension: calm scenes hold a picture longer, terrifying ones cut faster.
+        "rhythm": True,
+        # The continuity agent: what the story changes (a light off, a wound, a door left open) is listed once
+        # and held in every later picture. The cinematographer: after the location sheets are painted, a vision
+        # model rewrites any picture description that does not fit its set as painted (a few cents a video).
+        "continuity": True, "staging": True,
+        # The screening: the finished cut watched with its sound by Gemini on Vertex (a small copy, one frame a
+        # second), notes pinned to beats for the reviewer; about $0.40 for 10 minutes. Off without a Google key.
+        "screening": {"enabled": True, "max_mb": 18},
         # Key beats: at least this important (1-5, from the storyboard), at most this share of the beats.
         "key_importance": 3, "key_share": 0.25,
         # The first try is meant to be right: retries and art-review redraws may spend at most this share
         # of max_usd; past it, every picture keeps its best try. `lessons`: the faults the critic refused
         # most often in earlier videos are named in every picture prompt (counted in the story database).
         "retry_share": 0.15, "lessons": True,
+        # The pictures that matter most (the scares and key beats) are painted twice at once, and the stronger
+        # checker keeps the better take: about a quarter of the beats, one extra picture each (`share` is
+        # the estimate's guess at how many beats that is).
+        "candidates": {"enabled": True, "takes": 2, "tiers": ["scare", "key"], "share": 0.25},
+        # The art review looks scene by scene (12 pictures a sheet at most) and person by person; it may
+        # redraw max(art_review_fixes, art_review_share of the beats) pictures, in at most this many looks.
+        "art_review_fixes": 2, "art_review_share": 0.04, "art_review_max_looks": 16,
         # Each character also gets a large face portrait painted from their sheet; pictures are painted
         # from portrait + sheet, and the checker compares every face with its portrait.
         "portraits": True, "face_check": True,
@@ -311,32 +332,29 @@ DEFAULTS: dict[str, Any] = {
         # beats) or "all". durations: the clip lengths each model accepts, in seconds. image_field:
         # the name a model gives its start picture ("image_url" for most, "start_image_url" for Kling).
         "animation": {"enabled": False, "beats": "scares", "max_clips": 12, "max_stretch": 1.25,
-                   "durations": {"clip": [5, 10], "clip_alt": [5, 10]},
+                   "durations": {"clip": [4, 6, 8], "clip_alt": [5, 10]},
                    "image_field": {"clip": "image_url", "clip_alt": "image_url"},
                    "check_clips": True, "parallel": 3},
         "beat_min_seconds": 5.0, "beat_max_seconds": 11.0,
         "scene_dip_seconds": 0.35,
         # Painters tried in order until the critic passes a picture; each is told what the critic
-        # refused in the one before. fal:<role> needs FAL_KEY; cloudflare needs CF_ACCOUNT_ID and
-        # CF_API_TOKEN (free daily allowance); pollinations is keyless. The free painters take no
-        # references, so they only paint when no paid picture could be made (no key, over the cap).
+        # refused in the one before ("fal:<role>": the role's model, on Vertex AI or fal). There are
+        # no free painters: they take no references, so their pictures broke continuity. A beat no
+        # painter could paint borrows its neighbour's picture.
         "chains": {
-            # Spent by importance (runs 96 and 98 compared: PRODUCTION.md, "Cost and quality").
             # A style frame or a sheet that fails its check is painted once more, told what was wrong.
-            "reference": ["fal:reference", "fal:reference", "cloudflare", "pollinations"],
-            # Sheets: Seedream 4.5 (it followed descriptions best), once more told what was wrong, then
-            # Seedream 5.0 Lite: a different model may succeed where the first failed twice.
-            "sheet": ["fal:sheet", "fal:sheet", "fal:sheet_alt", "cloudflare", "pollinations"],
+            "reference": ["fal:reference", "fal:reference"],
+            "sheet": ["fal:sheet", "fal:sheet", "fal:sheet_alt"],
             # Every picture of the film: Nano Banana 2.1 (the 5-way bake-off, run 109: as good as Pro
             # for faces, places and the moment, at about half its price), and a second try only for a
             # serious fault (a picture refused for a detail is kept).
-            "beat": ["fal:shot", "fal:shot", "cloudflare", "pollinations"],
-            # Key beats (`key_importance`, at most `key_share` of the story): the corrector, told
-            # what was refused, keeps any detail fault too.
-            "key": ["fal:shot", "fal:shot_alt", "cloudflare", "pollinations"],
-            # The scares (at most `scare_shots`, most important first): Nano Banana 2.1, once more
-            # told what was refused.
-            "scare": ["fal:shot", "fal:hero", "cloudflare", "pollinations"],
+            "beat": ["fal:shot", "fal:shot"],
+            # Key beats (`key_importance`, at most `key_share` of the story): two takes at once (the
+            # better kept, `candidates`), then the corrector, told what was refused.
+            "key": ["fal:shot", "fal:shot_alt"],
+            # The scares (at most `scare_shots`, most important first): two takes, then once more told
+            # what was refused.
+            "scare": ["fal:shot", "fal:hero"],
             "thumbnail": ["fal:thumbnail"],
         },
         # Google Cloud Vertex AI (production/vertex.py): with the secret GCP_SERVICE_ACCOUNT_JSON set,
@@ -346,8 +364,14 @@ DEFAULTS: dict[str, Any] = {
             "enabled": True,
             "models": {"google/nano-banana-2.1/edit": "gemini-nano-banana-2.1",
                        "google/nano-banana-2.1": "gemini-nano-banana-2.1",
-                       "fal-ai/any-llm/vision": "gemini-3.6-flash"},  # run 111: 2.5 Flash is retired
-            "prices": {"gemini-nano-banana-2.1": 0.055, "gemini-3.6-flash": 0.001},
+                       "fal-ai/any-llm/vision": "gemini-3.6-flash",  # run 111: 2.5 Flash is retired
+                       # the original score: Lyria (about 30 s of instrumental music a piece)
+                       "fal-ai/ace-step-1.5": "lyria-002"},
+            # A role's own model on Vertex, whatever its fal endpoint (the newest Pro answering is used).
+            "roles": {"vision_pro": "gemini-3.6-pro"},
+            # estimates (check the Google Cloud console): Lyria about $0.06 a piece, Veo Fast per second, no sound
+            "prices": {"gemini-nano-banana-2.1": 0.055, "gemini-3.6-flash": 0.001, "gemini-3.6-pro": 0.01,
+                       "lyria-002": 0.06, "veo-3.1-fast-generate-001": 0.15},
         },
         # The picture bake-off (`produce --bakeoff`, workflow overrides `bakeoff=...`): the same
         # references, then every beat painted by each setup, side by side, with a judge's scores.
@@ -355,31 +379,19 @@ DEFAULTS: dict[str, Any] = {
             "max_usd": 8.0, "retry_share": 0.06,
             "setups": {
                 "default": {"label": "Default: Nano Banana 2.1 for everything"},
+                # the cheaper season: Seedream 4.5, with Nano Banana Pro for the scares (the default until run 109)
                 "seedream": {"label": "Seedream 4.5, Nano Banana Pro for scares (the default until run 109)",
                              "chains": {"beat": ["fal:seedream", "fal:seedream"],
                                         "key": ["fal:seedream", "fal:shot"],
                                         "scare": ["fal:pro", "fal:seedream"]}},
-                "nb21": {"label": "Nano Banana 2.1, every picture",
-                         "chains": {"beat": ["fal:nb21", "fal:nb21"], "key": ["fal:nb21", "fal:nb21"],
-                                    "scare": ["fal:nb21", "fal:nb21"]}},
-                "sd35": {"label": "Stable Diffusion 3.5 Large, from words only (it takes no references)",
-                         "chains": {"beat": ["fal:sd", "fal:sd"], "key": ["fal:sd", "fal:sd"],
-                                    "scare": ["fal:sd", "fal:sd"]}},
-                "seedream_detail": {"label": "Seedream 4.5 + 4K detail pass", "detail": True,
-                                    "chains": {"beat": ["fal:seedream", "fal:seedream"],
-                                               "key": ["fal:seedream", "fal:shot"],
-                                               "scare": ["fal:pro", "fal:seedream"]}},
-                "flux2": {"label": "FLUX.2 pro, every picture",
-                          "chains": {"beat": ["fal:flux", "fal:flux"], "key": ["fal:flux", "fal:flux"],
-                                     "scare": ["fal:flux", "fal:flux"]}},
+                # the premium setup (FLUX.2, Stable Diffusion 3.5 and the 4K detail pass lost run 109's
+                # bake-off and were removed in November 2026)
                 "pro": {"label": "Nano Banana Pro, every picture",
                         "chains": {"beat": ["fal:pro", "fal:pro"], "key": ["fal:pro", "fal:pro"],
                                    "scare": ["fal:pro", "fal:pro"]}},
             },
         },
         "references": True,  # a style frame, character sheets and location sheets keep look, people and places the same
-        "pollinations": True, "pollinations_gap_seconds": 16,
-        "cloudflare_model": "@cf/black-forest-labs/flux-1-schnell", "cloudflare_steps": 4,  # 4 keeps ~170 pictures a day free
         "models": {
             # Nano Banana 2.1 paints everything (run 109's 5-way bake-off; the user's choice)
             "reference": "google/nano-banana-2.1",                # style frame (text only)
@@ -393,35 +405,29 @@ DEFAULTS: dict[str, Any] = {
             "hero_text": "google/nano-banana-2.1",
             "thumbnail": "google/nano-banana-2.1/edit",
             "voice": "fal-ai/elevenlabs/tts/eleven-v3",
+            "host_voice": "elevenlabs:eleven_v3",  # the channel's own host voice (used only when set up, above)
             "sfx": "fal-ai/elevenlabs/sound-effects/v2",
             # Music the sound library lacks: ACE-Step 1.5 (open source, ~$0.0003 a second). For
             # ElevenLabs instead: "fal-ai/elevenlabs/music" ($0.80 a minute, whole minutes).
             "music": "fal-ai/ace-step-1.5",
             "vision": "fal-ai/any-llm/vision",                   # the critic's eye
-            # For the picture bake-off (and a later switch): FLUX.2 [pro] with references, and a
-            # detail pass that upscales a finished picture to 4K.
-            "flux": "fal-ai/flux-2-pro/edit", "flux_text": "fal-ai/flux-2-pro",
-            # Nano Banana 2.1 (October 2026): ranked at or above Pro, at about half its price
-            "nb21": "google/nano-banana-2.1/edit", "nb21_text": "google/nano-banana-2.1",
-            # Seedream 4.5 for the film's pictures (the default until run 109; the cheaper bake-off setup)
+            # the stronger eye: the cinematographer, side-by-side choices, the art review and the screening
+            "vision_pro": "fal-ai/any-llm/vision",
+            # For the picture bake-off's other setups: Seedream 4.5 (the default until run 109; the
+            # cheaper setup) and Nano Banana Pro (the premium one).
             "seedream": "fal-ai/bytedance/seedream/v4.5/edit",
             "pro": "fal-ai/nano-banana-pro/edit", "pro_text": "fal-ai/nano-banana-pro",
-            # Stable Diffusion 3.5 Large: paints from words only (no reference pictures)
-            "sd": "fal-ai/stable-diffusion-v35-large",
-            "upscale": "fal-ai/seedvr/upscale/image",
-            # Image-to-video models for the motion stage (off while empty): e.g. a Kling, Seedance or
-            # Wan image-to-video endpoint on fal.ai, with its price per second in `prices`.
-            "clip": "", "clip_alt": "",
+            # Image-to-video for the motion stage (used only when `animation.enabled`): Veo on Vertex AI, paid
+            # from the Google credits; `clip_alt` may name an image-to-video model on fal as its fallback.
+            "clip": "vertex:veo-3.1-fast-generate-001", "clip_alt": "",
         },
         # An edit model asked without references uses its text-to-image twin.
         "text_roles": {"shot": "shot_text", "shot_alt": "shot_alt_text", "sheet": "reference", "sheet_alt": "reference",
-                       "thumbnail": "shot_alt_text", "hero": "hero_text", "flux": "flux_text", "seedream": "reference",
-                       "pro": "pro_text",
-                       "nb21": "nb21_text"},
-        # References sent to a model, longest side in pixels (FLUX.2 counts every input megapixel).
-        "reference_px": {"flux": 1024},
+                       "thumbnail": "shot_alt_text", "hero": "hero_text", "seedream": "reference", "pro": "pro_text"},
+        # References sent to a model, longest side in pixels (2048 unless a model is named here).
+        "reference_px": {},
         # Models that take no reference pictures: they are sent the words alone.
-        "text_only_roles": ["sd"],
+        "text_only_roles": [],
         "model_args": {
             "reference": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
             "sheet": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
@@ -437,19 +443,13 @@ DEFAULTS: dict[str, Any] = {
             "hero_text": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
             "thumbnail": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
             "voice": {"stability": 0.5},
+            "host_voice": {"stability": 0.5},
             "vision": {"model": "google/gemini-2.5-flash"},
+            "vision_pro": {"model": "google/gemini-2.5-pro"},
             "judge": {"model": "google/gemini-2.5-pro", "reasoning": True},  # this model refuses without it
-            "flux": {"image_size": {"width": 2560, "height": 1440}, "output_format": "png", "safety_tolerance": "4"},
-            "flux_text": {"image_size": {"width": 2560, "height": 1440}, "output_format": "png", "safety_tolerance": "4"},
-            "upscale": {"upscale_mode": "target", "target_resolution": "2160p", "output_format": "png"},
             "seedream": {"image_size": {"width": 2752, "height": 1548}, "num_images": 1},
             "pro": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
             "pro_text": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
-            "nb21": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
-            "nb21_text": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
-            "sd": {"image_size": {"width": 1536, "height": 864}, "num_images": 1, "output_format": "png",
-                   "negative_prompt": "cartoon, illustration, painting, 3d render, text, letters, watermark, "
-                                      "bright, cheerful, deformed hands, extra fingers, split frame, collage"},
         },
         # A role whose settings cost more than the model's base price (Nano Banana 2 at 2K: 1.5x).
         "model_units": {},
@@ -460,14 +460,12 @@ DEFAULTS: dict[str, Any] = {
             "fal-ai/bytedance/seedream/v5/lite/edit": 0.035,
             "fal-ai/bytedance/seedream/v4.5/edit": 0.04, "fal-ai/bytedance/seedream/v4.5/text-to-image": 0.04,
             "fal-ai/elevenlabs/tts/eleven-v3": 0.10, "fal-ai/elevenlabs/sound-effects/v2": 0.002,
+            # ElevenLabs' own API: characters come with the monthly plan; this is about the price past it
+            "elevenlabs:eleven_v3": 0.15,
             # ElevenLabs music on fal: $0.80 a minute, billed in whole minutes (the score rounds up).
             "fal-ai/elevenlabs/music": 0.80 / 60, "fal-ai/ace-step-1.5": 0.0003, "fal-ai/any-llm/vision": 0.002,
-            # estimates, high side: FLUX.2 [pro] bills by megapixel in and out (a 2560x1440 picture
-            # from up to 7 references at 1024 px); the SeedVR detail pass to 4K
-            "fal-ai/flux-2-pro/edit": 0.14, "fal-ai/flux-2-pro": 0.08, "fal-ai/seedvr/upscale/image": 0.03,
             # billed by tokens on fal: about $0.06 a 2K picture reported; estimated on the high side
             "google/nano-banana-2.1/edit": 0.08, "google/nano-banana-2.1": 0.08,
-            "fal-ai/stable-diffusion-v35-large": 0.07,
         },
         # Voices. The host reads the intro and outro; a first-person story's teller gets a voice
         # matched to them; characters get distinct voices by kind. Kokoro names are the free fallback.
@@ -485,7 +483,10 @@ DEFAULTS: dict[str, Any] = {
         # Planned length of the story part of a video (the script check warns when the narration
         # would run well over or under); 0 = no target.
         "target_seconds": 0,
-        "host_voice": {"elevenlabs": "Brian", "kokoro": "am_michael"},
+        # The host's voice: ElevenLabs' stock "Brian" on fal, unless the channel has its own voice (Voice Design or
+        # a licensed clone) in its ElevenLabs account: its ID here plus the ELEVENLABS_API_KEY secret, and only
+        # the host's lines are read by it, through ElevenLabs' own API.
+        "host_voice": {"elevenlabs": "Brian", "kokoro": "am_michael", "elevenlabs_id": ""},
         "teller_voices": {
             "elevenlabs": {"man": "Callum", "woman": "Charlotte", "old_man": "Bill", "old_woman": "Dorothy"},
             "kokoro": {"man": "am_fenrir", "woman": "af_heart", "old_man": "bm_lewis", "old_woman": "bf_isabella"},
@@ -499,8 +500,16 @@ DEFAULTS: dict[str, Any] = {
                        "boy": ["am_puck"], "girl": ["af_sky", "af_bella"]},
         },
         "parallel": 4, "render_workers": 3, "max_effects": 30,
-        "cold_open": True, "title_seconds": 3.0, "end_screen_seconds": 20.0,
+        # The opening: the story's scariest moment (cold open), a 2-second title card that differs between
+        # episodes, then the host's short ritual (under ten seconds) and the story.
+        "cold_open": True, "title_seconds": 2.0, "title_variety": True, "end_screen_seconds": 20.0,
+        # A scare is built: its picture held nearly dark (this brightness) while the line begins, then the
+        # reveal on a hard cut, with the stinger and a jolt of the camera.
+        "scare_build": True, "scare_build_dim": 0.22,
         "burn_captions": False, "thumbnails": 3,
+        # Other languages: the title, description and captions translated by the checker model on Vertex (a
+        # fraction of a cent each) and uploaded with the video; [] turns it off.
+        "languages": ["es", "pt", "hi", "id", "fr", "de"],
         # The channel's sound library (production/library.py; built by the sound-library workflow
         # from Kevin MacLeod, OpenGameArt CC0, the Free Music Archive, Sonniss packs and ACE-Step).
         # The sound director picks from it first; only what it lacks is generated, and saved back.
@@ -513,10 +522,31 @@ DEFAULTS: dict[str, Any] = {
             # Missing sounds: effects, room tone and the sting may be made by ElevenLabs Sound Effects on
             # fal (a few cents a video); music always comes from the library (no paid music).
             "generate_missing": True, "generate_kinds": ["sfx"],
+            # "original": with Lyria on Vertex (Google credits), every cue of the score is made for the episode
+            # (the library's track plays only if that fails); "library": music from the library only.
+            "music_source": "original",
             "save_generated": True,  # paid-for sounds go into the library after the run
         },
         # YouTube's "altered or synthetic content" flag: None follows the look (on for cinematic).
         "loudness_lufs": -14.0, "synthetic_media": None,
+        # The preflight agent: the paid narrator reads one test line before anything is bought; if it
+        # cannot (an empty fal balance), the run stops instead of finishing in the free voice.
+        "require_paid_voice": True, "preflight_voice": True,
+        # QA flags a run where more than this many pictures or checks went to fal because Vertex failed.
+        "max_fallbacks": 5,
+        # Where paid results and model answers are kept ("" = the work folder; MEDIA_CACHE_DIR wins).
+        "cache_dir": "",
+        # The channel's theme, a few seconds under "The lantern is lit." in every episode (made once with
+        # `python -m production theme`, then kept here); nothing plays until the file exists.
+        "theme_file": "production/assets/theme/lantern.wav",
+        # Depth parallax (production/stills/depth.py): an open depth model on the runner's CPU splits wide and
+        # medium pictures into a near and a far layer that move apart, so the camera seems to move through the
+        # scene. Free; off until an episode with it has been watched.
+        "parallax": {"enabled": False, "framings": ["wide", "medium", "over_shoulder", "low_angle", "high_angle"],
+                     "share": 0.3, "repo": "onnx-community/depth-anything-v2-small", "file": "onnx/model.onnx"},
+        # The host's looping clip (Veo, from his fixed portrait, ending where it began: `host --loop`), played under
+        # every intro and outro once it is kept here; until then his picture is a still.
+        "host_loop": "production/assets/host/loop.mp4",
     },
     "dedup": {
         "title_similarity": 0.85,

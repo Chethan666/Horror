@@ -63,10 +63,22 @@ class EditPlanAgent:
                 if cold and c.start >= cold_a and c.end <= cold_b + 0.01]
         prog += [timing.Cue(c.start + offset, c.end + offset, c.text) for c in cues]
         (board.out / "captions.srt").write_text(timing.srt(prog))
+        # A scare is built, not shown at once: the picture stays nearly dark while the line begins, then
+        # cuts to the reveal (the stinger and a jolt of the camera land there, on the cut).
+        built = []
+        if cfg.get("scare_build", True):
+            for b in beats:
+                if b.scare and b.seconds >= 3.0 and b.index not in d.get("host_beats", ()):
+                    b.reveal = round(min(max(0.4 * b.seconds, 1.0), 2.5), 2)
+                    built.append(b.index)
+        # Where each beat sits in the finished video: YouTube's retention curve is read against it later.
+        d["beat_times"] = [{"beat": b.index, "start": round(b.t0 + offset, 2), "end": round(b.t1 + offset, 2),
+                            "scene": b.scene, "tension": b.tension, "scare": b.scare, "line": str(b.text)[:90]}
+                           for b in beats]
         d.update(cold=cold, cold_seconds=cold_seconds, title_seconds=title_seconds, end_seconds=end_seconds,
                  offset=offset, total=total, track=track, speech=speech, cues=prog, story_seconds=story_seconds)
         return {"cold_open_beats": cold, "cold_open_seconds": round(cold_seconds, 1),
-                "total_seconds": round(total, 1)}
+                "total_seconds": round(total, 1), "scares_built": built}
 
 
 class SoundAgent:
@@ -94,6 +106,17 @@ class SoundAgent:
         # the sting), and only those whose model is configured.
         kinds = {k for k in (lib_cfg.get("generate_kinds") or ("music", "sfx"))
                  if can_make and board.studio is not None and board.studio.models.get(k)}
+        # An original score: with Lyria on Vertex (paid from the Google credits, a few cents a cue) every
+        # cue is made for this episode first; the library's pick plays only if making fails.
+        music_model = str(board.studio.models.get("music", "")) if board.studio is not None else ""
+        original = (can_make and lib_cfg.get("music_source", "original") == "original"
+                    and music_model.startswith("vertex:"))
+        if original:
+            kinds.add("music")
+            score.prefer_made = {f"music_{c}" for c in score.cue_names}
+            score.motif = str((d.get("bible") or {}).get("sound_motif", "")).strip()[:200]
+            from ..paid import digest
+            score.seed = int(digest(board.story.get("id"), board.story.get("title")), 16) % 1_000_000_007
         can_make = can_make and bool(kinds)
         decided = sounds.pick(board, library, score.cue_names, int(board.cfg.get("max_effects", 30)),
                               float(lib_cfg.get("min_score", 0.55)), can_make=can_make,
@@ -109,6 +132,17 @@ class SoundAgent:
         score.generate_missing = can_make
         score.make_kinds = kinds
         stings = [d["cold_seconds"]] if d["cold"] and d["title_seconds"] else []
+        theme_file = Path(str(board.cfg.get("theme_file") or ""))
+        if theme_file.name and not theme_file.is_absolute():
+            theme_file = Path(__file__).resolve().parents[2] / theme_file
+        if theme_file.name and theme_file.is_file():
+            try:
+                from ..speech import decode
+                score.theme = decode(theme_file, d["rate"], channels=2)
+                score.theme_at = [c.t0 + d["offset"] for c in d["timeline"].chunks
+                                  if "lantern is lit" in str(c.text).lower()][:2]
+            except Exception as exc:  # noqa: BLE001 - a missing theme never stops the sound
+                log.warning("Theme not used: %s", exc)
         try:
             mixed = score.mix(d["track"], d["speech"], d["beats"], d["offset"], d["scenes"], stings=stings,
                               music_until=d["total"], max_effects=int(board.cfg.get("max_effects", 30)))
@@ -125,7 +159,7 @@ class SoundAgent:
             if lib_cfg.get("save_generated", True) else 0
         (board.out / "sounds_used.json").write_text(json.dumps(d.get("sounds_used", [])))
         return dict(score.report, library=library_report, generated=len(score.generated), saved_for_library=saved,
-                    mix=balance)
+                    mix=balance, original_score=original)
 
 
 def voice_over_bed(mixed: np.ndarray, voice: np.ndarray, speech: list[tuple[float, float]], rate: int,
@@ -133,17 +167,20 @@ def voice_over_bed(mixed: np.ndarray, voice: np.ndarray, speech: list[tuple[floa
     """The mix check (`speech`: programme times): while someone speaks, the voice must stand `want_db` above the music, room tone
     and effects under it. If it doesn't, the bed is lowered (the voice is never touched) and the
     check is repeated. Returns the mix and what was measured."""
-    n = min(mixed.size, voice.size)
+    n = min(len(mixed), len(voice))
     mask = np.zeros(n, dtype=bool)
     for a, b in speech:
         mask[int(max(a, 0) * rate): int(max(b, 0) * rate)] = True
     if not mask.any():
         return mixed, {"checked": False}
-    bed = mixed[:n] - voice[:n]
+    stereo = mixed.ndim == 2
+    centre = voice[:n, None] if stereo else voice[:n]  # the voice sits in the middle of a stereo mix
+    bed = mixed[:n] - centre
+    heard = bed.mean(axis=1) if stereo else bed
 
     def ratio(gain: float) -> float:
         v = float(np.sqrt(np.mean(voice[:n][mask] ** 2)) + 1e-9)
-        x = float(np.sqrt(np.mean((bed[mask] * gain) ** 2)) + 1e-9)
+        x = float(np.sqrt(np.mean((heard[mask] * gain) ** 2)) + 1e-9)
         return 20 * np.log10(v / x)
 
     before = ratio(1.0)
@@ -151,7 +188,7 @@ def voice_over_bed(mixed: np.ndarray, voice: np.ndarray, speech: list[tuple[floa
     if before < want_db:
         gain = float(10 ** ((before - want_db) / 20))
         out = mixed.copy()
-        out[:n] = voice[:n] + bed * gain
+        out[:n] = centre + bed * gain
         mixed = out
     return mixed, {"checked": True, "voice_over_bed_db": round(before, 1),
                    "after_db": round(ratio(gain), 1), "bed_lowered_db": round(-20 * np.log10(gain), 1) if gain < 1 else 0}
@@ -166,18 +203,35 @@ def render(seg: Segment, work: Path, finish: dict[str, float], seed: int = 0, si
     move = seg.camera if seg.camera in camera.MOVES else "none"
     plate = work / f"{Path(seg.name).stem}_canvas.png"
     if seg.clip is not None:  # a moving clip: it carries its own movement, the finish is the same
-        source = ["-i", str(seg.clip)]
-        base = camera.clip_filter(seg.clip, seconds, float(finish.get("grain", 0)), size)
+        source = (["-stream_loop", "-1"] if seg.loop else []) + ["-i", str(seg.clip)]
+        base = camera.clip_filter(seg.clip, seconds, float(finish.get("grain", 0)), size,
+                                  max_stretch=1.0 if seg.loop else 1.25)
         move = "clip"
+    elif seg.layers is not None:  # depth parallax: the near layer moves more than the far one
+        back, front = camera.parallax_routes(seconds, seg.tension)
+        bg, fg = seg.layers
+        layer = work / f"{Path(seg.name).stem}_front.png"
+        size_bg = camera.canvas(bg, plate, max(back[0], back[1]), float(finish.get("grain", 0)), seed, size,
+                                float(finish.get("halation", 0)))
+        size_fg = camera.canvas_layer(fg, layer, max(front[0], front[1]), float(finish.get("grain", 0)), seed, size)
+        source = ["-loop", "1", "-framerate", str(FPS), "-i", plate.name,
+                  "-loop", "1", "-framerate", str(FPS), "-i", layer.name]
+        base = (f"{camera.move_filter(back, n, size_bg, size)}[far];[1:v]"
+                f"{camera.move_filter(front, n, size_fg, size, alpha=True)}[near];[far][near]overlay=format=yuv420")
+        move = "parallax"
     else:
-        route = camera.path(move, seconds)
+        route = camera.path(move, seconds, seg.tension)
         canvas = camera.canvas(seg.picture, plate, max(route[0], route[1]), float(finish.get("grain", 0)), seed,
                                size, float(finish.get("halation", 0)))
         source = ["-loop", "1", "-framerate", str(FPS), "-i", plate.name]
         base = camera.move_filter(route, n, canvas, size)
-    inputs, steps = camera.atmosphere(seg.atmosphere, textures or {}, 1, size)
+    inputs, steps = camera.atmosphere(seg.atmosphere, textures or {}, 2 if seg.layers is not None and
+                                      seg.clip is None else 1, size)
     tail = [camera.vignette_filter(float(finish.get("vignette", 0))),
             camera.letterbox_filter(float(finish.get("letterbox", 0)), size)]
+    if seg.dim < 1.0:  # a scare's build-up: the same picture, nearly dark (in YUV, so the colour labels hold)
+        k = max(min(seg.dim, 1.0), 0.0)
+        tail.insert(0, f"lutyuv=y='16+(val-16)*{k:.3f}':u='128+(val-128)*{k:.3f}':v='128+(val-128)*{k:.3f}'")
     if seg.fade_in:
         tail.append(f"fade=t=in:st=0:d={seg.fade_in:.2f}")
     if seg.fade_out:
@@ -196,6 +250,7 @@ def render(seg: Segment, work: Path, finish: dict[str, float], seed: int = 0, si
          "-maxrate", "24M", "-bufsize", "24M",
          *tune, "-pix_fmt", "yuv420p", *camera.COLOUR_TAGS, "-r", str(FPS), "-an", seg.name], work)
     plate.unlink(missing_ok=True)
+    (work / f"{Path(seg.name).stem}_front.png").unlink(missing_ok=True)
     return seg.name
 
 
@@ -212,9 +267,18 @@ class EditAgent:
         frame = d.get("style_frame")
         size = tuple(int(v) for v in cfg.get("video_size") or (W, H))
         k = size[1] / 1080  # lettering scales with the frame
-        title_card = edit.card(frame, [(CHANNEL, round(40 * k), draw.RED)] +
+        # The title card changes from episode to episode (where the words sit, what lies behind them): the
+        # same card on every video is what YouTube's rules on mass-produced content look for.
+        anchor, left, behind = title_layout(board.story, cfg)
+        background = frame
+        if behind == "key":
+            key = max((b for b in beats if b.index not in d.get("host_beats", ()) and not b.scare),
+                      key=lambda b: (b.importance, -b.index), default=None)  # never a scare: no spoilers
+            background = d["pictures"].get(key.index) if key is not None else frame
+        title_card = edit.card(background or frame, [(CHANNEL, round(40 * k), draw.RED)] +
                                [(line, round(92 * k), draw.CHALK) for line in edit.wrap(str(titles[0]), 24)],
-                               board.work / "title_card.png", size=size)
+                               board.work / "title_card.png", left=left, size=size, anchor=anchor,
+                               dim=0.25 if behind == "key" else 0.35)
         end_line = str(d["packaging"].get("end_screen_line", "")) or "Another story is waiting."
         end_card = edit.card(frame, [(line, round(60 * k), draw.CHALK) for line in edit.wrap(end_line, 30)] +
                              [("", round(30 * k), draw.CHALK), ("NEXT STORY  >", round(54 * k), draw.RED)],
@@ -227,9 +291,11 @@ class EditAgent:
         for seg in segs:  # the end card holds still (YouTube's end-screen elements sit on it)
             seg.camera = "none"
         cold = segs[:len(d["cold"])]
+        for seg, beat in zip(story, beats):
+            seg.tension = int(getattr(beat, "tension", 2) or 2)
         if motion == "drift":  # every story picture gets the move that suits it
             for n, (seg, beat) in enumerate(zip(story, beats)):
-                seg.camera = camera.move_for(beat, n)
+                seg.camera = camera.move_for(beat, n, after_scare=n > 0 and beats[n - 1].scare)
             for n, seg in enumerate(cold):
                 seg.camera = "push_in_fast" if n == len(cold) - 1 else "push_in"
             if d["title_seconds"]:
@@ -237,6 +303,15 @@ class EditAgent:
         clips: dict[int, Path] = d.get("clips") or {}
         for seg, beat in list(zip(story, beats)) + [(seg, beats[i]) for seg, i in zip(cold, d["cold"])]:
             seg.clip = clips.get(beat.index)  # a beat the motion stage animated plays its clip
+        layered: dict[int, tuple[Path, Path]] = d.get("layers") or {}
+        for seg, beat in zip(story, beats):  # depth parallax where the depth agent split the picture
+            if beat.index in layered and seg.clip is None and motion == "drift" and seg.camera != "none":
+                seg.layers = layered[beat.index]
+        loop = host_loop(cfg)
+        if loop is not None:  # the host breathes: his own looping clip, made once, under every intro and outro
+            for seg, beat in zip(story, beats):
+                if beat.index in d.get("host_beats", ()) and seg.clip is None:
+                    seg.clip, seg.loop = loop, True
         textures: dict[str, Path] = {}
         if cfg.get("atmosphere", True):  # rain, fog or a failing light, where the storyboard saw them
             for seg, beat in list(zip(story, beats)) + [(seg, beats[i]) for seg, i in zip(cold, d["cold"])]:
@@ -251,6 +326,7 @@ class EditAgent:
             if beats[k].scene != beats[k + 1].scene and dip:
                 story[k].fade_out = max(story[k].fade_out, dip)
                 story[k + 1].fade_in = max(story[k + 1].fade_in, dip)
+        segs = build_scares(segs, story, beats, float(cfg.get("scare_build_dim", 0.22)), motion == "drift")
         look = d.get("look") or {}
         finish = {"grain": float(look.get("grain", 0)), "vignette": float(look.get("vignette", 0)),
                   "halation": float(look.get("halation", 0)), "letterbox": float(cfg.get("letterbox", 0) or 0)}
@@ -268,7 +344,7 @@ class EditAgent:
                  "yuv420p", *camera.COLOUR_TAGS] if vf else ["-c:v", "copy"]
         video = board.out / "video.mp4"
         _ff(["-i", "picture.mp4", "-i", str(d["mix"]), *vf, *codec,
-             "-af", loudnorm(Path(d["mix"]), float(cfg.get("loudness_lufs", -14.0))), "-ar", "48000",
+             "-af", loudnorm(Path(d["mix"]), float(cfg.get("loudness_lufs", -14.0))), "-ar", "48000", "-ac", "2",
              "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", str(video)], work)
         d.update(video=video, end_line=end_line, titles=titles)
         moves: dict[str, int] = {}
@@ -280,6 +356,49 @@ class EditAgent:
                 air[a] = air.get(a, 0) + 1
         return {"segments": len(segs), "size": f"{size[0]}x{size[1]}", "motion": motion, "moves": moves,
                 "atmosphere": air, "seconds": round(probe(video), 1)}
+
+
+def host_loop(cfg: dict[str, Any]) -> Path | None:
+    """The host's looping clip (`host_loop`), once it has been made and kept in the repository."""
+    name = str(cfg.get("host_loop") or "")
+    if not name:
+        return None
+    path = Path(name) if Path(name).is_absolute() else Path(__file__).resolve().parents[2] / name
+    return path if path.is_file() else None
+
+
+TITLE_LAYOUTS = (("center", False, "frame"), ("lower", True, "key"), ("upper", True, "frame"),
+                 ("lower", False, "key"))
+
+
+def title_layout(story: dict[str, Any], cfg: dict[str, Any]) -> tuple[str, bool, str]:
+    """(where the words sit, left-aligned, the background: the style frame or the key picture), chosen
+    by the story so the same episode always gets the same card."""
+    if not cfg.get("title_variety", True):
+        return TITLE_LAYOUTS[0]
+    from ..paid import digest
+
+    return TITLE_LAYOUTS[int(digest(story.get("id"), story.get("title")), 16) % len(TITLE_LAYOUTS)]
+
+
+def build_scares(segs: list[Segment], story: list[Segment], beats: list[Shot], dim: float,
+                 moving: bool = True) -> list[Segment]:
+    """Each built scare (a beat with a `reveal`) becomes two shots: its picture held nearly dark while
+    the line begins, then a hard cut to the full picture at the reveal, with a jolt of the camera."""
+    split = {id(seg): beat for seg, beat in zip(story, beats) if getattr(beat, "reveal", 0) > 0 and seg.clip is None}
+    out: list[Segment] = []
+    for seg in segs:
+        beat = split.get(id(seg))
+        if beat is not None:
+            cut = seg.start + beat.reveal
+            if cut - seg.start >= 0.8 and seg.end - cut >= 1.0:
+                out.append(Segment(seg.name.replace(".mp4", "_build.mp4"), seg.start, cut, seg.picture,
+                                   camera="push_in" if moving else "none", atmosphere=seg.atmosphere,
+                                   fade_in=seg.fade_in, tension=seg.tension, dim=dim))
+                seg.start, seg.fade_in = cut, 0.0
+                seg.camera = "jolt" if moving else "none"
+        out.append(seg)
+    return out
 
 
 THUMB_ANGLES = (
@@ -366,10 +485,18 @@ class PackagerAgent:
             "synthetic_media": bool((d.get("look") or {}).get("synthetic_media", False)
                                     if cfg.get("synthetic_media") is None else cfg.get("synthetic_media")),
         }
+        languages = [str(x) for x in (cfg.get("languages") or [])]
+        translated: dict[str, Any] = {}
+        if languages and board.studio is not None:  # titles, descriptions and captions in other languages
+            from .translate import localize
+            translated = localize(board.studio, metadata["title"], description, d.get("cues") or [], languages,
+                                  board.out)
+            metadata.update(localizations=translated["localizations"], captions=translated["captions"])
         (board.out / "metadata.json").write_text(json.dumps(metadata, indent=2, ensure_ascii=False))
         (board.out / "beats.json").write_text(shotlist.save(beats))
         return {"thumbnails": len(thumbs), "chapters": len(chapters),
-                "thumbnail_checks": self.checks}
+                "thumbnail_checks": self.checks, "languages": sorted(translated.get("localizations", {})),
+                "caption_languages": sorted(translated.get("captions", {}))}
 
 
 def streams(path: Path) -> list[str]:
@@ -424,13 +551,30 @@ class QAAgent:
         for k, t in sorted(final.items()):
             if not t.get("ok"):
                 issues.append(f"thumbnail {k}: {t.get('why', '')}")
-        issues += picture_check(video, seconds)
+        offset = float(d.get("offset") or 0.0)
+        meant = [(b.t0 + offset, b.t0 + b.reveal + offset) for b in d["beats"] if getattr(b, "reveal", 0)]
+        issues += picture_check(video, seconds, meant)
         lufs, peak = loudness(video)
         target = float(board.cfg.get("loudness_lufs", -14.0))
         if lufs is not None and abs(lufs - target) > 2.0:
             issues.append(f"loudness {lufs:.1f} LUFS (target {target:.0f})")
         if peak is not None and peak > -0.5:
             issues.append(f"true peak {peak:.1f} dBTP: may clip on some players")
+        fell = int(getattr(getattr(board.studio, "fal", None), "fell_back", 0) or 0)
+        if fell > int(board.cfg.get("max_fallbacks", 5)):
+            issues.append(f"{fell} pictures or checks went to fal because Vertex failed (at fal's price)")
+        screen = board.reports.get("screening", {})
+        for note in [n for n in screen.get("notes", []) if n.get("severity") == 3][:3]:
+            where = f" (beat {note['beat']})" if note.get("beat") is not None else ""
+            issues.append(f"screening at {note.get('at')}{where}: {note['note'][:120]}")
+        if screen.get("redo_hint"):
+            issues.append(f"screening: to repaint those pictures, run again with resume=<this run> "
+                          f"redo={screen['redo_hint']}")
+        pre = board.reports.get("preflight", {})
+        if pre.get("warning"):
+            issues.append(f"preflight: {pre['warning']}")
+        if str(pre.get("checker", "")).startswith("failed"):
+            issues.append("the checker did not answer before the run: pictures may have been used unchecked")
         for name in ("metadata.json", "captions.srt", "thumbnail_1.jpg", "contact_sheet.jpg"):
             if not (out / name).exists():
                 issues.append(f"missing {name}")
@@ -438,17 +582,21 @@ class QAAgent:
             if isinstance(report, dict) and report.get("error"):
                 issues.append(f"{name} failed: {report['error'][:120]}")
         return {"status": "pass" if not issues else "check", "issues": issues, "video_seconds": round(seconds, 1),
-                "loudness_lufs": lufs, "true_peak_dbtp": peak}
+                "loudness_lufs": lufs, "true_peak_dbtp": peak, "vertex_fallbacks": fell}
 
 
-def picture_check(video: Path, seconds: float) -> list[str]:
+def picture_check(video: Path, seconds: float, meant: list[tuple[float, float]] | None = None) -> list[str]:
     """The finished picture, watched by FFmpeg: no stretch of black (a missing or failed picture
-    shows as one; scene dips and fades are well under the limit), and the right colour labels."""
+    shows as one; scene dips and fades are well under the limit; `meant` are the dark build-ups of
+    the scares, dark on purpose), and the right colour labels."""
     issues = []
     result = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", str(video), "-map", "0:v:0", "-vf",
                              "scale=480:-2,blackdetect=d=1.5:pic_th=0.98:pix_th=0.06", "-an", "-f", "null", "-"],
                             capture_output=True, text=True)
     for start, length in re.findall(r"black_start:([\d.]+).*?black_duration:([\d.]+)", result.stderr):
+        a, b = float(start), float(start) + float(length)
+        if any(x - 0.5 <= a and b <= y + 0.5 for x, y in meant or []):
+            continue  # a scare's build-up, dark on purpose
         if float(start) + float(length) < seconds - 0.5:  # the fade to black at the very end is meant
             issues.append(f"{float(length):.1f} s of black picture at {shotlist.stamp(float(start))}")
     tags = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",

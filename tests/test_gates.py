@@ -142,9 +142,11 @@ class ArtReview(unittest.TestCase):
                 return picture(Path(tmp) / f"fixed{beat.index}.png")
             b = board(tmp, beats=beats, pictures=pics, repaint=repaint,
                       cast=[{"name": "Tomas", "design": "grey stubble, navy jacket"}])
-            b.studio = studio([{"score": 5, "fix": [{"picture": 2, "problem": "Tomas has a beard here"},
-                                                    {"picture": 3, "problem": "no bus in it"},
-                                                    {"picture": 1, "problem": "too bright"}]}])
+            # pictures are named by their beat number, the "#N" label on the sheet (not their place in it)
+            b.studio = studio([{"score": 5, "fix": [{"picture": 1, "problem": "Tomas has a beard here"},
+                                                    {"picture": 2, "problem": "no bus in it"},
+                                                    {"picture": 0, "problem": "too bright"},
+                                                    {"picture": 7, "problem": "not a picture of this video"}]}])
             report = checks.ArtReviewAgent().run(b)
             self.assertEqual(asked, [(1, "Tomas has a beard here"), (2, "no bus in it")])  # at most 2
             self.assertEqual(b.data["pictures"][1].name, "fixed1.png")

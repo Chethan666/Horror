@@ -10,31 +10,37 @@ November 2026; they are in the git history.)
 
 A team of agents, each with one job, works on a shared board (`production/stills/`). The
 showrunner runs them in order, times them, and keeps each one's report in `report.json`. An
-agent that is not critical (art references, sound, packaging, QA) falls back instead of
-stopping the video.
+agent that is not critical falls back instead of stopping the video. Every planner answer and
+every checker verdict is kept with the paid results (`production/replay.py`), so a rerun makes
+the same decisions and pays for nothing twice (see "Resuming and redoing" below).
 
 Every step that can go wrong has a **check gate** right after it, and a gate fixes what it
 can before the next agent builds on it (✓ = checks; ↻ = fixes itself):
 
-| # | Agent | Job | Gate after it | Paid (with `FAL_KEY`) | Free fallback |
-|---|---|---|---|---|---|
-| 0 | Script check | Every scene and pause is in the narration, quotes are closed, the length suits `target_seconds` | ✓ stops only a script that cannot be timed; the rest is reported | | |
-| 1 | Casting | Who speaks: the host, the teller, each character; picks the voices | ✓ a speaker name must look like a name | the planner model (Bedrock) | words around each quote |
-| 2 | Voice | The performance director gives each sentence its delivery; the narrator reads each paragraph in one flowing take, a little quicker than recorded | ✓↻ the **listener** (Whisper, free) transcribes every take: a take that skipped or invented words is read again; good takes are cut at exact word times | ElevenLabs v3 on fal (+ the planner model) | Kokoro |
-| 3 | Storyboard | Cuts the timeline into beats (`beat_min_seconds`-`beat_max_seconds`) and stages each as one picture | ✓↻ each staged picture is matched to the line it quotes (never by its number alone); skipped beats are asked for again; then the **storyboard check** holds every picture description against its own line and the cast's fixed looks and rewrites the ones that don't match, before any picture is paid for | the planner model | the scene plan |
-| 4 | Art director | One house look; a design per character and per place the story returns to; a style frame (the main place), character sheets and location sheets | ✓↻ the **reference check**: the style frame and every sheet are held against their design by a vision model before any picture is painted from them; one that fails is painted once more, told what was wrong | Nano Banana 2.1 (+ the planner model) | Cloudflare FLUX, Pollinations |
-| 5 | Illustrator + critic | One picture per beat, painted at 2K from its place's sheet and its people's sheets; the scare shots by the strongest painter | ✓↻ each picture checked in code and by a vision model against its description and the narrated words; a refused picture goes to the next painter, which is told what was wrong; a refused paid picture is never replaced by a free painter's | Nano Banana 2.1 edit at 2K | Cloudflare FLUX, Pollinations, a neighbour's picture |
-| 6 | Art review | All the pictures side by side with the narration: the same person and the same place look the same, the order tells the story, the scare lands | ✓↻ the worst `art_review_fixes` (2) are redrawn with its note (the critic checks the redraw) | vision model, ~$0.002 | |
-| 7 | Colorist | Measures every picture against the film's median brightness, contrast and colour cast | ✓↻ a picture outside the tolerance (one that would jump at the cut) is brought most of the way back; the rest are not touched | | |
-| 7b | Animation (off until a video model is set) | Chosen beats become clips made from their finished pictures | ✓ each clip checked in code (moves, not blank or bright) and by the vision model; a failed clip leaves its beat a still | an image-to-video model on fal | the still |
-| 8 | Edit plan | Cold open, title card, the story, end screen; captions | | | |
-| 9 | Sound | The sound director picks music, room tone, effects and stingers from the channel's sound library (or has them made, if `sound_library.generate_missing`) | ✓↻ the **mix check**: under speech the voice must stand `voice_over_bed_db` (12 dB) above everything else, or the bed is lowered | library (free) | synthesized drone and cues |
-| 10 | Edit | Every still becomes a shot at 1440p: a slow, steady camera move suited to its framing, rain, fog or a failing light where the storyboard saw them, fine film grain, a vignette, HD colours; exactly its frames, a dip to black between scenes, -14 LUFS | | | |
-| 11 | Packager | Thumbnails, chapters, metadata, contact sheet, 60 s preview | ✓↻ each thumbnail's words are read back by a vision model; misspelled or unreadable ones are repainted once | Nano Banana 2.1 edit | the key picture with lettering |
-| 12 | QA | Length, streams, files, fallbacks, a stretch of black picture, the colour label, loudness and true peak, and every gate's findings in one list | ✓ `pass`, or `check` with the reasons | | |
+| # | Agent | Job | Gate after it | Paid by |
+|---|---|---|---|---|
+| 0 | Preflight | Before anything is bought: the paid narrator reads one test line, the checker answers one word, the episode's cost is estimated against the cap | ✓ an empty fal balance stops the run (`require_paid_voice`); a cap the episode cannot fit is reported | fal (a fraction of a cent) |
+| 1 | Script check | Every scene and pause is in the narration, quotes are closed, the length suits `target_seconds` | ✓ stops only a script that cannot be timed | |
+| 2 | Casting | Who speaks: the host, the teller, each character; picks the voices | ✓ a speaker name must look like a name | the planner (Bedrock) |
+| 3 | Voice | The performance director tags each sentence; paragraphs are read in one take; scenes of dread are read slower, with longer silences | ✓↻ the listener (Whisper) has a take that skipped or invented words read again | ElevenLabs v3 on fal; the host's own voice on ElevenLabs when set |
+| 4 | Storyboard | Beats cut to the rhythm of each scene (calm scenes hold longer, terror cuts fast); each staged as one picture with a tension (1-5) and how much of the threat it shows (0-4) | ✓↻ the storyboard check; scares rationed (`scares_per_minute`, `max_scares`); the reveal ladder caps the threat before the climax | the planner |
+| 5 | Continuity | What the story changes (a light off, a wound, a door left open) and until when | facts reach every later picture's prompt and check | the planner |
+| 6 | Art director | One house look; designs per person and place; style frame, character and location sheets, face portraits | ✓↻ the reference check | Nano Banana 2.1 on Vertex |
+| 7 | Cinematographer | Looks at each location sheet as painted and restages the pictures that do not fit the set | rewrites only what does not fit | the stronger checker on Vertex |
+| 8 | Illustrator + critic | One picture per beat from the sheets; scares and key beats painted as two takes, the better kept | ✓↻ each picture checked in code and by the checker (faces against portraits, the threat no clearer than its level, continuity) | Nano Banana 2.1 + Gemini on Vertex |
+| 9 | Art review | The pictures scene by scene (12 a sheet) and person by person beside their portrait | ✓↻ the worst are redrawn with its note (4% of the beats, at least 2) | the stronger checker |
+| 10 | Colorist | Pictures outside the film's brightness, contrast or colour cast brought back | ✓↻ | |
+| 11 | Animation (off) | Chosen beats become clips (Veo on Vertex) | ✓ each clip checked; a failed clip leaves a still | Veo on Vertex |
+| 12 | Depth (off) | Wide and medium pictures split into a near and a far layer that move apart | no clear foreground: no parallax | free (an open model on the CPU) |
+| 13 | Edit plan | Cold open, a 2 s title, the story, end screen; each scare's dark build-up; captions; where each beat sits | | |
+| 14 | Sound | Stereo: voice centred, music and room tone wide, effects placed; an original score (Lyria) per episode; the channel's theme under the ritual line | ✓↻ the mix check: the voice 12 dB above the rest | Lyria on Vertex, effects on fal |
+| 15 | Edit | Every shot at 1440p: a move as fast as its tension, scares cut from dark to the reveal with a jolt, parallax and the host's loop where present, film finish, -14 LUFS stereo | | |
+| 16 | Screening | The finished cut watched with its sound: where viewers would get bored or confused, which scares land, notes pinned to beats | reports, never changes the video | the stronger checker on Vertex (~$0.40 for 10 min) |
+| 17 | Packager | Thumbnails, chapters, metadata, contact sheet, 60 s preview; the title, description and captions translated | ✓↻ thumbnail lettering read back | Nano Banana 2.1, Gemini on Vertex |
+| 18 | QA | Length, streams, loudness, black stretches, fallbacks to fal, the screening's serious notes, every gate's findings | ✓ `pass`, or `check` with the reasons | |
 
-By default only pictures and the narrator's voice are paid for: music and sounds come from the
-library (`sound_library.generate_missing` false). A 60-second test: workflow mode `video-test`
+Pictures, checks, the score and the screening are paid from the Google Cloud credits (Vertex AI);
+the narration and missing sound effects from fal. A 60-second test: workflow mode `video-test`
 with overrides `script=one_minute.json`.
 
 **Voices.** The Storyteller (host) reads the intro and outro in the third person, always in the
@@ -131,12 +137,17 @@ spent correcting what nobody would see. The next painter is told what was refuse
 leads its prompt), so a redraw is a correction. If every try is refused, the first picture
 whose fault was only a detail is kept, so the strongest painter's picture is not lost to a
 correction that broke something worse (run 96: a split screen); it is counted as doubted, and
-QA flags a doubted scare. The free painters
-take no references, so they paint only when no paid picture could be made (no key, or over
-the cap): Cloudflare Workers AI's FLUX.1 schnell (secrets `CF_ACCOUNT_ID` and `CF_API_TOKEN`;
-10,000 free neurons a day, roughly 170 pictures; square output, cropped to 16:9) and
-Pollinations (keyless, slow, no guarantee). References are sent to the models as JPEGs of at
-most 2048 px, a tenth of the upload of the full-size pictures.
+QA flags a doubted scare. There are no free painters any more (Cloudflare's FLUX schnell and
+Pollinations were removed in November 2026): they took no references, so their pictures broke
+the continuity everything else protects; a beat no paid painter could paint borrows its
+neighbour's picture. References are sent to the models as JPEGs of at most 2048 px, a tenth
+of the upload of the full-size pictures.
+
+**Two takes for the pictures that matter** (`candidates`). The scares and key beats (about a
+quarter of the beats) are painted twice at once; the checker passes or refuses each, and the
+stronger checker (`vision_pro`: Gemini Pro on Vertex) keeps the better of the takes that pass. A
+side-by-side choice judges quality, not only faults. If neither passes, the usual correction
+follows, told why.
 
 **Sharpness and frame size.** The video is 1440p (`video_size`, 2560x1440): YouTube gives
 1440p uploads its better codecs (VP9, AV1) even for viewers watching at 1080p, and dark,
@@ -212,20 +223,21 @@ private: the release is then private too, and runs read it with the workflow's o
 library show` lists what the library holds. Settings: `stills.sound_library` (turn it off,
 use a local folder, never generate, how close an effect must match).
 
-**Cost.** About $4-6 for an 8.5-minute story with `FAL_KEY` (about 50-70 beats at $0.04-0.08,
-references $0.5, voices about $1, checks a few cents, and music and effects about $0-0.5 from the
-sound library; generating all of it instead costs about $7-8 more, mostly music), capped by
-`stills.max_usd` (default $10). Free without any key, at lower quality.
+**Cost.** About $12 for a 10-minute episode: about $10.50 of pictures and checks, under $1 of
+score and about $0.40 of screening from the Google credits, and about $1 of narration on fal.
+Turning on the moving shots (Veo) adds about $5-12. Capped by `stills.max_usd` (default $10:
+raise it to about 15 for full episodes; the preflight agent says when an episode will not fit).
 
 **Outputs:** `video.mp4` (1440p), `thumbnail_1-3.jpg`, `captions.srt`,
 `metadata.json`, `beats.json`, `contact_sheet.jpg`, `preview_60s.mp4`, `narration.wav`,
 `report.json` (every agent's report, the spend by step, and QA's verdict). Review, approve and
 publish work exactly as below.
 
-**Keys for a first test** (GitHub, Settings, Secrets and variables, Actions): `FAL_KEY` (fal.ai:
-pictures, voices, music, the critic), `AWS_BEARER_TOKEN_BEDROCK` (already set: the planner),
-and optionally `CF_ACCOUNT_ID` + `CF_API_TOKEN` for the free picture fallback. Run
-`mode = video-check` first (lists what every model expects, no spend), then `mode = video`.
+**Keys** (GitHub, Settings, Secrets and variables, Actions): `GEMINI_PLATFORM_API_KEY` (Google
+Cloud: pictures, checks, score, screening), `FAL_KEY` (fal.ai: narration and effects),
+`AWS_BEARER_TOKEN_BEDROCK` (the planner), optionally `ELEVENLABS_API_KEY` (the host's own voice).
+Run `mode = video-check` first (lists what every model expects and paints one small test picture,
+about $0.03), then `mode = video`.
 
 Every video run also pushes small review images (the contact sheet, thumbnails, a frame every
 20 s, four full-size frames, the reports) to the `review-media` branch under `run-<number>/`,
@@ -264,6 +276,82 @@ contact sheet marks clips.
 vignette, halation (`looks.cinematic.halation`: the warm glow film gives around bright lights),
 a night grade, HD colours at 1440p, and optional cinema bars (`stills.letterbox = 2.39` frames
 every shot as anamorphic widescreen; the pictures are then composed for the middle band).
+
+## The November 2026 review: what changed and how to use it
+
+**Resuming and redoing** (`production/replay.py`). Every planner answer and checker verdict is
+kept beside the paid pictures and voices, in `MEDIA_CACHE_DIR`; the workflow keeps that folder as
+the artifact `media-cache-<run number>` for 3 days (pictures as JPEGs, a tenth of the size). A
+failed run is picked up with overrides `resume=<its run number>`: it makes the same decisions, so
+every picture it already bought comes from the cache. After watching a video, overrides
+`resume=<that run> redo=12,31:no_text_on_the_wall` repaints only beats 12 and 31 (a note after the
+colon; underscores are spaces) and makes the video again; the screening suggests a `redo=` list.
+
+**The opening.** The video opens on the story's scariest moment (the cold open), then a 2-second
+title card that changes from episode to episode (`title_variety`: where the words sit, and the
+style frame or the key picture behind them), then the host's short ritual and the story. New
+stories' intros are 10-25 words with no second flash-forward (the story factory's prompts).
+
+**Tension, rhythm and scares.** The storyboard gives every beat a tension (1-5) that the cut, the
+camera's speed, the music's level, the effects and the reading pace all follow; calm scenes hold
+their pictures longer and terrifying ones cut faster (`rhythm`). Scares are rationed
+(`scares_per_minute` 0.35, `max_scares` 3) and built: the picture held nearly dark while the line
+begins (`scare_build_dim`), then a hard cut to the reveal with a jolt of the camera and the
+stinger, then a slow pull back. The reveal ladder caps how much of the threat a picture shows (a
+shape in the dark before halfway to the climax, partly seen until it, fully seen at most once,
+`max_full_reveals`), and the checker refuses a threat shown more clearly than its level.
+
+**Continuity and staging.** The continuity agent lists once what the story changes (a light off,
+a wound, a door left open) and until when; those facts go into every later picture's prompt and
+check. The cinematographer looks at each location sheet as painted and rewrites the descriptions
+that do not fit the set, before any picture is paid for.
+
+**Sound.** The mix is stereo: the voice in the centre, music and room tone wide, each effect
+placed (a whisper close to one ear, footsteps crossing from side to side, what the words place on
+a side there), stingers wide. With `sound_library.music_source = "original"` (the default) and
+Lyria on Vertex, every cue of the score is made for the episode in two 30-second pieces,
+crossfaded, with the story's sound motif in its prompt; the library's track plays only if that
+fails, and the pieces join the library afterwards. Scenes of dread are read about 5% slower with
+longer silences. The channel's theme plays under "The lantern is lit." once
+`production/assets/theme/lantern.wav` exists: make candidates with overrides `theme=make`
+(about $0.20), listen, and commit the one you like.
+
+**The host.** For a voice no other channel has, make one in ElevenLabs (Voice Design, or a
+licensed voice actor's clone), add the secret `ELEVENLABS_API_KEY`, and set
+`stills.host_voice.elevenlabs_id` to its ID: only the host's lines then go to ElevenLabs' own
+API. His looping clip (overrides `host=loop`: Veo, from his fixed portrait, ending on the same
+frame so it loops without a seam; a few dollars once) plays under every intro and outro once it
+is committed as `production/assets/host/loop.mp4`.
+
+**Moving shots and depth.** The animation stage now uses Veo on Vertex (`models.clip`, 4-8 s
+clips, paid from the credits): set `stills.animation.enabled = true` (scares only by default).
+Depth parallax (`parallax.enabled`, free) splits wide and medium pictures into a near and a far
+layer with an open depth model on the runner's CPU, so the camera seems to move through the
+scene; turn it on, watch one episode, then keep it.
+
+**The screening.** After the edit, Gemini on Vertex watches a small copy of the finished cut with
+its sound and reports like a test audience: where it drags, a picture that fights its line, a
+face without the fear in its words, scares that do not land, where a viewer would leave. Each
+note names its beat; QA lists the serious ones and the `redo=` that would fix them.
+
+**Other languages** (`languages`: Spanish, Portuguese, Hindi, Indonesian, French, German). The
+title, description and captions are translated by the checker model and uploaded with the
+video: viewers see the title in their own language and can pick captions in it.
+
+**Compilations.** Mode `video-compile` with story_id `12,15,18` (and the title in overrides) joins
+finished episodes into one long video: each cut where its end screen begins, a short card naming
+the next story between them, chapters and every music credit in the description. The episodes'
+artifacts are kept 14 days.
+
+**Where viewers leave.** The stats mode now also reads each video's retention curve and lays it
+over the beats on screen: the share still watching at 0:30 and the steepest drops, with the
+line that was being said, become lessons the story factory's writers see with every pitch. The
+workflow runs the stats every day (from the default branch) once the channel is connected.
+
+**Smaller things.** The art review looks scene by scene and person by person; QA reports how
+many pictures went to fal because Vertex failed; unit tests and model pings no longer run in
+video modes (about 7 minutes saved per video); the review-media branch keeps only the last 15
+runs; an approval can carry a note (`video-approve` with the note in overrides).
 
 ## Cost and quality
 
@@ -348,14 +436,14 @@ want anyway.
 
 | Job | Service | Key (GitHub secret) | Cost |
 |---|---|---|---|
-| Every picture (Nano Banana 2.1) and the picture checks (Gemini) | Google Cloud **Vertex AI** | `GEMINI_PLATFORM_API_KEY` (a Google Cloud API key), or `GCP_SERVICE_ACCOUNT_JSON` | about $0.05 a 2K picture; free while Google Cloud credits last |
-| Narration (ElevenLabs v3) and missing sound effects (ElevenLabs Sound Effects) | **fal.ai** | `FAL_KEY` | about $0.10 per 1,000 characters (~$0.90 an episode); effects a few cents |
-| Music | the channel's sound library | none | free (`sound_library.generate_kinds` is `["sfx"]`: music is never generated) |
-| If Vertex fails (not a refused picture) | the same request to Nano Banana 2.1 on fal | `FAL_KEY` | $0.08 a picture, only then |
+| Every picture (Nano Banana 2.1), the checks (Gemini Flash; Gemini Pro for choices, the art review and staging) | Google Cloud **Vertex AI** | `GEMINI_PLATFORM_API_KEY` (a Google Cloud API key), or `GCP_SERVICE_ACCOUNT_JSON` | about $0.055 a 2K picture; free while the credits last |
+| The original score (Lyria), the screening (Gemini Pro watching the cut), moving shots when switched on (Veo) | Google Cloud **Vertex AI** | the same | about $0.06 a 30 s piece; about $0.40 a 10-minute screening; Veo by the second (check the console) |
+| Narration (ElevenLabs v3) and missing sound effects | **fal.ai** | `FAL_KEY` | about $0.10 per 1,000 characters (~$0.90 an episode); effects a few cents |
+| The host's own voice (optional) | **ElevenLabs** | `ELEVENLABS_API_KEY` | the plan's characters |
+| If Vertex fails (not a refused picture) | the same request to fal | `FAL_KEY` | $0.08 a picture, only then (QA counts them) |
 
-Without either key every picture is painted on fal as before. ElevenLabs is used
-through fal rather than its own API: pay as you go at about half the per-character price of
-ElevenLabs' monthly plans at this channel's volume.
+ElevenLabs' stock voices are used through fal rather than its own API: pay as you go at about
+half the per-character price of ElevenLabs' monthly plans at this channel's volume.
 
 ### Setting up Google Cloud (Vertex AI)
 

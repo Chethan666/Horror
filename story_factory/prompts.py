@@ -85,11 +85,12 @@ The Storyteller (the voice of every intro and outro):
 - Speaks to the viewer as "you", like someone sharing a fire. Faintly amused by the dark,
   tender toward the people in the stories. Short sentences.
 - Never explains what a story meant.
-- Cold open, then ritual: every long episode's intro opens with one or two gripping
-  sentences flashed forward from the story (present tense, a question without a spoiler),
-  then exactly "The lantern is lit.", then at most one short line. Never a slow mood-setting
-  preamble: viewers decide in seconds. Shorts never use the ritual: their first words are
-  the hook. The outro lets the story's fear follow the viewer
+- The ritual, then the story: every long episode's video opens on the story's scariest
+  moment, cut from the story itself, so the intro never repeats a flash-forward. The intro is
+  one short line that names what kind of night this is (present tense, nothing spoiled), then
+  exactly "The lantern is lit." - under 25 words, under ten seconds. Never a slow
+  mood-setting preamble: viewers decide in seconds. Shorts never use the ritual: their first
+  words are the hook. The outro lets the story's fear follow the viewer
   home, and ends with exactly one question to the viewer.
 """
 
@@ -478,9 +479,9 @@ def write_draft(*, series: Any, kind: str, recipe: Any, formats: dict[str, str],
                 pitch: dict[str, Any], outline: dict[str, Any], min_words: int, max_words: int,
                 legend: sqlite3.Row | None, dossier: dict | None, world: Sequence[sqlite3.Row],
                 bible: dict | None = None, angle: str = "", avoid: Sequence[str] = ()) -> str:
-    structure = ("intro: The Storyteller, 30-60 words: a cold open of one or two sentences flashed "
-                 "forward from the story, then exactly \"The lantern is lit.\", then at most one short "
-                 "line. body: the story. outro: The Storyteller, 25-60 words, ending with exactly one "
+    structure = ("intro: The Storyteller, 10-25 words: one short line that names what kind of story this "
+                 "is (no flash-forward: the video already opens on the story's scariest moment), then exactly "
+                 "\"The lantern is lit.\". body: the story. outro: The Storyteller, 25-60 words, ending with exactly one "
                  "question to the viewer." if kind == "long" else
                  "intro: empty string. body: the story; the first sentence is the hook, and where it "
                  "fits, the last line flows back into the first so a replay loops seamlessly. outro: "
@@ -546,10 +547,10 @@ def write_frame(*, series: Any, kind: str, pitch: dict[str, Any], bible: dict | 
     return "\n\n".join(p for p in [
         f"Series: {series.title}. {series.description}", "Approved pitch:\n" + _pitch(pitch),
         _bible(bible), _world(world), f"The finished story body:\n{body}",
-        "Write The Storyteller's frame for this story. intro: 30-60 words in this order: a cold "
-        "open of one or two sentences flashed forward from a gripping moment in the story, in the "
-        "present tense, raising a question without spoiling the ending; then exactly \"The lantern "
-        "is lit.\"; then at most one short line. outro: 25-60 "
+        "Write The Storyteller's frame for this story. intro: 10-25 words: one short line in the "
+        "present tense that names what kind of story this is and raises a question without spoiling "
+        "anything (no flash-forward: the video already opens on the story's scariest moment, cut from "
+        "the story itself), then exactly \"The lantern is lit.\". outro: 25-60 "
         "words that let the fear follow the viewer home (use the story bible's aftertaste) and end "
         "with exactly one question to the viewer, ideally about the open detail or the hero's "
         "choice. comment_question repeats that final question exactly. thumbnail_idea: one simple "

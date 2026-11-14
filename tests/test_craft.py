@@ -145,7 +145,7 @@ class StructureTests(unittest.TestCase):
         self.assertEqual(len(brain.tasks("write_frame")), writers)
         self.assertEqual(brain.tasks("write_draft"), [])
         intro = db.get_story(ctx.conn, outcome.story_id)["intro"]
-        self.assertTrue(intro.startswith("The phone rings"))  # cold open first
+        self.assertTrue(intro.startswith("The phone rings"))  # the writer's own line comes first
         self.assertIn(pipeline.RITUAL_OPENING, intro)
 
     def test_later_parts_see_the_story_so_far(self):

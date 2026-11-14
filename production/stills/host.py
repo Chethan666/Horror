@@ -90,3 +90,36 @@ def make(cfg: dict[str, Any], fal: Any, out: Path, candidates: int = 2, max_usd:
     import shutil
     shutil.rmtree(work, ignore_errors=True)
     return report
+
+
+LOOP_PROMPT = ("The man sits completely still by his lantern in the dark, as in the picture. Only the red flame "
+               "flickers and breathes, its light trembling on his coat and hat; he breathes slowly, once; dust "
+               "drifts in the lantern light. The camera does not move. The clip ends exactly as it began.")
+
+
+def make_loop(stills: dict[str, Any], client: Any, out: Path, candidates: int = 2,
+              model: str = "vertex:veo-3.1-fast-generate-001") -> dict[str, Any]:
+    """Candidates for the host's looping clip: Veo, from his fixed portrait, ending on the same picture so
+    the clip loops without a seam. About 8 s each (priced by the second; a few dollars once). Keep the one
+    you like as `stills.host_loop`."""
+    from .art import host_references
+
+    refs = host_references(stills)
+    if refs is None:
+        return {"candidates": [], "failed": ["the host's fixed references are not in the repository yet"]}
+    start = _jpeg_uri(refs[1])
+    out.mkdir(parents=True, exist_ok=True)
+    made, failed = [], []
+    for k in range(candidates):
+        try:
+            got = client.run(model, {"prompt": LOOP_PROMPT + (" " * k), "image_url": start, "last_frame_url": start,
+                                     "duration": "8", "aspect_ratio": "16:9"})
+            data = base64.b64decode(str(got["video"]["url"]).split(",", 1)[1])
+        except (MediaError, KeyError, IndexError, ValueError) as exc:
+            failed.append(str(exc)[:300])
+            continue
+        path = out / f"loop_{k + 1}.mp4"
+        path.write_bytes(data)
+        made.append(path.name)
+    return {"candidates": made, "failed": failed,
+            "keep": f"watch them, then commit the one you like as {stills.get('host_loop', 'production/assets/host/loop.mp4')}"}

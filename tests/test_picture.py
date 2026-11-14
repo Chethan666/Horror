@@ -397,7 +397,7 @@ class PainterRules(unittest.TestCase):
         p, asked = self.painter([(False, "she is leaning, the line says standing"), (True, "fine")],
                                 ("fal:shot", "fal:shot_alt"))
         out, step = p.paint("She stands behind him.", [], self.root / "beat.png", "k",
-                            ["fal:shot", "fal:shot_alt", "pollinations"], check="standing")
+                            ["fal:shot", "fal:shot_alt"], check="standing")
         self.assertEqual(step, "fal:shot_alt")
         self.assertEqual([s for s, _ in asked], ["fal:shot", "fal:shot_alt"])
         self.assertNotIn("Correct this", asked[0][1])
@@ -406,11 +406,11 @@ class PainterRules(unittest.TestCase):
         self.assertEqual(p.counts, {"fal:shot_alt (corrected)": 1})
         self.assertEqual(p.sizes, {"fal:shot": "640x360", "fal:shot_alt": "640x360"})
 
-    def test_a_refused_paid_picture_is_never_replaced_by_a_free_painter(self):
-        p, asked = self.painter([(False, "her face shows")], ("fal:shot", "fal:shot_alt", "pollinations"))
+    def test_a_picture_refused_only_for_details_keeps_the_strongest_painters_try(self):
+        p, asked = self.painter([(False, "her face shows")], ("fal:shot", "fal:shot_alt"))
         out, step = p.paint("She stands behind him.", [], self.root / "beat.png", "k",
-                            ["fal:shot", "fal:shot_alt", "pollinations"], check="standing")
-        self.assertEqual([s for s, _ in asked], ["fal:shot", "fal:shot_alt"])  # pollinations was not asked
+                            ["fal:shot", "fal:shot_alt"], check="standing")
+        self.assertEqual([s for s, _ in asked], ["fal:shot", "fal:shot_alt"])
         self.assertEqual(step, "fal:shot")  # both faults were details: the strongest painter's picture stays
         self.assertEqual(p.counts, {"fal:shot (doubted)": 1})
         self.assertEqual(p.doubted, {"beat"})
@@ -428,11 +428,6 @@ class PainterRules(unittest.TestCase):
         p, _ = self.painter([(False, "it shows written text"), (False, "a collage of panels")], ("fal:shot", "fal:shot_alt"))
         self.assertEqual(p.paint("x", [], self.root / "b2.png", "k2", ["fal:shot", "fal:shot_alt"], check="x")[1],
                          "fal:shot_alt")
-
-    def test_free_painters_still_paint_when_no_paid_picture_could_be_made(self):
-        p, asked = self.painter([(True, "fine")], ("pollinations",))
-        out, step = p.paint("A bus.", [], self.root / "beat.png", "k", ["fal:shot", "pollinations"], check="a bus")
-        self.assertEqual(step, "pollinations")
 
     def test_an_ordinary_beat_keeps_a_picture_refused_only_for_a_detail(self):
         from production.stills.images import MINOR

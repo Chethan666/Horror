@@ -84,10 +84,29 @@ def respell(text: str, pronunciations: list[dict[str, Any]]) -> str:
     return text
 
 
+# A scene of dread is read a little slower, with longer silences: fear needs time to settle.
+DREAD_SPEED, DREAD_PAUSE = 0.9, 1.35
+
+
+def _dread(scene: dict[str, Any]) -> bool:
+    from .shots import mood_tension
+
+    return mood_tension(str(scene.get("mood", ""))) == 4
+
+
 def speed_for(offset: int, spans: list[tuple[int, int]], scenes: list[dict[str, Any]]) -> float:
     for (start, end), scene in zip(spans, scenes):
         if start <= offset < end:
-            return DELIVERY_SPEED.get(str(scene.get("delivery", "steady")), 1.0)
+            speed = DELIVERY_SPEED.get(str(scene.get("delivery", "steady")), 1.0)
+            return speed * (DREAD_SPEED if _dread(scene) else 1.0)
+    return 1.0
+
+
+def pause_for(offset: int, spans: list[tuple[int, int]], scenes: list[dict[str, Any]]) -> float:
+    """How much longer than usual the silences are in this scene (longer in dread)."""
+    for (start, end), scene in zip(spans, scenes):
+        if start <= offset < end:
+            return DREAD_PAUSE if _dread(scene) else 1.0
     return 1.0
 
 
@@ -213,7 +232,8 @@ def narrate(voice: Voice, narration: str, pauses: list[dict[str, Any]], pronunci
             chunk.t0, chunk.t1 = t + a / rate, t + b / rate
         pieces.append(audio)
         last = group_chunks[-1]
-        gap = np.zeros(int(last.gap_ms * gap_scale / 1000 * rate), dtype=np.float32)
+        gap = np.zeros(int(last.gap_ms * gap_scale * pause_for(last.start, spans, scenes) / 1000 * rate),
+                       dtype=np.float32)
         pieces.append(gap)
         t = last.t1 + len(gap) / rate
     tail = np.zeros(int(1.5 * rate), dtype=np.float32)  # let the last line breathe

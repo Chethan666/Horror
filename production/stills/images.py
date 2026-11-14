@@ -2,22 +2,21 @@
 
 A picture is asked of each painter in the chain until one passes the critic:
 
-    fal:<role>   a paid model on fal.ai, with the place's sheet (or the style frame) and the
-                 character sheets as references (Seedream 4.5 edit for shots, Nano Banana 2
-                 as the redraw)
-    cloudflare   FLUX.1 schnell on Cloudflare Workers AI: free allowance of 10,000
-                 neurons a day (CF_ACCOUNT_ID, CF_API_TOKEN). Text only, square output
-                 (cropped to 16:9), so composition is asked to stay central
-    pollinations keyless and free, slow (one picture per ~45 s), no guarantee
+    fal:<role>   a paid model (Nano Banana 2.1 on Vertex AI, or on fal.ai), with the place's
+                 sheet (or the style frame), the portraits and the character sheets as
+                 references
+
+The free painters (Cloudflare's FLUX schnell, Pollinations) were removed in November 2026:
+they take no references, so their pictures broke the very continuity everything else
+protects. A beat no paid painter could paint borrows its neighbour's picture instead.
 
 The critic checks every picture in code (not too bright for the channel, not blank, not
 almost black) and then, when a vision model is configured, by eye: the house style, the
 right moment, no text or watermark, no panels, no broken anatomy.
 
 When the critic refuses a picture, the next painter is told what was wrong with it, so the
-second try is a correction and not a second guess. A refused paid picture is never replaced
-by a free painter's: free painters take no references, so the people and the place would
-change (run 94 tried exactly that and got an unrelated room).
+second try is a correction and not a second guess. The pictures that matter most can be
+painted as several takes at once, and the stronger checker keeps the best one that passes.
 """
 
 from __future__ import annotations
@@ -26,11 +25,9 @@ import base64
 import io
 import json
 import logging
-import os
 import re
 import threading
-import time
-import urllib.parse
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Callable
 
@@ -40,12 +37,10 @@ from PIL import Image
 from production.media import MediaError, _request, data_uri
 
 from ..look import H, W, fit
-from ..paid import OverBudget, Studio, _small, digest
+from ..paid import OverBudget, Studio, _small
 
 log = logging.getLogger(__name__)
 
-CF_URL = "https://api.cloudflare.com/client/v4/accounts/{account}/ai/run/{model}"
-POLLINATIONS = "https://image.pollinations.ai/prompt/{prompt}?width=1280&height=720&nologo=true&seed={seed}"
 
 
 def still_check(path: Path) -> tuple[bool, str]:
@@ -94,7 +89,9 @@ SERIOUS = ("panel", "split", "collage", "two different", "side by side", "text",
            "contradict", "opposite",
            # another person, or a face unlike the portrait; a calm face where the line is terror
            "different person", "another person", "different face", "not match the portrait", "calm",
-           "animated", "doll", "cgi", "render")
+           "animated", "doll", "cgi", "render",
+           # the reveal ladder: a threat shown more clearly than this moment allows
+           "too clearly", "shown fully", "fully visible", "too visible", "in full light")
 
 
 MINOR = "minor: "
@@ -203,16 +200,49 @@ class Critic:
         return bool(verdict.get("ok")), reason
 
 
+def choose(critic: "Critic", pictures: list[Path], picture: str) -> int:
+    """Which of several takes that all passed is the best frame (0-based): the stronger checker
+    ("vision_pro", else the everyday one) sees them side by side. 0 when it cannot say."""
+    studio = critic.studio
+    if studio is None or len(pictures) < 2:
+        return 0
+    role = "vision_pro" if studio.models.get("vision_pro") else "vision"
+    if not studio.models.get(role):
+        return 0
+    model = studio.models[role]
+    try:
+        usd = studio.budget.reserve(model)
+    except OverBudget:
+        return 0
+    prompt = (f"House style: {critic.style}\nThese {len(pictures)} images are takes of the same frame of a horror "
+              f"film: {picture}\n\nWhich take is the best frame? The one that shows this moment and the feeling on "
+              "the faces most clearly, with the strongest composition, the most cinematic darkness and light, the "
+              "threat kept as hidden as the description says, and nothing broken. Reply exactly as JSON: "
+              '{"best": N, "why": "short reason"} where N is 1 for the first image.')
+    try:
+        result = studio.fal.run(model, dict(studio.args.get(role) or studio.args.get("vision", {}), prompt=prompt,
+                                            system_prompt=CRITIC_SYSTEM,
+                                            image_urls=[data_uri(_small(p)) for p in pictures]))
+    except MediaError as exc:
+        studio.budget.settle(usd, "choose", model, ok=False)
+        log.warning("No side-by-side choice: %s", str(exc)[:200])
+        return 0
+    studio.budget.settle(usd, "choose", model, ok=True)
+    match = re.search(r"\{.*\}", str(result.get("output") or result), re.S)
+    try:
+        best = int(json.loads(match.group(0)).get("best")) if match else 1
+    except (ValueError, TypeError, AttributeError):
+        best = 1
+    return min(max(best, 1), len(pictures)) - 1
+
+
 class Painter:
     """Asks each painter in the chain for a picture until the critic passes one."""
 
     def __init__(self, studio: Studio | None, cfg: dict[str, Any], work: Path, critic: Critic,
                  http: Any = _request):
         self.studio, self.cfg, self.work, self.critic, self.http = studio, cfg, work, critic, http
-        self.cache = work / "free"
-        self.cache.mkdir(parents=True, exist_ok=True)
-        self.pollinations_lock = threading.Lock()
-        self.pollinations_last = 0.0
+        work.mkdir(parents=True, exist_ok=True)
         self.counts: dict[str, int] = {}
         self.sizes: dict[str, str] = {}  # the size each painter's pictures really come back at
         self.doubted: set[str] = set()  # pictures used although no check passed them
@@ -231,13 +261,7 @@ class Painter:
             self.counts[key] = self.counts.get(key, 0) + 1
 
     def available(self, step: str) -> bool:
-        if step.startswith("fal:"):
-            return self.studio is not None and step[4:] in self.studio.models
-        if step == "cloudflare":
-            return bool(os.environ.get("CF_ACCOUNT_ID") and os.environ.get("CF_API_TOKEN"))
-        if step == "pollinations":
-            return bool(self.cfg.get("pollinations", True))
-        return False
+        return step.startswith("fal:") and self.studio is not None and step[4:] in self.studio.models
 
     def reference(self, path: Path, px: int = 2048) -> str:
         """A reference picture as the models are sent it: a JPEG at most `px` wide. The
@@ -257,10 +281,60 @@ class Painter:
             self._refs[key] = uri
         return uri
 
+    def _takes(self, prompt: str, refs: list[Path], out: Path, key: Any, chain: list[str], check: str,
+               faces: list[tuple[str, Path]] | None, takes: int) -> tuple[Path | None, str, str, tuple[Path, str] | None]:
+        """The first paid painter paints `takes` versions at once; the critic passes or refuses each,
+        and the stronger checker chooses between the ones that pass. Returns (the picture, its painter,
+        the first refusal, a refused take whose fault was only a detail)."""
+        step = next((x for x in chain if x.startswith("fal:") and self.available(x)), None)
+        if step is None:
+            return None, "", "", None
+
+        def make(t: int) -> tuple[Path, bool, str] | None:
+            raw = self.work / f"raw_{out.stem}_take{t}.png"
+            try:
+                made = self._one(step, prompt, refs, raw, [key, "take", t])
+            except (OverBudget, MediaError, OSError, ValueError) as exc:
+                log.warning("%s: take %d from %s failed: %s", out.stem, t + 1, step, str(exc)[:200])
+                return None
+            if made is None:
+                return None
+            candidate = self.work / f"fit_{out.stem}_take{t}.png"
+            try:
+                with Image.open(made) as im:
+                    size = f"{im.width}x{im.height}"
+                fit(made, candidate, tuple(self.cfg.get("picture_size") or (W, H)))
+            except OSError:
+                return None
+            with self.lock:
+                self.sizes.setdefault(step, size)
+            ok, reason = still_check(candidate)
+            if ok:
+                ok, reason = self.critic.look(candidate, check, faces) if faces else self.critic.look(candidate, check)
+            return candidate, ok, reason
+
+        with ThreadPoolExecutor(max_workers=takes) as pool:
+            got = [g for g in pool.map(make, range(takes)) if g is not None]
+        passed = [g for g in got if g[1]]
+        if passed:
+            best = choose(self.critic, [g[0] for g in passed], check) if len(passed) > 1 else 0
+            passed[best][0].replace(out)
+            self._count(f"{step} (best of {len(got)})")
+            return out, step, "", None
+        mild = None
+        for candidate, _, reason in got:
+            with self.lock:
+                self.rejections.append(f"{out.stem} ({step}, take): {reason}")
+            if mild is None and not serious(reason):
+                kept = candidate.with_name(f"kept_{candidate.name}")
+                candidate.replace(kept)
+                mild = (kept, step)
+        return None, step, (got[0][2] if got else ""), mild
+
     def paint(self, prompt: str, refs: list[Path], out: Path, key: Any, chain: list[str],
               check: str | Callable[[Path], tuple[bool, str]] | None = None,
               accept_minor: bool = False, capped: bool = False, redraw: bool = False,
-              faces: list[tuple[str, Path]] | None = None) -> tuple[Path | None, str]:
+              faces: list[tuple[str, Path]] | None = None, takes: int = 1) -> tuple[Path | None, str]:
         """The first picture in the chain that passes its check. `check` is what the picture
         should show (the critic looks at it), or a check of its own for a reference sheet
         (picture -> passed, reason); None takes the first picture made.
@@ -277,6 +351,13 @@ class Painter:
         mild: tuple[Path, str] | None = None
         why = ""
         paid_picture = False
+        if takes > 1 and isinstance(check, str) and not redraw and self.studio is not None:
+            # the pictures that matter most: several takes, the best that passes (a planned cost, not a retry)
+            got, step, why, mild = self._takes(prompt, refs, out, key, chain, check, faces, takes)
+            if got is not None:
+                return got, step
+            paid_picture = bool(step) and (mild is not None or bool(why))
+            doubted = mild
         for k, step in enumerate(s for s in chain if self.available(s)):
             paid = step.startswith("fal:")
             if paid_picture and not paid:
@@ -386,31 +467,4 @@ class Painter:
             units = float((self.cfg.get("model_units") or {}).get(role, 1.0))  # e.g. a 2K picture at 1.5x the price
             return self.studio.call(role, args, "image", raw, f"picture_{role}", units=units,
                                     key=[key, role, len(refs)] + (["retry", retry] if retry else []))
-        cached = self.cache / f"{step}-{digest(prompt)}.png"
-        if cached.exists() and cached.stat().st_size:
-            return cached
-        data = self._cloudflare(prompt) if step == "cloudflare" else self._pollinations(prompt, key)
-        cached.write_bytes(data)
-        return cached
-
-    def _cloudflare(self, prompt: str) -> bytes:
-        model = self.cfg.get("cloudflare_model", "@cf/black-forest-labs/flux-1-schnell")
-        url = CF_URL.format(account=os.environ["CF_ACCOUNT_ID"], model=model)
-        text = ("Wide cinematic composition with the subject in the middle band of the frame. " + prompt)[:2000]
-        reply = self.http(url, method="POST", headers={"Authorization": f"Bearer {os.environ['CF_API_TOKEN']}"},
-                          body={"prompt": text, "steps": int(self.cfg.get("cloudflare_steps", 4))}, timeout=180)
-        image = (reply.get("result") or {}).get("image") if isinstance(reply, dict) else None
-        if not image:
-            raise MediaError(f"cloudflare: no image in {str(reply)[:200]}")
-        return base64.b64decode(image)
-
-    def _pollinations(self, prompt: str, key: Any) -> bytes:
-        with self.pollinations_lock:  # one request at a time, spaced out (the free tier's limit)
-            wait = float(self.cfg.get("pollinations_gap_seconds", 16)) - (time.time() - self.pollinations_last)
-            if wait > 0:
-                time.sleep(wait)
-            url = POLLINATIONS.format(prompt=urllib.parse.quote(prompt[:900]), seed=int(digest(key), 16) % 100000)
-            try:
-                return self.http(url, timeout=240, raw=True)
-            finally:
-                self.pollinations_last = time.time()
+        return None

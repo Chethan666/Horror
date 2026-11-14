@@ -41,6 +41,14 @@ class Shot:
     directed: bool = False
     view: str = "film"  # stills: film, or seen through a cctv, phone or polaroid camera
     atmosphere: list[str] = field(default_factory=list)  # what moves in the air: rain, fog, flicker
+    # How tense the moment is, 1 (calm) to 5 (terror): one value every agent follows (the cut, the
+    # camera's speed, the music's level, the effects, the reading pace).
+    tension: int = 2
+    # How much of the threat the picture shows: 0 none in frame, 1 heard or implied only, 2 a shape in
+    # the dark, 3 partly seen, 4 fully seen. Planned to rise toward the climax (the reveal ladder).
+    threat: int = 0
+    # A scare's reveal: seconds into the beat where the dark build-up cuts to the full picture (0: none).
+    reveal: float = 0.0
 
     @property
     def seconds(self) -> float:
@@ -51,13 +59,16 @@ class Shot:
 
 
 def cut(chunks: list[Any], scene_of: list[int], duration: float, min_s: float = 3.0,
-        max_s: float = 6.5) -> list[Shot]:
+        max_s: float = 6.5, limits: dict[int, tuple[float, float]] | None = None) -> list[Shot]:
     """Shots from timed chunks: consecutive chunks of one scene, 3-6.5 s each, the first from 0 s
-    and each running until the next begins (so the pictures cover every moment of the audio)."""
+    and each running until the next begins (so the pictures cover every moment of the audio).
+    `limits`: other lengths for some scenes ({scene: (min, max)}), so the rhythm follows the tension."""
+    limits = limits or {}
     pieces: list[tuple[int, float, float, str]] = []  # scene, start, end, text
     for chunk, scene in zip(chunks, scene_of):
         length = chunk.t1 - chunk.t0
-        parts = max(1, int(length // max_s) + (1 if length % max_s > 0.01 and length > max_s else 0))
+        max_s_here = limits.get(scene, (min_s, max_s))[1]
+        parts = max(1, int(length // max_s_here) + (1 if length % max_s_here > 0.01 and length > max_s_here else 0))
         words = chunk.text.split()
         for k in range(parts):
             a = chunk.t0 + length * k / parts
@@ -66,16 +77,18 @@ def cut(chunks: list[Any], scene_of: list[int], duration: float, min_s: float = 
             pieces.append((scene, a, b, text))
     shots: list[Shot] = []
     for scene, a, b, text in pieces:
+        lo, hi = limits.get(scene, (min_s, max_s))
         last = shots[-1] if shots else None
-        if last and last.scene == scene and (last.t1 - last.t0) < min_s and (b - last.t0) <= max_s + 0.5:
+        if last and last.scene == scene and (last.t1 - last.t0) < lo and (b - last.t0) <= hi + 0.5:
             last.t1, last.text = b, f"{last.text} {text}".strip()
         else:
             shots.append(Shot(len(shots), scene, a, b, text))
     # A short last shot in a scene joins the one before it.
     merged: list[Shot] = []
     for shot in shots:
+        lo, hi = limits.get(shot.scene, (min_s, max_s))
         prev = merged[-1] if merged else None
-        if prev and prev.scene == shot.scene and shot.seconds < min_s * 0.6 and prev.seconds + shot.seconds <= max_s + 1.5:
+        if prev and prev.scene == shot.scene and shot.seconds < lo * 0.6 and prev.seconds + shot.seconds <= hi + 1.5:
             prev.t1, prev.text = shot.t1, f"{prev.text} {shot.text}".strip()
         else:
             merged.append(shot)
@@ -115,11 +128,42 @@ def fallback(shot: Shot, scene: dict[str, Any], shots: list[Shot]) -> None:
     shot.picture = f"{scene.get('visual', '')} {('Moment: ' + shot.text) if shot.text else ''}".strip()[:600]
     shot.characters = [str(c) for c in scene.get("characters") or []][:3]
     mood = str(scene.get("mood", "")).lower()
+    shot.tension = mood_tension(mood)
     shot.sound = str((scene.get("sfx") or [""])[0]) if position == 0 else ""
     shot.importance = 4 if scene.get("key_moment") and position == 0 else 2
     shot.scare = bool(scene.get("key_moment")) and position == 0 and any(
         m in mood for m in ("terror", "shock", "horror", "panic"))
     shot.atmosphere = atmosphere_in(shot.picture)
+
+
+MOODS = ((5, ("terror", "panic", "shock", "horror", "frantic", "violent", "scream")),
+         (4, ("dread", "fear", "menac", "urgent", "ominous", "threat", "chase")),
+         (3, ("tense", "eerie", "uneas", "unsettl", "creep", "suspense", "wrong", "hush")),
+         (1, ("calm", "warm", "tender", "quiet", "peace", "normal", "ordinary")))
+
+
+def mood_tension(mood: str) -> int:
+    """A scene's tension (1-5) from the words of its mood: the fallback when the storyboard gives none."""
+    text = (mood or "").lower()
+    for level, words in MOODS:
+        if any(w in text for w in words):
+            return level
+    return 2
+
+
+def scene_limits(scenes: list[dict[str, Any]], low: float, high: float) -> dict[int, tuple[float, float]]:
+    """How long a picture may stay on screen in each scene: a calm scene lingers (slow dread needs
+    time), a terrifying one cuts quickly. The film's own limits are the middle ground."""
+    out = {}
+    for i, sc in enumerate(scenes):
+        t = mood_tension(str((sc or {}).get("mood", "")))
+        if t >= 5:
+            out[i] = (low * 0.6, high * 0.6)
+        elif t == 4:
+            out[i] = (low * 0.8, high * 0.8)
+        elif t <= 1:
+            out[i] = (low * 1.2, high * 1.2)
+    return out
 
 
 INSIDE = ("inside", "interior", "indoors", "window", "windscreen", "windshield", "through the glass", "room")

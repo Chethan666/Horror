@@ -70,18 +70,33 @@ class ScriptCheckAgent:
                 "scenes": len(scenes), "issues": issues}
 
 
-def ask_vision(studio: Any, prompt: str, image: Path, task: str, system: str, width: int = 1536) -> dict[str, Any] | None:
-    """One look by the vision model; its JSON verdict, or None when there is no model, budget or answer."""
-    if studio is None or "vision" not in studio.models or not image.exists():
+def eye(studio: Any, role: str = "vision") -> str:
+    """The checker to ask: `role` (e.g. "vision_pro", a stronger model for the judgements that matter)
+    when it is configured, else the everyday checker."""
+    if studio is None:
+        return ""
+    if role != "vision" and studio.models.get(role):
+        return role
+    return "vision" if studio.models.get("vision") else ""
+
+
+def ask_vision(studio: Any, prompt: str, image: Path | list[Path], task: str, system: str, width: int = 1536,
+               role: str = "vision") -> dict[str, Any] | None:
+    """One look by the vision model at one picture or several; its JSON verdict, or None when there is
+    no model, budget or answer. `role`: "vision_pro" for a stronger model where it is configured."""
+    role = eye(studio, role)
+    pictures = [p for p in ([image] if isinstance(image, Path) else list(image or [])) if p is not None and p.exists()]
+    if not role or not pictures:
         return None
-    model = studio.models["vision"]
+    model = studio.models[role]
     try:
         usd = studio.budget.reserve(model)
     except OverBudget:
         return None
     try:
-        result = studio.fal.run(model, dict(studio.args.get("vision", {}), prompt=prompt, system_prompt=system,
-                                            image_urls=[data_uri(_small(image, width))]))
+        result = studio.fal.run(model, dict(studio.args.get(role) or studio.args.get("vision", {}), prompt=prompt,
+                                            system_prompt=system,
+                                            image_urls=[data_uri(_small(p, width)) for p in pictures]))
     except MediaError as exc:
         studio.budget.settle(usd, task, model, ok=False)
         log.warning("%s: vision model unavailable: %s", task, str(exc)[:200])
@@ -101,70 +116,126 @@ SYSTEM = ("You are the art director of Hollow Lines, a horror storytelling chann
 
 
 class ArtReviewAgent:
-    """The pictures as a sequence: each was already checked alone; this checks them together
-    (the same person looks the same, the pictures tell the story in order, the scare lands) and
-    has the worst few redrawn with a note on what to correct. The critic checks every redraw."""
+    """The pictures as a sequence: each was already checked alone; this checks them together (the
+    same person looks the same, the pictures tell the story in order, the scare lands) and has the
+    worst few redrawn with a note on what to correct. The critic checks every redraw.
+
+    A long episode has about 90 pictures: on one contact sheet each is a few dozen pixels wide by
+    the time the model reads it. So the review looks scene by scene (at most 12 pictures a sheet)
+    and person by person (every picture of one character, beside their portrait), with the
+    stronger checker where one is configured. Each picture is named by its beat number on the
+    sheet and in the list, so a note points at the right picture."""
 
     name = "art_review"
     critical = False
 
+    @staticmethod
+    def groups(beats: list[Any], host: set[int], d: dict[str, Any], per_sheet: int = 12) -> list[tuple[str, list[Any], list[Path]]]:
+        story = [b for b in beats if b.index not in host]
+        out: list[tuple[str, list[Any], list[Path]]] = []
+        by_scene: dict[int, list[Any]] = {}
+        for b in story:
+            by_scene.setdefault(b.scene, []).append(b)
+        run: list[Any] = []
+        for scene in sorted(by_scene):  # neighbouring short scenes share a sheet
+            group = by_scene[scene]
+            if run and len(run) + len(group) > per_sheet:
+                out.append((f"scenes {run[0].scene}-{run[-1].scene}", run, []))
+                run = []
+            for k in range(0, len(group), per_sheet):
+                part = group[k:k + per_sheet]
+                if len(part) == per_sheet:
+                    out.append((f"scene {scene}", part, []))
+                else:
+                    run += part
+        if run:
+            out.append((f"scenes {run[0].scene}-{run[-1].scene}", run, []))
+        portraits: dict[str, Path] = d.get("portraits") or {}
+        for name, face in portraits.items():
+            theirs = [b for b in story if name in b.characters]
+            if len(theirs) < 3:
+                continue
+            step = max(1, -(-len(theirs) // per_sheet))
+            out.append((f"person {name}", theirs[::step][:per_sheet], [face]))
+        return out
+
     def run(self, board: Board) -> dict[str, Any]:
         d, cfg = board.data, board.cfg
         beats = d.get("beats", [])
-        fixes_allowed = int(cfg.get("art_review_fixes", 2))
-        sheet = board.work / "review_sheet.jpg"
-        package.contact_sheet(beats, d["pictures"], sheet, columns=4, thumb=(480, 270))
+        if not beats:
+            return {"reviewed": False}
         host = set(d.get("host_beats") or ())
-        lines = "\n".join(f"{k}. {'(HOST) ' if b.index in host else ''}{str(b.text)[:140]}" for k, b in enumerate(beats, 1))
+        fixes_allowed = max(int(cfg.get("art_review_fixes", 2)),
+                            round(len(beats) * float(cfg.get("art_review_share", 0.04))))
+        lines = {b.index: f"#{b.index}. {'(HOST) ' if b.index in host else ''}{str(b.text)[:140]}" for b in beats}
         cast = "; ".join(f"{c.get('name')}: {str(c.get('design', ''))[:160]}" for c in d.get("cast", [])
                          if isinstance(c, dict) and c.get("design"))
         sets = "; ".join(f"{x.get('name')}: {str(x.get('design', ''))[:200]}" for x in d.get("sets") or []
                          if isinstance(x, dict) and x.get("design"))
-        prompt = (f"Story: {board.story.get('title', '')}\nPeople: {cast or 'none named'}\n"
-                  f"Places: {sets or 'as the lines say'}\n"
-                  "The sheet shows the video's pictures in order, numbered, left to right, top to bottom. Each is "
-                  f"on screen while its line is narrated:\n{lines}\n\n"
-                  "Pictures marked (HOST) show the channel's host, The Storyteller, with his lantern in a misty "
-                  "place outside the story: that is intended. A threat the story never names may appear as a "
-                  "shadow or a shape; it is not the host. Judge each picture against its OWN line, not the lines "
-                  "after it.\n"
-                  "Judge the pictures TOGETHER: does each named person look the same in every picture (face, hair, "
-                  "age, clothes); does each place look the same in every picture set there (the same vehicle or "
-                  "building, its colours and fixtures); do the pictures follow the story in order; does a picture "
-                  "show something its line does not say, or contradict an earlier one; is anything broken (warped "
-                  "faces or hands, text, panels); is the scare picture strong; do they all look like one dark "
-                  "horror film? List only clear problems worth a redraw, worst first. Reply exactly as JSON: "
-                  '{"score": 1-10, "fix": [{"picture": N, "problem": "what is wrong and what it should show"}], '
-                  '"strongest": N}')
-        verdict = ask_vision(board.studio, prompt, sheet, "art_review", SYSTEM)
-        if verdict is None:
-            return {"reviewed": False}
-        try:
-            score: int | None = max(1, min(10, int(verdict.get("score"))))
-        except (TypeError, ValueError):
-            score = None  # no readable score: only its list of fixes counts
-        wanted = []
-        for f in verdict.get("fix", []) if isinstance(verdict.get("fix"), list) else []:
-            try:
-                k, problem = int(f.get("picture")), str(f.get("problem", "")).strip()
-            except (AttributeError, TypeError, ValueError):
+        looks = self.groups(beats, host, d)[: int(cfg.get("art_review_max_looks", 16))]
+        flagged: dict[int, str] = {}
+        scores: list[int] = []
+        strongest = None
+        reviewed = 0
+        for n, (label, group, refs) in enumerate(looks):
+            sheet = board.work / f"review_{n:02d}.jpg"
+            package.contact_sheet(group, d["pictures"], sheet, columns=4, thumb=(480, 270))
+            person = label.startswith("person ")
+            focus = (f"Every picture here shows {label[7:]}; the second image is their close portrait. Does "
+                     f"{label[7:]} look like the same person as the portrait in each picture (face, age, hair, "
+                     "clothes)? List each picture where they do not." if person else
+                     "Judge the pictures TOGETHER: does each named person look the same in every picture (face, "
+                     "hair, age, clothes); does each place look the same in every picture set there (the same "
+                     "vehicle or building, its colours and fixtures); do the pictures follow the story in order; "
+                     "does a picture show something its line does not say, or contradict an earlier one; is "
+                     "anything broken (warped faces or hands, text, panels); does a scare land; do they all look "
+                     "like one dark horror film?")
+            prompt = (f"Story: {board.story.get('title', '')}\nPeople: {cast or 'none named'}\n"
+                      f"Places: {sets or 'as the lines say'}\n"
+                      "The first image is a sheet of pictures from the video, in story order; each is labelled with "
+                      "its number (#N). Each is on screen while its line is narrated:\n"
+                      + "\n".join(lines[b.index] for b in group) + "\n\n"
+                      "A threat the story never names may appear as a shadow or a shape: that is intended. Judge "
+                      f"each picture against its OWN line. {focus} List only clear problems worth a redraw, worst "
+                      "first. Reply exactly as JSON: "
+                      '{"score": 1-10, "fix": [{"picture": N, "problem": "what is wrong and what it should show"}], '
+                      '"strongest": N}  (N is the number on the sheet)')
+            verdict = ask_vision(board.studio, prompt, [sheet, *refs], "art_review", SYSTEM, role="vision_pro")
+            if verdict is None:
                 continue
-            if 1 <= k <= len(beats) and problem and k not in [w[0] for w in wanted]:
-                wanted.append((k, problem))
+            reviewed += 1
+            try:
+                scores.append(max(1, min(10, int(verdict.get("score")))))
+            except (TypeError, ValueError):
+                pass  # no readable score: only its list of fixes counts
+            if strongest is None and not person:
+                strongest = verdict.get("strongest")
+            known = {b.index for b in group}
+            for f in verdict.get("fix", []) if isinstance(verdict.get("fix"), list) else []:
+                try:
+                    k, problem = int(f.get("picture")), str(f.get("problem", "")).strip()
+                except (AttributeError, TypeError, ValueError):
+                    continue
+                if k in known and problem and k not in flagged:
+                    flagged[k] = (f"{label}: " if person else "") + problem
+        if not reviewed:
+            return {"reviewed": False}
         redrawn = []
         repaint = d.get("repaint")
-        for k, problem in wanted[:fixes_allowed] if repaint is not None else []:
-            beat = beats[k - 1]
+        by_index = {b.index: b for b in beats}
+        for k, problem in list(flagged.items())[:fixes_allowed] if repaint is not None else []:
             try:
-                path = repaint(beat, problem)
+                path = repaint(by_index[k], problem)
             except Exception as exc:  # a failed redraw keeps the first picture
                 log.warning("Redraw of picture %d failed: %s", k, str(exc)[:200])
                 path = None
             if path is not None:
-                d["pictures"][beat.index] = path
+                d["pictures"][k] = path
                 redrawn.append({"picture": k, "problem": problem[:200]})
-        return {"reviewed": True, "score": score, "flagged": [{"picture": k, "problem": p[:200]} for k, p in wanted],
-                "redrawn": redrawn, "strongest_picture": verdict.get("strongest")}
+        score = min(scores) if scores else None  # the weakest stretch is what a viewer remembers
+        return {"reviewed": True, "looks": reviewed, "score": score, "scores": scores,
+                "flagged": [{"picture": k, "problem": p[:200]} for k, p in flagged.items()],
+                "redrawn": redrawn, "strongest_picture": strongest}
 
 
 THUMB_SYSTEM = "You check YouTube thumbnails for a horror channel. Answer with JSON only."

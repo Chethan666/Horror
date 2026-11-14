@@ -38,9 +38,19 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--out", default="out/host_refs")
     h.add_argument("--candidates", type=int, default=2)
     h.add_argument("--max-usd", type=float, default=1.5)
+    h.add_argument("--loop", action="store_true", help="instead: candidates for the host's looping clip (Veo on "
+                   "Vertex, from his fixed portrait; a few dollars once)")
+    cp = sub.add_parser("compile", help="join finished episodes into one long compilation video (free)")
+    cp.add_argument("--dirs", nargs="+", required=True, help="episode folders (video.mp4 and metadata.json each)")
+    cp.add_argument("--out", default="out/compilation")
+    cp.add_argument("--title", default="")
+    th = sub.add_parser("theme", help="make candidates for the channel's theme with Lyria (paid, about $0.06 each)")
+    th.add_argument("--out", default="out/theme")
+    th.add_argument("--candidates", type=int, default=3)
     a = sub.add_parser("approve", help="a person has watched the video: approve it for publishing (or reject it)")
     a.add_argument("--story", type=int, required=True)
     a.add_argument("--reject", metavar="REASON", help="reject instead, with the reason")
+    a.add_argument("--note", default="", help="what the reviewer thought (kept with the approval)")
     u = sub.add_parser("publish", help="upload an approved video to YouTube (private or scheduled)")
     u.add_argument("--story", type=int, required=True)
     u.add_argument("--dir", required=True, help="the video's folder (video.mp4, metadata.json, ...)")
@@ -60,6 +70,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--max-usd", type=float, help="spending cap for this video (default stills.max_usd)")
     p.add_argument("--bakeoff", metavar="SETUPS", help="no video: paint every picture with each setup in "
                    "stills.bakeoff.setups (comma-separated, or 'all') from the same references, side by side")
+    p.add_argument("--redo", default="", metavar="BEATS",
+                   help="repaint these beats with a note each, e.g. '12,31:no_text_on_the_wall' (with the "
+                        "earlier run's MEDIA_CACHE_DIR, nothing else is paid for again)")
+    c = sub.add_parser("cache", help="pack a media cache to keep it (pictures as JPEGs, the rest unchanged)")
+    c.add_argument("action", choices=("pack",))
+    c.add_argument("--dir", default=os.environ.get("MEDIA_CACHE_DIR", ""), help="the cache (MEDIA_CACHE_DIR)")
+    c.add_argument("--out", required=True)
     lib = sub.add_parser("library", help="the sound library: build it from free sources, sync, or show it")
     lib.add_argument("action", choices=("build", "sync", "show"))
     lib.add_argument("--sources", default="sounds/sources.json")
@@ -80,12 +97,39 @@ def main(argv: list[str] | None = None) -> int:
         return check_vertex(stills) or found
     if args.command == "library":
         return library(args, cfg)
+    if args.command == "cache":
+        from .replay import pack
+        print(json.dumps(pack(Path(args.dir), Path(args.out)), indent=2) if args.dir else "No cache folder given")
+        return 0
+    if args.command == "host" and args.loop:
+        from .stills import host
+        stills, client = media_client(cfg.get("stills", {}))
+        if client is None:
+            print("The host's loop is made by Veo on Vertex AI: set GEMINI_PLATFORM_API_KEY", file=sys.stderr)
+            return 1
+        model = str(stills.get("models", {}).get("clip") or "vertex:veo-3.1-fast-generate-001")
+        report = host.make_loop(stills, client, Path(args.out), args.candidates, model)
+        print(json.dumps(report, indent=2))
+        return 0 if report["candidates"] else 1
     if args.command == "host":
         from .stills import host
         stills, client = media_client(cfg.get("stills", {}))
         report = host.make(stills, client, Path(args.out), args.candidates, args.max_usd)
         print(json.dumps(report, indent=2))
         return 0 if any("portrait" in c for c in report["candidates"]) else 1
+    if args.command == "compile":
+        from .compile import compile_episodes
+        print(json.dumps(compile_episodes([Path(d) for d in args.dirs], Path(args.out), args.title), indent=2))
+        return 0
+    if args.command == "theme":
+        from .stills import theme
+        stills, client = media_client(cfg.get("stills", {}))
+        if client is None:
+            print("The theme is made by Lyria on Vertex AI: set GEMINI_PLATFORM_API_KEY", file=sys.stderr)
+            return 1
+        report = theme.make(stills, client, Path(args.out), args.candidates)
+        print(json.dumps(report, indent=2))
+        return 0 if report["candidates"] else 1
     conn = db.connect(cfg["database"])
     if args.command in ("approve", "publish", "stats"):
         return channel(args, conn)
@@ -136,7 +180,9 @@ def main(argv: list[str] | None = None) -> int:
             chosen = None if args.bakeoff == "all" else [x.strip() for x in args.bakeoff.split(",") if x.strip()]
             summary = bakeoff.run(story, out_dir, narrator, router, stills_cfg, fal, conn, chosen)
         else:
-            summary = stills.produce(story, out_dir, narrator, router, stills_cfg, fal, conn, args.keep_work)
+            from .replay import parse_redo
+            summary = stills.produce(story, out_dir, narrator, router, stills_cfg, fal, conn, args.keep_work,
+                                     redo=parse_redo(args.redo))
     except Exception as exc:  # report, and hand a claimed story back to the queue
         log.exception("Production failed")
         info = {"error": str(exc)[:500], "run": os.environ.get("GITHUB_RUN_ID")}
@@ -159,16 +205,34 @@ def channel(args: argparse.Namespace, conn) -> int:
     from . import youtube
 
     if args.command == "stats":
-        rows = conn.execute("SELECT id, video_id FROM stories WHERE video_id IS NOT NULL AND video_id != ''").fetchall()
+        from . import retention
+
+        rows = conn.execute("SELECT id, title, video_id, production FROM stories "
+                            "WHERE video_id IS NOT NULL AND video_id != ''").fetchall()
         if not rows:
             print("No published videos yet")
             return 0
         stats = youtube.YouTube().stats([r["video_id"] for r in rows])
+        notes: list[str] = []
         for r in rows:
             s = stats.get(r["video_id"])
-            if s:
-                db.record_performance(conn, r["id"], **s)
-                print(f"story #{r['id']} {r['video_id']}: {s}")
+            if not s:
+                continue
+            curve = s.pop("retention", None)
+            db.record_performance(conn, r["id"], **s)
+            print(f"story #{r['id']} {r['video_id']}: {s}")
+            if curve:  # where viewers left, against the beats on screen (kept at production)
+                made = json.loads(r["production"] or "{}") if isinstance(r["production"], str) else {}
+                found, measured = retention.lessons(str(r["title"]), curve, float(made.get("seconds") or 0),
+                                                    made.get("beat_times") or [])
+                made["retention"] = dict(measured, measured_at=db.now(), curve=curve)
+                db.update_story(conn, r["id"], production=made)
+                notes += found
+                for line in found:
+                    print(f"  {line}")
+        if notes:  # the writers see them with every new pitch, beside the judges' own lessons
+            kept = [i for i in db.latest_learnings(conn) if not str(i).startswith(retention.PREFIX)]
+            db.save_learnings(conn, kept + notes[:12])
         return 0
     row = db.get_story(conn, args.story)
     if row is None:
@@ -176,9 +240,13 @@ def channel(args: argparse.Namespace, conn) -> int:
         return 1
     production = json.loads(row["production"] or "{}") if isinstance(row["production"], str) else {}
     if args.command == "approve":
+        # The person's review is part of the record: who watched it, when, and what they thought (YouTube's
+        # Partner Program asks for human creative input; a note per video shows it was given).
         production["review"] = "rejected" if args.reject else "approved"
-        if args.reject:
-            production["review_note"] = args.reject
+        production["reviewed_at"] = db.now()
+        note = args.reject or getattr(args, "note", "")
+        if note:
+            production["review_note"] = note
         db.update_story(conn, args.story, production=production)
         print(f"Story #{args.story}: {production['review']}")
         return 0
@@ -198,19 +266,9 @@ ALTERNATES = [  # listed alongside the configured models, to compare
     "fal-ai/nano-banana-pro", "fal-ai/nano-banana-pro/edit", "fal-ai/nano-banana-2", "fal-ai/nano-banana-2/edit",
     "fal-ai/bytedance/seedream/v4.5/text-to-image", "fal-ai/bytedance/seedream/v4.5/edit",
     "fal-ai/elevenlabs/tts/eleven-v3", "fal-ai/elevenlabs/sound-effects/v2", "fal-ai/ace-step-1.5",
-    # candidates for the picture bake-off: FLUX.2 with references, and detail (upscale) passes
-    "fal-ai/flux-2-pro/edit", "fal-ai/flux-2-flex/edit", "fal-ai/flux-2/edit", "fal-ai/flux-2-max/edit",
-    "fal-ai/seedvr/upscale/image", "fal-ai/clarity-upscaler", "fal-ai/recraft/upscale/crisp",
-    "fal-ai/topaz/upscale/image", "fal-ai/crystal-upscaler",
-    # Nano Banana 2.1 (October 2026): its name on fal, to confirm
-    "fal-ai/nano-banana-2.1", "fal-ai/nano-banana-2.1/edit", "google/nano-banana-2.1", "google/nano-banana-2.1/edit",
-    "fal-ai/gemini-3.1-flash-image", "fal-ai/gemini-3.1-flash-image/edit",
-    "fal-ai/flux-3/edit", "fal-ai/flux-3-pro/edit",
-    # Stable Diffusion: which versions fal offers, and whether any take reference pictures
-    "fal-ai/stable-diffusion-v35-large", "fal-ai/stable-diffusion-v35-large/image-to-image",
-    "fal-ai/stable-diffusion-v35-medium", "fal-ai/stable-diffusion-v35-large/turbo", "fal-ai/ip-adapter-face-id",
-    "fal-ai/fast-sdxl", "fal-ai/lora", "fal-ai/stable-diffusion-v3-medium", "fal-ai/sd35-large/ip-adapter",
-    "fal-ai/stable-diffusion-v35-large/ip-adapter",
+    "fal-ai/elevenlabs/music",
+    # image-to-video on fal, for the motion stage if Veo on Vertex is not used
+    "fal-ai/veo3.1/fast/image-to-video", "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
 ]
 
 
@@ -255,21 +313,34 @@ def library(args: argparse.Namespace, cfg: dict) -> int:
 
 def media_client(stills: dict) -> tuple[dict, object | None]:
     """The stills config and the client for paid media: fal (FAL_KEY), with the Nano Banana 2.1
-    roles and the checker on Google Cloud Vertex AI when GCP_SERVICE_ACCOUNT_JSON is set."""
-    from production import vertex
+    roles, the checkers and the score on Google Cloud Vertex AI when a Google key is set, and the
+    host's own voice on ElevenLabs when ELEVENLABS_API_KEY and `host_voice.elevenlabs_id` are set."""
+    from production import elevenlabs, vertex
     from production.media import Fal, MediaError
 
     fal = Fal() if os.environ.get("FAL_KEY") else None
+    stills = dict(stills)
+    models = dict(stills.get("models", {}))
+    others = {}
+    if str((stills.get("host_voice") or {}).get("elevenlabs_id") or "") and elevenlabs.available():
+        others[elevenlabs.PREFIX] = elevenlabs.ElevenLabs()
+        print("The host's voice: the channel's own, on ElevenLabs", flush=True)
+    else:
+        models.pop("host_voice", None)  # no key or no voice of its own: the stock voice on fal
+    stills["models"] = models
+    client = None
     if vertex.available() and (stills.get("vertex") or {}).get("enabled", True):
         try:
             client = vertex.client()
         except MediaError as exc:
             log.warning("Vertex AI not used: %s", exc)
-            return stills, fal
+    if client is not None:
         moved, fallback = vertex.use_vertex(stills)
         print(f"Paid pictures on Google ({client.project}, {client.location}): "
               f"{sorted(set(fallback))}; fal as the fallback: {'yes' if fal else 'no'}", flush=True)
-        return moved, vertex.Providers(fal, client, fallback)
+        return moved, vertex.Providers(fal, client, fallback, others)
+    if others:
+        return stills, vertex.Providers(fal, None, {}, others)
     return stills, fal
 
 
@@ -319,6 +390,22 @@ def check_vertex(stills: dict) -> int:
         except MediaError as exc:
             failed += 1
             print(f"  pictures {picture}: CALL FAILED: {str(exc)[:400]}")
+    # Models used only sometimes (the score, moving shots, the stronger checker): asked with an empty request,
+    # which costs nothing: "found" when Google says the request is wrong, "not found" when the model is unknown.
+    others = {str(m).split(":", 1)[1] for m in stills.get("models", {}).values() if str(m).startswith("vertex:")}
+    others |= {str(v) for v in ((stills.get("vertex") or {}).get("roles") or {}).values()}
+    others |= {"lyria-002"} if "fal-ai/ace-step-1.5" in (stills.get("vertex") or {}).get("models", {}) else set()
+    for model in sorted(others - set(models)):
+        method, where = ("predict", "us-central1") if "lyria" in model else (
+            ("predictLongRunning", "us-central1") if "veo" in model else ("generateContent", None))
+        try:
+            client.http(client.url(model, method, where), method="POST", body={"instances": []} if method != (
+                "generateContent") else {"contents": []}, timeout=60, headers=client._headers())
+            print(f"  vertex:{model}  found")
+        except MediaError as exc:
+            text = str(exc)
+            print(f"  vertex:{model}  {'NOT FOUND' if 'HTTP 404' in text else 'found'}"
+                  f"{'' if 'HTTP 404' not in text and 'HTTP 400' in text else ': ' + text[:160]}")
     print(f"  project: {'found' if client.project else 'not found'}, location {client.location}")
     return 1 if failed else 0
 
@@ -330,7 +417,8 @@ def check(models: dict, model_args: dict | None = None) -> int:
     print("FAL_KEY:", "set" if os.environ.get("FAL_KEY") else "MISSING (add it as a GitHub Actions secret)")
     fal = Fal(key=os.environ.get("FAL_KEY") or "not-needed-to-read-schemas")
     failed = 0
-    roles = {role: endpoint for role, endpoint in models.items() if endpoint}  # empty: switched off
+    # empty: switched off; "vertex:" and "elevenlabs:" models are not on fal (check_vertex asks Google)
+    roles = {role: endpoint for role, endpoint in models.items() if endpoint and ":" not in endpoint}
     seen = set(roles.values())
     roles.update({f"(alt) {e}": e for e in ALTERNATES if e not in seen})
     for role, endpoint in roles.items():

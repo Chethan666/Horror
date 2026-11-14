@@ -22,7 +22,6 @@ is dropped and the request sent again, so a model that takes fewer settings stil
 
 from __future__ import annotations
 
-import base64
 import copy
 import json
 import logging
@@ -124,16 +123,20 @@ class Vertex:
     def _headers(self) -> dict[str, str]:
         return {"Authorization": f"Bearer {self.token()}", "Content-Type": "application/json"}
 
-    def url(self, model: str, method: str = "generateContent") -> str:
-        return (f"https://{self.host}/v1/projects/{self.project}/locations/{self.location}"
+    def url(self, model: str, method: str = "generateContent", location: str | None = None) -> str:
+        where = location or self.location
+        host = "aiplatform.googleapis.com" if where == "global" else f"{where}-aiplatform.googleapis.com"
+        return (f"https://{host}/v1/projects/{self.project}/locations/{where}"
                 f"/publishers/google/models/{model}:{method}")
 
     WAITS = (10.0, 30.0, 60.0)  # a busy model or a per-minute quota: wait and ask again before falling back
 
-    def _post(self, model: str, body: dict[str, Any]) -> dict[str, Any]:
+    def _post(self, model: str, body: dict[str, Any], method: str = "generateContent",
+              location: str | None = None) -> dict[str, Any]:
         for k in range(len(self.WAITS) + 1):
             try:
-                return self.http(self.url(model), method="POST", body=body, timeout=300, headers=self._headers())
+                return self.http(self.url(model, method, location), method="POST", body=body, timeout=300,
+                                 headers=self._headers())
             except MediaError as exc:
                 text = str(exc)
                 busy = any(w in text for w in ("HTTP 429", "HTTP 503", "RESOURCE_EXHAUSTED", "UNAVAILABLE"))
@@ -146,8 +149,8 @@ class Vertex:
     @staticmethod
     def _parts(args: dict[str, Any]) -> list[dict[str, Any]]:
         parts: list[dict[str, Any]] = []
-        for uri in args.get("image_urls") or []:
-            mime, data = _data(str(uri))
+        for uri in list(args.get("image_urls") or []) + [args[k] for k in ("video_url", "audio_url") if args.get(k)]:
+            mime, data = _data(str(uri))  # pictures, and a video or a sound to watch or hear (the screening)
             parts.append({"inlineData": {"mimeType": mime, "data": data}})
         parts.append({"text": str(args.get("prompt", ""))})
         return parts
@@ -156,9 +159,98 @@ class Vertex:
         """The same answer shape as fal: {"images": [{"url": data URI}]} for a picture model,
         {"output": text} for a text model."""
         model = endpoint[len(PREFIX):] if endpoint.startswith(PREFIX) else endpoint
+        if "lyria" in model:
+            return self.music(model, args)
+        if "veo" in model:
+            return self.video(model, args)
         if "image" in model or "banana" in model:
             return self.image(model, args)
         return self.text(model, args)
+
+    # Veo runs as a long job: asked, then fetched until it is done.
+    VIDEO_LOCATIONS = ("us-central1", "global")
+    POLL_SECONDS, VIDEO_TIMEOUT = 10.0, 900.0
+
+    def video(self, model: str, args: dict[str, Any]) -> dict[str, Any]:
+        """A short clip from Veo, started from a picture (image_url / start_image_url: a data URI), with
+        no sound of its own (the edit has the narration and the score). Answered as fal answers:
+        {"video": {"url": data URI}}."""
+        start = args.get("image_url") or args.get("start_image_url") or args.get("image")
+        instance: dict[str, Any] = {"prompt": str(args.get("prompt", ""))[:2000]}
+        if start:
+            mime, data = _data(str(start))
+            instance["image"] = {"bytesBase64Encoded": data, "mimeType": mime}
+        if args.get("last_frame_url"):  # the clip ends on this picture (the same as the first: a seamless loop)
+            mime, data = _data(str(args["last_frame_url"]))
+            instance["lastFrame"] = {"bytesBase64Encoded": data, "mimeType": mime}
+        try:
+            seconds = int(float(str(args.get("duration", args.get("durationSeconds", 8))).rstrip("s")))
+        except ValueError:
+            seconds = 8
+        params = {"aspectRatio": str(args.get("aspect_ratio", "16:9")), "durationSeconds": seconds,
+                  "sampleCount": 1, "generateAudio": bool(args.get("generate_audio", False)),
+                  "resolution": str(args.get("resolution", "1080p")), "personGeneration": "allow_adult"}
+        body = {"instances": [instance], "parameters": params}
+        last: MediaError | None = None
+        for where in ([self._video_at] if getattr(self, "_video_at", "") else list(self.VIDEO_LOCATIONS)):
+            try:
+                job = self._post(model, body, "predictLongRunning", where)
+            except MediaError as exc:
+                if any(w in str(exc) for w in ("HTTP 404", "not found", "NOT_FOUND", "not supported in")):
+                    last = exc
+                    continue
+                raise
+            self._video_at = where
+            name = job.get("name", "")
+            if not name:
+                raise MediaError(f"vertex {model}: no job ({str(job)[:200]})")
+            waited = 0.0
+            while waited < self.VIDEO_TIMEOUT:
+                done = self._post(model, {"operationName": name}, "fetchPredictOperation", where)
+                if done.get("done"):
+                    if done.get("error"):
+                        raise MediaError(f"vertex {model}: {str(done['error'])[:300]}")
+                    reply = done.get("response") or {}
+                    for item in reply.get("videos") or []:
+                        data = item.get("bytesBase64Encoded")
+                        if data:
+                            return {"video": {"url": f"data:{item.get('mimeType') or 'video/mp4'};base64,{data}"}}
+                    raise MediaError(f"vertex {model}: no clip, content refused or filtered ({str(reply)[:200]})")
+                time.sleep(self.POLL_SECONDS)
+                waited += self.POLL_SECONDS
+            raise MediaError(f"vertex {model}: the clip took longer than {self.VIDEO_TIMEOUT:.0f} s")
+        raise last or MediaError(f"vertex {model}: no location serves it")
+
+    # Lyria is served in fewer places than Gemini: the first location that knows the model is kept.
+    MUSIC_LOCATIONS = ("global", "us-central1")
+
+    def music(self, model: str, args: dict[str, Any]) -> dict[str, Any]:
+        """A piece of instrumental music from Lyria (about 30 seconds, 48 kHz WAV), answered as fal
+        answers: {"audio": {"url": data URI}}."""
+        instance: dict[str, Any] = {"prompt": str(args.get("prompt", ""))[:1500]}
+        if args.get("negative_prompt"):
+            instance["negative_prompt"] = str(args["negative_prompt"])[:500]
+        if args.get("seed") is not None:
+            instance["seed"] = int(args["seed"])
+        body = {"instances": [instance], "parameters": {"sample_count": 1}}
+        last: MediaError | None = None
+        for where in ([self._music_at] if getattr(self, "_music_at", "") else list(self.MUSIC_LOCATIONS)):
+            try:
+                reply = self._post(model, body, "predict", where)
+            except MediaError as exc:
+                text = str(exc)
+                if any(w in text for w in ("HTTP 404", "not found", "NOT_FOUND", "not supported in")):
+                    last = exc
+                    continue
+                raise
+            self._music_at = where
+            for item in reply.get("predictions") or []:
+                data = item.get("bytesBase64Encoded") or item.get("audioContent")
+                if data:
+                    mime = item.get("mimeType") or "audio/wav"
+                    return {"audio": {"url": f"data:{mime};base64,{data}"}}
+            raise MediaError(f"vertex {model}: no music, content refused or empty ({str(reply)[:200]})")
+        raise last or MediaError(f"vertex {model}: no location serves it")
 
     def image(self, model: str, args: dict[str, Any]) -> dict[str, Any]:
         image_config: dict[str, Any] = {}
@@ -208,18 +300,28 @@ class Vertex:
         raise last or MediaError(f"vertex {model}: no picture")
 
     # Checker models, newest first: a model Google has retired answers "not found" (run 110:
-    # gemini-2.5-flash), and the next is tried; the first that answers is kept for the run.
+    # gemini-2.5-flash), and the next is tried; the first that answers is kept for the run. A Pro
+    # model (the stronger checker, the screening) tries the other Pro models before any Flash one.
     TEXT_MODELS = ("gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.1-flash", "gemini-3-flash",
                    "gemini-flash-latest", "gemini-2.5-flash")
+    PRO_MODELS = ("gemini-3.6-pro", "gemini-3.5-pro", "gemini-3.1-pro", "gemini-3-pro", "gemini-3-pro-preview",
+                  "gemini-pro-latest", "gemini-2.5-pro")
 
     def text(self, model: str, args: dict[str, Any]) -> dict[str, Any]:
-        tried = getattr(self, "_text_model", "") or model
-        order = [tried] + [m for m in self.TEXT_MODELS if m != tried]
+        family = "pro" if "pro" in model else "flash"
+        found = getattr(self, "_found", None)
+        if found is None:
+            found = self._found = {}
+        tried = found.get(family) or model
+        ladder = (self.PRO_MODELS + self.TEXT_MODELS) if family == "pro" else self.TEXT_MODELS
+        order = [tried] + [m for m in ladder if m != tried]
         last: MediaError | None = None
         for name in order:
             try:
                 got = self._text(name, args)
-                self._text_model = name
+                found[family] = name
+                if family == "flash":
+                    self._text_model = name  # what the model check reports
                 return got
             except MediaError as exc:
                 if "HTTP 404" not in str(exc):
@@ -286,9 +388,9 @@ class VertexKey(Vertex):
                     self.project = found.group(1)
             return self.project
 
-    def url(self, model: str, method: str = "generateContent") -> str:
+    def url(self, model: str, method: str = "generateContent", location: str | None = None) -> str:
         if self.project or self.discover():
-            return super().url(model, method)
+            return super().url(model, method, location)
         return f"https://{self.host}/v1/publishers/google/models/{model}:{method}"
 
     def model_info(self, model: str) -> dict[str, Any]:
@@ -300,11 +402,15 @@ class Providers:
     A Vertex failure (not a refused picture) is sent to the fal model it replaced."""
 
     def __init__(self, fal: Any = None, vertex: Vertex | None = None,
-                 fallback: dict[str, list[str]] | None = None):
+                 fallback: dict[str, list[str]] | None = None, others: dict[str, Any] | None = None):
         self.fal, self.vertex, self.fallback = fal, vertex, dict(fallback or {})
+        self.others = dict(others or {})  # other services by prefix, e.g. {"elevenlabs:": ElevenLabs()}
         self.fell_back = 0
 
     def run(self, endpoint: str, args: dict[str, Any]) -> dict[str, Any]:
+        for prefix, other in self.others.items():
+            if endpoint.startswith(prefix):
+                return other.run(endpoint, args)
         if not endpoint.startswith(PREFIX):
             if self.fal is None:
                 raise MediaError(f"{endpoint}: no FAL_KEY")
@@ -340,8 +446,11 @@ def use_vertex(cfg: dict[str, Any]) -> tuple[dict[str, Any], dict[str, list[str]
     models: dict[str, str] = cfg.get("models", {})
     fallback: dict[str, list[str]] = {}
     moves = {str(k): str(v) for k, v in (settings.get("models") or {}).items()}  # fal endpoint -> vertex model
+    roles = {str(k): str(v) for k, v in (settings.get("roles") or {}).items()}  # a role's own model (vision_pro)
     for role, endpoint in list(models.items()):
-        target = moves.get(endpoint)
+        if not endpoint or endpoint.startswith(PREFIX):
+            continue
+        target = roles.get(role) or moves.get(endpoint)
         if target:
             models[role] = PREFIX + target
             if endpoint not in fallback.setdefault(PREFIX + target, []):

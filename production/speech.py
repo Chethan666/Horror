@@ -30,15 +30,18 @@ TAGS = {"steady": "", "slow": "", "hushed": "[quietly]", "tense": "[nervously]",
         "urgent": "[urgently]", "tender": "[softly]"}
 
 
-def decode(path: Path, rate: int, tempo: float = 1.0) -> np.ndarray:
-    """Mono float samples; `tempo` speeds speech up (or slows it) without changing its pitch."""
+def decode(path: Path, rate: int, tempo: float = 1.0, channels: int = 1) -> np.ndarray:
+    """Float samples, mono (n,) or stereo (n, 2); `tempo` speeds speech up (or slows it) without
+    changing its pitch."""
     tempo = min(max(tempo, 0.5), 2.0)
     speed = ["-af", f"atempo={tempo:.3f}"] if abs(tempo - 1.0) > 0.005 else []
-    result = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", str(path), *speed, "-ac", "1",
-                             "-ar", str(rate), "-f", "f32le", "-"], capture_output=True)
+    channels = 2 if channels == 2 else 1
+    result = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", str(path), *speed, "-ac",
+                             str(channels), "-ar", str(rate), "-f", "f32le", "-"], capture_output=True)
     if result.returncode != 0:
         raise MediaError(f"could not decode {path.name}: {result.stderr.decode(errors='replace')[-200:]}")
-    return np.frombuffer(result.stdout, dtype=np.float32).copy()
+    samples = np.frombuffer(result.stdout, dtype=np.float32).copy()
+    return samples.reshape(-1, 2) if channels == 2 else samples
 
 
 class ElevenVoice:
@@ -48,23 +51,25 @@ class ElevenVoice:
     expressive = True
 
     def __init__(self, studio: Studio, voice: str, fallback: Any, work: Path, parallel: int = 4,
-                 shared: dict[str, Any] | None = None, pace: float = 1.0, takes: bool = False):
+                 shared: dict[str, Any] | None = None, pace: float = 1.0, takes: bool = False, role: str = "voice"):
         self.studio, self.voice, self.fallback, self.work, self.parallel = studio, voice, fallback, work, parallel
+        self.role = role  # the model role that reads: "voice" (fal), or "host_voice" (the channel's own voice)
         self.shared = shared if shared is not None else {"failed": 0, "lines": 0, "lock": threading.Lock()}
         self.pace = pace  # tempo applied to everything this voice reads (1.08 = 8% quicker, same pitch)
         self.takes = takes  # read whole passages in one take (voice.narrate)
         work.mkdir(parents=True, exist_ok=True)
 
-    def speaker(self, voice: str, fallback: Any = None) -> "ElevenVoice":
+    def speaker(self, voice: str, fallback: Any = None, role: str | None = None) -> "ElevenVoice":
         return ElevenVoice(self.studio, voice, fallback or self.fallback, self.work, self.parallel, self.shared,
-                           self.pace, self.takes)
+                           self.pace, self.takes, role or self.role)
 
     def tempo(self, speed: float) -> float:
         """The scene's reading speed, half as strong as Kokoro's (v3 already acts the delivery)."""
         return self.pace * (1.0 + (speed - 1.0) * 0.5)
 
     def _path(self, text: str, attempt: int = 0) -> Path:
-        return self.work / f"say_{digest(self.voice, text, attempt) if attempt else digest(self.voice, text)}.mp3"
+        who = self.voice if self.role == "voice" else f"{self.role}:{self.voice}"
+        return self.work / f"say_{digest(who, text, attempt) if attempt else digest(who, text)}.mp3"
 
     def _make(self, text: str, attempt: int = 0) -> Path | None:
         path = self._path(text, attempt)
@@ -72,7 +77,7 @@ class ElevenVoice:
             return path
         args = {"text": text, "voice": self.voice}
         try:  # a retry is a new request, not the cached first reading
-            return self.studio.call("voice", args, "audio", path, "voice", units=max(len(text), 1) / 1000.0,
+            return self.studio.call(self.role, args, "audio", path, "voice", units=max(len(text), 1) / 1000.0,
                                     key={"args": args, "attempt": attempt} if attempt else None)
         except (MediaError, OverBudget) as exc:
             log.warning("ElevenLabs could not read %r (%s); Kokoro reads it", text[:60], str(exc)[:200])

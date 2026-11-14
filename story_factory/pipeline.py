@@ -124,7 +124,7 @@ def tidy(script: dict[str, Any], kind: str | None = None) -> dict[str, Any]:
             script[key] = RITUAL_SENTENCE.sub("", str(script.get(key) or "")).strip()
     intro = str(script.get("intro") or "").strip()
     if kind == "long" and intro and dedup.normalize(RITUAL_OPENING) not in dedup.normalize(intro):
-        script["intro"] = f"{RITUAL_OPENING} {intro}"  # the cold open should precede it; better late than missing
+        script["intro"] = f"{RITUAL_OPENING} {intro}"  # the ritual should end the intro; better early than missing
     outro = str(script.get("outro", "")).strip()
     question = str(script.get("comment_question", "")).strip()
     if outro and not outro.endswith("?") and question.endswith("?") and question not in outro:
@@ -828,7 +828,7 @@ def write_in_parts(ctx: Context, story: Story, writer: Any, outline: dict[str, A
     lo, hi = word_range(ctx.cfg, "long")
     groups = split_beats(outline["beats"], ctx.cfg["quality"]["draft_sections"])
     seconds = [sum(max(int(b.get("target_seconds") or 0), 1) for b in g) for g in groups]
-    body_words = (lo + hi) // 2 - 80  # intro and outro take about 80 words
+    body_words = (lo + hi) // 2 - 60  # intro (10-25 words) and outro (25-60) take about 60 words
     parts: list[str] = []
     for i, group in enumerate(groups):
         part = writer.generate_json("write_section", prompts.SYSTEM_WRITER, prompts.write_section(

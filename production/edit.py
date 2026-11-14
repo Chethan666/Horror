@@ -52,14 +52,19 @@ class Segment:
     atmosphere: tuple[str, ...] = ()  # rain, fog, flicker
     fade_in: float = 0.0
     fade_out: float = 0.0
+    tension: int = 2  # the beat's tension: how fast the camera moves
+    dim: float = 1.0  # below 1: the picture darkened (a scare's build-up, before the reveal)
+    loop: bool = False  # the clip plays round and round at its own speed (the host's loop), never slowed or frozen
+    layers: tuple[Path, Path] | None = None  # (background plate, foreground RGBA): a depth parallax shot
 
     def frames(self) -> int:
         return max(round(self.end * FPS) - round(self.start * FPS), 1)
 
 
 def card(background: Path | None, lines: list[tuple[str, int, tuple[int, int, int]]], out: Path,
-         left: bool = False, dim: float = 0.35, size: tuple[int, int] = (W, H)) -> Path:
-    """A title or end card: the style frame dimmed and blurred, with bone-white text."""
+         left: bool = False, dim: float = 0.35, size: tuple[int, int] = (W, H), anchor: str = "center") -> Path:
+    """A title or end card: the style frame dimmed and blurred, with bone-white text. `anchor`:
+    where the words sit ("center", "lower" or "upper"), so every episode's card is not the same."""
     w, h = size
     if background and background.exists():
         with Image.open(background) as im:
@@ -69,7 +74,8 @@ def card(background: Path | None, lines: list[tuple[str, int, tuple[int, int, in
         base = Image.new("RGB", (w, h), (8, 8, 8))
     d = ImageDraw.Draw(base)
     total = sum(int(points * 1.25) for _, points, _ in lines)
-    y = (h - total) // 2
+    y = {"lower": int(h * 0.70) - total // 2, "upper": int(h * 0.16)}.get(anchor, (h - total) // 2)
+    y = min(max(y, int(h * 0.06)), h - total - int(h * 0.06))
     for text, points, colour in lines:
         f = draw.font(points)
         width = d.textlength(text, font=f)

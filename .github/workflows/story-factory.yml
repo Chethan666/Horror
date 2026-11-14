@@ -8,15 +8,18 @@
 #   mode=video-test: pipeline 2 makes a ~35 s video from the script in production/samples/test_story.json
 #     (overrides "script=one_minute.json" picks another script in production/samples, e.g. the 60 s test;
 #      add "bakeoff=all" for the picture bake-off: no video, every picture painted by each setup, side by side;
-#      "host=make" paints candidates for the Storyteller's fixed references instead, about $0.60)
+#      "host=make" paints candidates for the Storyteller's fixed references instead, about $0.60;
+#      "theme=make" makes 3 candidates for the channel's theme with Lyria instead, about $0.20;
+#      "host=loop" makes 2 candidates for the host's looping clip with Veo instead, a few dollars)
 #               (no story database needed), capped at $1.50
 #   mode=video-approve / video-reject: after watching a video (story_id), approve it for publishing or not
-#               (video-reject takes the reason in `overrides`)
+#               (video-reject takes the reason in `overrides`; video-approve keeps `overrides` as the review note)
 #   mode=video-publish: uploads an approved video (story_id) to YouTube as private; set the time in
 #               `overrides` (e.g. 2026-11-20T17:00:00Z) to schedule it instead
 #   mode=video-stats: reads every published video's YouTube stats into the performance table
 #   mode=video-share: re-shares an earlier video run's review images (story_id = that run's id)
-#   mode=video-check: pipeline 2 lists what each paid model on fal.ai expects (no spend)
+#   mode=video-check: pipeline 2 lists what each paid model on fal.ai expects, signs in to Vertex AI and
+#               paints one small test picture (about $0.03)
 #   mode=sound-library: builds or extends the channel's sound library (published as the GitHub release
 #               "sound-library") from free sources in sounds/sources.json: Kevin MacLeod, OpenGameArt CC0,
 #               the Free Music Archive (and a Sonniss pack if one is listed). No paid calls.
@@ -24,7 +27,11 @@
 #   mode=video: pipeline 2 turns the next approved story (or story_id) into a video (film-still
 #               pictures under camera moves, host + teller + character voices, music; made by the agent
 #               team in production/stills), saved as an artifact named video-<run number> for 14 days.
-#               overrides: stills.max_usd=10, stills.motion=none (pictures held still)
+#               overrides: stills.max_usd=10, stills.motion=none (pictures held still);
+#               "resume=<run number>" picks a failed run up where it stopped (its media cache, kept 3 days,
+#               is restored: nothing it paid for is bought again); "redo=12,31:no_text_on_the_wall" with
+#               resume=<the run you watched> repaints only those beats (underscores are spaces)
+#   mode=video-compile: joins finished episodes (story_id = "12,15,18") into one long compilation video
 # The story database carries over between runs (saved as an artifact, restored at the
 # start of the next run), so stories never repeat and the shared world keeps growing.
 # Keep this repository private: run logs, artifacts, review images and the sound library release are
@@ -32,12 +39,16 @@
 name: Story factory
 
 on:
+  # Every day: YouTube stats (views, retention) into the story database, once the channel is connected.
+  # GitHub runs schedules from the default branch only.
+  schedule:
+    - cron: "23 5 * * *"
   workflow_dispatch:
     inputs:
       mode:
         description: "check = tests and model access only; story = generate one story; video = make the next approved story's video; bench = compare two model setups; recheck = re-check approved legends"
         type: choice
-        options: [check, story, video, video-test, sound-library, sound-library-music, video-check, video-approve, video-reject, video-publish, video-stats, video-share, bench, recheck]
+        options: [check, story, video, video-test, sound-library, sound-library-music, video-check, video-approve, video-reject, video-publish, video-stats, video-share, video-compile, bench, recheck]
         default: check
       series:
         description: Series to generate in story mode
@@ -100,22 +111,24 @@ jobs:
       GEMINI_PLATFORM_API_KEY: ${{ secrets.GEMINI_PLATFORM_API_KEY }}
       GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
       GCP_PROJECT: ${{ vars.GCP_PROJECT }}
-      # Free pictures for stills mode (Cloudflare Workers AI's daily allowance). Optional.
-      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      # The host's own voice on ElevenLabs' API (optional; with stills.host_voice.elevenlabs_id).
+      ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
       # YouTube publishing (OAuth for the channel; see PRODUCTION.md). Optional until you publish.
       YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
       YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
       YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-      MODE: ${{ inputs.mode }}
+      MODE: ${{ inputs.mode || 'video-stats' }}  # a scheduled run reads the stats
       SERIES: ${{ inputs.series }}
-      CONFIG: ${{ inputs.config }}
+      CONFIG: ${{ inputs.config || 'config.aws-open.toml' }}
       PING_MODELS: ${{ inputs.ping_models }}
       PING_TIMEOUT: ${{ inputs.ping_timeout }}
       BENCH_AGAINST: ${{ inputs.bench_against }}
       BENCH_PITCHES: ${{ inputs.bench_pitches }}
       OVERRIDES: ${{ inputs.overrides }}
       STORY_ID: ${{ inputs.story_id }}
+      # Paid results and model answers for the video (production/replay.py): kept as an artifact for
+      # 3 days, so a failed run can be resumed and a watched one partly redone without paying twice.
+      MEDIA_CACHE_DIR: ${{ github.workspace }}/media-cache
     steps:
       - uses: actions/checkout@v5
 
@@ -128,6 +141,8 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Unit tests
+        # Not in video runs: the code they run was tested when it changed (about 7 minutes saved per video).
+        if: contains(fromJSON('["check", "story", "bench", "recheck"]'), env.MODE)
         run: python -m unittest discover -s tests -t .
 
       - name: Check the AWS key is configured
@@ -139,11 +154,13 @@ jobs:
 
       - name: Model access
         # Lists every model ID the keys can use, so configured IDs can be corrected.
+        if: contains(fromJSON('["check", "story", "bench", "recheck"]'), env.MODE)
         run: python -m story_factory --config "$CONFIG" models --list --why || true
 
       - name: Test call to every model
         # A tiny real request per model. Failures are reported, not fatal: judge panels
         # carry on without a failed member, and generation stops if a needed model is down.
+        if: contains(fromJSON('["check", "story", "bench", "recheck"]'), env.MODE)
         continue-on-error: true
         run: |
           if [ -n "$PING_MODELS" ]; then
@@ -185,6 +202,21 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements-video.txt
 
+      - name: Restore an earlier run's media cache
+        # overrides "resume=<run number>": that run's pictures, voices and model answers come back, so a
+        # failed video is picked up where it stopped and a watched one can be partly redone (redo=...).
+        if: (env.MODE == 'video' || env.MODE == 'video-test') && contains(env.OVERRIDES, 'resume=')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          for kv in $OVERRIDES; do case "$kv" in resume=*) RESUME="${kv#resume=}" ;; esac; done
+          id=$(gh api "repos/$REPO/actions/artifacts?name=media-cache-$RESUME&per_page=1" --jq '.artifacts[0].id // empty')
+          if [ -z "$id" ]; then echo "::warning::No media cache from run $RESUME (kept 3 days); starting fresh"; exit 0; fi
+          gh api "repos/$REPO/actions/artifacts/$id/zip" > "$RUNNER_TEMP/media-cache.zip"
+          mkdir -p "$MEDIA_CACHE_DIR" && unzip -o -q "$RUNNER_TEMP/media-cache.zip" -d "$MEDIA_CACHE_DIR"
+          echo "Restored run $RESUME's media cache: $(du -sh "$MEDIA_CACHE_DIR" | cut -f1)"
+
       - name: Make the video
         if: env.MODE == 'video' || env.MODE == 'video-test'
         env:
@@ -195,16 +227,33 @@ jobs:
           SETS=()
           SCRIPT=production/samples/test_story.json
           BAKEOFF=()
+          REDO=()
           for kv in $OVERRIDES; do
             case "$kv" in
               script=*) SCRIPT="production/samples/${kv#script=}" ;;  # video-test: another sample script
               bakeoff=*) BAKEOFF=(--bakeoff "${kv#bakeoff=}") ;;  # pictures only, by each setup (e.g. bakeoff=all)
               host=make) HOST_MAKE=1 ;;  # paint candidates for the Storyteller's fixed references (~$0.60)
+              theme=make) THEME_MAKE=1 ;;  # make candidates for the channel's theme with Lyria (~$0.20)
+              host=loop) HOST_LOOP=1 ;;  # make candidates for the host's looping clip with Veo (a few dollars)
+              resume=*) ;;  # handled by "Restore an earlier run's media cache"
+              redo=*) REDO=(--redo "${kv#redo=}") ;;  # repaint these beats (with resume=<the run you watched>)
               *) SETS+=(--set "$kv") ;;
             esac
           done
           if [ "$MODE" = video-test ]; then ARGS=(--script "$SCRIPT"); fi
-          ARGS+=("${BAKEOFF[@]}")
+          ARGS+=("${BAKEOFF[@]}" "${REDO[@]}")
+          if [ -n "${HOST_LOOP:-}" ]; then
+            python -m production --config "$CONFIG" "${SETS[@]}" host --loop --out out/host_loop 2>&1 | tee video-summary.txt
+            status=${PIPESTATUS[0]}
+            { echo '## Host loop candidates'; echo '```'; tail -c 20000 video-summary.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            exit $status
+          fi
+          if [ -n "${THEME_MAKE:-}" ]; then
+            python -m production --config "$CONFIG" "${SETS[@]}" theme --out out/theme 2>&1 | tee video-summary.txt
+            status=${PIPESTATUS[0]}
+            { echo '## Theme candidates'; echo '```'; tail -c 20000 video-summary.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            exit $status
+          fi
           if [ -n "${HOST_MAKE:-}" ]; then
             python -m production --config "$CONFIG" "${SETS[@]}" host --out out/host_refs 2>&1 | tee video-summary.txt
             status=${PIPESTATUS[0]}
@@ -266,6 +315,21 @@ jobs:
           REPO: ${{ github.repository }}
         run: .github/scripts/share-review.sh
 
+      - name: Pack the media cache
+        if: always() && (env.MODE == 'video' || env.MODE == 'video-test')
+        continue-on-error: true
+        run: python -m production cache pack --dir "$MEDIA_CACHE_DIR" --out build/media-cache
+
+      - name: Keep the media cache for 3 days
+        # resume=<this run's number> restores it; pictures are kept as JPEGs (about a tenth of the size)
+        if: always() && (env.MODE == 'video' || env.MODE == 'video-test')
+        uses: actions/upload-artifact@v6
+        with:
+          name: media-cache-${{ github.run_number }}
+          path: build/media-cache/
+          retention-days: 3
+          if-no-files-found: ignore
+
       - name: Save the video
         if: always() && (env.MODE == 'video' || env.MODE == 'video-test')
         uses: actions/upload-artifact@v6
@@ -282,8 +346,12 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           P2=(python -m production --config "$CONFIG")
+          if [ "$MODE" = video-stats ] && [ -z "$YOUTUBE_REFRESH_TOKEN" ]; then
+            echo "YouTube is not connected yet (YOUTUBE_REFRESH_TOKEN): no stats to read" | tee channel-output.txt
+            exit 0
+          fi
           case "$MODE" in
-            video-approve) "${P2[@]}" approve --story "$STORY_ID" ;;
+            video-approve) "${P2[@]}" approve --story "$STORY_ID" --note "${OVERRIDES:-}" ;;
             video-reject)  "${P2[@]}" approve --story "$STORY_ID" --reject "${OVERRIDES:-no reason given}" ;;
             video-stats)   "${P2[@]}" stats ;;
             video-publish)
@@ -295,6 +363,33 @@ jobs:
           status=${PIPESTATUS[0]}
           { echo "## $MODE"; echo '```'; cat channel-output.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           exit $status
+
+      - name: Compile finished episodes into one long video
+        # story_id = "12,15,18" (each episode's production artifact is kept 14 days); overrides = the title
+        if: env.MODE == 'video-compile'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          DIRS=()
+          for id in ${STORY_ID//,/ }; do
+            .github/scripts/fetch-video.sh "$id"
+            DIRS+=("out/story-$id")
+          done
+          python -m production --config "$CONFIG" compile --dirs "${DIRS[@]}" --out out/compilation \
+            --title "${OVERRIDES:-}" | tee -a "$GITHUB_STEP_SUMMARY"
+          rm -rf out/compilation/work "${DIRS[@]}"
+
+      - name: Save the compilation
+        if: env.MODE == 'video-compile'
+        uses: actions/upload-artifact@v6
+        with:
+          name: compilation-${{ github.run_number }}
+          path: out/compilation/
+          retention-days: 14
+          if-no-files-found: ignore
 
       - name: Share an earlier run's review images
         if: env.MODE == 'video-share'

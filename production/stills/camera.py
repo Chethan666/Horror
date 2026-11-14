@@ -40,19 +40,24 @@ from PIL import Image, ImageDraw, ImageFilter
 from ..look import H, W
 from ..shots import Shot
 
-MOVES = ("none", "push_in", "pull_out", "pan_left", "pan_right", "push_in_fast")
+MOVES = ("none", "push_in", "pull_out", "pan_left", "pan_right", "push_in_fast", "jolt")
+# How fast a move goes at each tension (1 calm ... 5 terror): calm drifts, terror presses in.
+SPEED = {1: 0.8, 2: 1.0, 3: 1.15, 4: 1.3, 5: 1.45}
 ATMOSPHERES = ("rain", "fog", "flicker")
 # The stream's colour labels (what the conversion in `film_filter` produces).
 COLOUR_TAGS = ["-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv"]
 TO_VIDEO = "scale=out_color_matrix=bt709:out_range=limited,format=yuv420p"
 
 
-def move_for(beat: Shot, k: int) -> str:
-    """The move that suits a beat (k: its place in the running order, so neighbours differ)."""
+def move_for(beat: Shot, k: int, after_scare: bool = False) -> str:
+    """The move that suits a beat (k: its place in the running order, so neighbours differ).
+    The beat after a scare pulls slowly back: the aftermath, a breath before the story goes on."""
     if beat.view == "cctv":
         return "none"  # a camera bolted to a wall
     if beat.scare:
         return "push_in_fast"
+    if after_scare:
+        return "pull_out"
     if beat.framing in ("wide", "high_angle"):
         return "pan_left" if k % 2 else "pan_right"
     if beat.framing in ("insert", "extreme_close", "close", "pov"):
@@ -60,22 +65,27 @@ def move_for(beat: Shot, k: int) -> str:
     return ("push_in", "pull_out", "push_in")[k % 3]
 
 
-def path(move: str, seconds: float) -> tuple[float, float, float, float, str]:
+def path(move: str, seconds: float, tension: int = 2) -> tuple[float, float, float, float, str]:
     """A move as (zoom at the start, zoom at the end, x at the start, x at the end, curve).
 
     x is where the window sits in the room the zoom leaves: 0 left, 0.5 centre, 1 right. The
-    amount grows with the shot's length so every move has about the same gentle speed."""
+    amount grows with the shot's length so every move has about the same gentle speed, and with
+    the beat's tension (SPEED): a calm beat drifts, a tense one presses in."""
+    speed = SPEED.get(int(tension or 2), 1.0)
     if move in ("push_in", "pull_out"):
-        amount = min(max(0.010 * seconds, 0.035), 0.08)
+        amount = min(max(0.010 * seconds, 0.035), 0.08) * speed
         a, b = (1.0, 1.0 + amount) if move == "push_in" else (1.0 + amount, 1.0)
         return a, b, 0.5, 0.5, "even"
     if move in ("pan_left", "pan_right"):
-        room = 1.0 + min(max(0.012 * seconds, 0.04), 0.09)
+        room = 1.0 + min(max(0.012 * seconds, 0.04), 0.09) * speed
         a, b = (1.0, 0.0) if move == "pan_left" else (0.0, 1.0)
         return room, room, a, b, "even"
     if move == "push_in_fast":
         amount = min(max(0.03 * seconds, 0.08), 0.14)
         return 1.0, 1.0 + amount, 0.5, 0.5, "settle"  # fast at the cut, slowing: a lunge
+    if move == "jolt":  # a scare's reveal: a hard push and a short shake that dies away
+        amount = min(max(0.03 * seconds, 0.07), 0.12)
+        return 1.04, 1.04 + amount, 0.5, 0.5, "jolt"
     return 1.0, 1.0, 0.5, 0.5, "even"
 
 
@@ -132,24 +142,52 @@ def canvas(picture: Path, out: Path, zoom: float, grain: float, seed: int,
     return cw, ch
 
 
+def canvas_layer(picture: Path, out: Path, zoom: float, grain: float, seed: int,
+                 size: tuple[int, int] = (W, H)) -> tuple[int, int]:
+    """A foreground layer (RGBA) on the same canvas as its background, with the same grain."""
+    cw = int(math.ceil(size[0] * max(zoom, 1.0) / 2) * 2)
+    ch = int(math.ceil(size[1] * max(zoom, 1.0) / 2) * 2)
+    with Image.open(picture) as im:
+        im = im.convert("RGBA")
+        scale = max(cw / im.width, ch / im.height)
+        if abs(scale - 1.0) > 1e-6:
+            im = im.resize((max(round(im.width * scale), cw), max(round(im.height * scale), ch)), Image.LANCZOS)
+        x, y = (im.width - cw) // 2, (im.height - ch) // 2
+        rgba = np.asarray(im.crop((x, y, x + cw, y + ch)), dtype=np.float32) / 255.0
+    rgb = grain_on(rgba[..., :3], grain, seed + 1)
+    Image.fromarray((np.dstack([rgb, rgba[..., 3]]) * 255.0 + 0.5).astype("uint8"), "RGBA").save(out, compress_level=1)
+    return cw, ch
+
+
+def parallax_routes(seconds: float, tension: int = 2) -> tuple[tuple, tuple]:
+    """The background and foreground moves of a parallax shot: both push in, the foreground about twice
+    as far and drifting a little sideways, so near things pass in front of far ones."""
+    speed = SPEED.get(int(tension or 2), 1.0)
+    amount = min(max(0.008 * seconds, 0.03), 0.06) * speed
+    return (1.0, 1.0 + amount, 0.5, 0.5, "even"), (1.0 + amount * 0.5, 1.0 + amount * 2.5, 0.42, 0.58, "even")
+
+
 def move_filter(route: tuple[float, float, float, float, str], frames: int, canvas_size: tuple[int, int],
-                size: tuple[int, int] = (W, H)) -> str:
+                size: tuple[int, int] = (W, H), alpha: bool = False) -> str:
     """HD colours, then the move (`route`, from `path`) over a canvas of the frame times the
-    route's largest zoom."""
+    route's largest zoom. `alpha`: a foreground layer, its transparency kept."""
     w, h = size
     cw, ch = canvas_size
     z0, z1, xa, xb, curve = route
     zmax = max(z0, z1, 1.0)
-    parts = [TO_VIDEO]
+    parts = [TO_VIDEO.replace("yuv420p", "yuva420p") if alpha else TO_VIDEO]
     if (cw, ch) != (w, h):
         p = f"clip((on-1)/{max(frames - 1, 1)},0,1)"  # the filter counts frames from 1
-        if curve == "settle":
+        if curve in ("settle", "jolt"):
             p = f"(1-(1-{p})*(1-{p}))"
         z = f"({z0:.5f}+({z1 - z0:.5f})*{p})"
         s = f"({z}/{zmax:.5f})"  # frame pixels per canvas pixel
         ww, hh = f"({w}/{s})", f"({h}/{s})"  # the window on the canvas that fills the frame
         x0 = f"(({cw}-{ww})*({xa:.3f}+({xb - xa:.3f})*{p}))"
         y0 = f"(({ch}-{hh})/2)"
+        if curve == "jolt":  # a shake of under 1% of the frame, gone in about half a second
+            x0 = f"({x0}+{0.008 * cw:.2f}*exp(-(on-1)/5)*sin((on-1)*2.3))"
+            y0 = f"({y0}+{0.008 * ch:.2f}*exp(-(on-1)/5)*cos((on-1)*1.9))"
         x1, y1 = f"({x0}+{cw}/{s})", f"({y0}+{ch}/{s})"
         parts.append(f"perspective=x0='{x0}':y0='{y0}':x1='{x1}':y1='{y0}':x2='{x0}':y2='{y1}':x3='{x1}':y3='{y1}':"
                      f"interpolation=cubic:sense=source:eval=frame,crop={w}:{h}:0:0")

@@ -85,8 +85,8 @@ def cfg(**over):
     c["listener"] = ""  # no Whisper download in tests (the listener has its own tests)
     c["host_references"] = {}  # the repository's fixed host pictures are not part of these tests
     c["video_size"], c["picture_size"] = [1280, 720], [1376, 774]  # a smaller frame: quicker tests
-    c.update({"end_screen_seconds": 3.0, "title_seconds": 2.0, "max_usd": 5.0, "parallel": 2, "pollinations": False,
-              "beat_min_seconds": 2.0, "beat_max_seconds": 5.0}, **over)
+    c.update({"end_screen_seconds": 3.0, "title_seconds": 2.0, "max_usd": 5.0, "parallel": 2,
+              "beat_min_seconds": 2.0, "beat_max_seconds": 5.0, "rhythm": False}, **over)
     return c
 
 
@@ -258,33 +258,14 @@ class PainterTests(unittest.TestCase):
         self.assertEqual(painter.sizes["fal:shot"], "640x360")  # what the painter really sent back
         self.assertAlmostEqual(studio.budget.spent, 0.08 + 0.08 + 0.002, places=3)  # two Nano Banana 2.1 pictures
 
-    def test_free_painters_without_any_paid_key(self):
-        import os
-        from unittest import mock
-
+    def test_without_a_paid_painter_nothing_is_painted(self):
         from production.stills.images import Critic, Painter
 
-        buf = io.BytesIO()
-        Image.open(painted(self.root / "p.png")).save(buf, "PNG")
-        png = buf.getvalue()
-        seen = []
-
-        def http(url, method="GET", headers=None, body=None, timeout=0, raw=False):
-            seen.append(url)
-            if "cloudflare" in url:
-                return {"result": {"image": base64.b64encode(png).decode()}, "success": True}
-            return png
-
-        c = cfg(pollinations=True, pollinations_gap_seconds=0)
-        with mock.patch.dict(os.environ, {"CF_ACCOUNT_ID": "acc", "CF_API_TOKEN": "tok"}):
-            painter = Painter(None, c, self.root / "art", Critic(None, "dark"), http=http)
-            out, source = painter.paint("a bus", [], self.root / "x.png", "k", c["chains"]["beat"], check="a bus")
-        self.assertEqual(source, "cloudflare")
-        self.assertIn("/accounts/acc/ai/run/@cf/black-forest-labs/flux-1-schnell", seen[0])
-        painter = Painter(None, c, self.root / "art2", Critic(None, "dark"), http=http)
-        out, source = painter.paint("a bus", [], self.root / "y.png", "k", c["chains"]["beat"], check="a bus")
-        self.assertEqual(source, "pollinations")
-        self.assertTrue(seen[-1].startswith("https://image.pollinations.ai/prompt/a%20bus"))
+        c = cfg()  # the free painters (Cloudflare, Pollinations) were removed: they broke continuity
+        painter = Painter(None, c, self.root / "art", Critic(None, "dark"))
+        out, source = painter.paint("a bus", [], self.root / "x.png", "k", c["chains"]["beat"], check="a bus")
+        self.assertEqual((out, source), (None, "none"))
+        self.assertFalse(any(step in ("cloudflare", "pollinations") for chain in c["chains"].values() for step in chain))
 
 
 @unittest.skipUnless(HAVE, "video libraries or ffmpeg not installed")
@@ -307,11 +288,11 @@ class TeamTests(unittest.TestCase):
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         fal = FakeFal(root)
         summary = bakeoff.run(story(first_person=True), root / "out", voice.SilentVoice(), Router(), cfg(max_usd=7.0),
-                              fal, names=["seedream_detail", "flux2", "pro"])
+                              fal, names=["default", "seedream", "pro"])
         out = root / "out"
-        self.assertEqual(list(summary["setups"]), ["seedream_detail", "flux2", "pro"])
+        self.assertEqual(list(summary["setups"]), ["default", "seedream", "pro"])
         beats = summary["beats"]
-        for name in ("seedream_detail", "flux2", "pro"):
+        for name in ("default", "seedream", "pro"):
             self.assertEqual(len(list((out / name).glob("beat_*.jpg"))), beats, name)
             self.assertEqual(summary["setups"][name]["judge"]["same_faces"], 8.0)
         self.assertEqual(len(list(out.glob("compare_beat_*.jpg"))), beats)
@@ -320,36 +301,16 @@ class TeamTests(unittest.TestCase):
             self.assertEqual(im.size, (1280, 3 * (720 + 44)))  # three setups, one above the other
         self.assertTrue((out / "faces.jpg").exists())  # the portraits every setup painted from
         endpoints = [e for e, _ in fal.calls]
-        self.assertIn("fal-ai/flux-2-pro/edit", endpoints)
+        self.assertIn("fal-ai/bytedance/seedream/v4.5/edit", endpoints)
         self.assertIn("fal-ai/nano-banana-pro/edit", endpoints)
-        self.assertEqual(summary["setups"]["seedream_detail"]["upscaled"], beats)  # the 4K detail pass
-        self.assertEqual(endpoints.count("fal-ai/seedvr/upscale/image"), beats)
+        self.assertIn("google/nano-banana-2.1/edit", endpoints)
+        self.assertFalse(any("flux" in e or "stable-diffusion" in e or "upscale" in e for e in endpoints))
         self.assertFalse(any("elevenlabs" in e for e in endpoints))  # no paid voice in a bake-off
         self.assertIn(2, fal.vision_images)  # a picture is checked against Dana's portrait
         self.assertIn(4, fal.vision_images)  # the judge: the portrait and the three versions
         self.assertEqual(summary["agents"]["art"]["portraits"], ["Dana", "The Storyteller"])
         self.assertLessEqual(summary["usd"], 7.0)
         self.assertFalse((out / "work").exists())
-
-    def test_the_bake_off_runs_nano_banana_2_1_beside_seedream(self):
-        from production import voice
-        from production.stills import bakeoff
-
-        root = Path(tempfile.mkdtemp())
-        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
-        fal = FakeFal(root)
-        summary = bakeoff.run(story(first_person=True), root / "out", voice.SilentVoice(), Router(), cfg(max_usd=7.0),
-                              fal, names=["seedream", "nb21", "sd35"])
-        endpoints = [e for e, _ in fal.calls]
-        self.assertIn("google/nano-banana-2.1/edit", endpoints)
-        sd = [a for e, a in fal.calls if e == "fal-ai/stable-diffusion-v35-large"]
-        self.assertTrue(sd)
-        self.assertEqual({n for e, n in fal.references if e == "fal-ai/stable-diffusion-v35-large"}, {0})  # words alone
-        self.assertTrue(all(n > 0 for e, n in fal.references if e == "google/nano-banana-2.1/edit"))
-        self.assertEqual(sd[0]["image_size"], {"width": 1536, "height": 864})
-        self.assertNotIn("fal-ai/seedvr/upscale/image", endpoints)  # the Seedream setup has no detail pass
-        self.assertIn("fal-ai/bytedance/seedream/v4.5/edit", endpoints)
-        self.assertEqual(summary["setups"]["nb21"]["by_painter"].get("fal:nb21"), summary["beats"])
         nb21 = [a for e, a in fal.calls if e == "google/nano-banana-2.1/edit"]
         self.assertEqual((nb21[0]["resolution"], nb21[0]["aspect_ratio"]), ("2K", "16:9"))
 
@@ -405,9 +366,11 @@ class TeamTests(unittest.TestCase):
         self.assertLessEqual(summary["usd"], 5.0)
         self.assertFalse((out / "work").exists())
         self.assertEqual(json.loads((out / "metadata.json").read_text())["title"], "The Extra Passenger")
-        self.assertEqual(list(summary["agents"]), ["script_check", "casting", "voice", "storyboard", "art",
-                                                   "illustrator", "art_review", "colorist", "motion", "edit_plan",
-                                                   "sound", "edit", "packager", "qa"])
+        self.assertEqual(list(summary["agents"]), ["preflight", "script_check", "casting", "voice", "storyboard",
+                                                   "continuity", "art", "staging", "illustrator", "art_review",
+                                                   "colorist", "motion", "depth", "edit_plan", "sound", "edit",
+                                                   "screening", "packager", "qa"])
+        self.assertEqual(summary["agents"]["preflight"]["voice"], "ok")  # the narrator answered before any spend
         edit = summary["agents"]["edit"]
         self.assertEqual(edit["motion"], "drift")  # every story picture is a moving shot
         self.assertGreater(sum(n for move, n in edit["moves"].items() if move != "none"), 3)
@@ -463,7 +426,7 @@ class TeamTests(unittest.TestCase):
         # the scare is painted like every picture, by Nano Banana 2.1
         self.assertEqual(summary["agents"]["illustrator"]["scare_shots"], [3])
         scare = [a.get("prompt", "") for e, a in fal.calls if e == "google/nano-banana-2.1/edit" and "security camera" in a.get("prompt", "")]
-        self.assertEqual(len(scare), 1)
+        self.assertEqual(len(scare), 2)  # two takes at once; the checker keeps the better
         # beat 1 has rain and a failing light, as the storyboard said ("snow" is not an atmosphere)
         beats = {b["index"]: b for b in json.loads((out / "beats.json").read_text())}
         self.assertEqual(beats[1]["atmosphere"], ["rain", "flicker"])
@@ -509,7 +472,8 @@ class TeamTests(unittest.TestCase):
 
         models = dict(DEFAULTS["stills"]["models"], clip="fal-ai/fake/i2v")
         prices = dict(DEFAULTS["stills"]["prices"], **{"fal-ai/fake/i2v": 0.05})
-        animation = dict(DEFAULTS["stills"]["animation"], enabled=True, beats="all", max_clips=2)
+        animation = dict(DEFAULTS["stills"]["animation"], enabled=True, beats="all", max_clips=2,
+                         durations={"clip": [5, 10]})  # this fake model's lengths (Veo's are 4, 6 and 8 s)
         summary, out, fal = self.make(FakeFal, Router(), first_person=True, models=models, prices=prices,
                                       animation=animation)
         motion = summary["agents"]["motion"]

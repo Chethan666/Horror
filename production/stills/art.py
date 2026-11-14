@@ -128,6 +128,17 @@ FRAMING = {
     "high_angle": "High angle looking down, the person small and exposed",
 }
 STICK = re.compile(r"\b(stick ?figures?|stickm[ae]n|chalk|single[- ]line)\b", re.I)
+# The reveal ladder (production/stills/storyboard.py): how much of the threat a picture may show.
+THREAT = {
+    1: "The threat itself is NOT in the picture: only a sign of it (the source of a sound, a door ajar, the edge of "
+       "a shadow).",
+    2: "The threat is only a dark shape deep in the shadows: no face, no features, barely there.",
+    3: "The threat is only partly seen: one part of it (a hand, an outline, eyes) caught at the edge of the light, "
+       "the rest swallowed by darkness.",
+    4: "The threat is seen, but still in low light and partly in shadow.",
+}
+THREAT_LIMIT = {1: "not shown at all, only implied", 2: "only a dark shape with no features",
+                3: "only partly seen, mostly in darkness"}
 
 
 def designs(router: Any, cast: list[dict[str, Any]], style: str, people: str = "") -> dict[str, str]:
@@ -426,7 +437,8 @@ class IllustratorAgent:
 
     def prompt(self, beat: Shot, house: str, cast: dict[str, str], refs: list[str], style_frame: bool,
                look: dict[str, Any] | None = None, camera: str = "", place: dict[str, Any] | None = None,
-               lessons: str = "", faces: set[str] | frozenset[str] = frozenset(), dark: list[str] | None = None) -> str:
+               lessons: str = "", faces: set[str] | frozenset[str] = frozenset(), dark: list[str] | None = None,
+               facts: list[str] | None = None) -> str:
         """`style_frame`: reference image 1 is there (the place's sheet when `place` has one, else
         the style frame). `place`: the set this beat is in, {"name", "design", "sheet"}. `faces`:
         the people in `refs` sent as two images, a close portrait and then the sheet."""
@@ -474,6 +486,10 @@ class IllustratorAgent:
             things = " and ".join(f"the {x}" for x in dark)
             picture += (f" {things[0].upper() + things[1:]} {'is' if len(dark) == 1 else 'are'} switched OFF and dark "
                         "in this picture, even where a reference image shows it lit.")
+        if getattr(beat, "threat", 0) in THREAT:
+            picture += f" {THREAT[beat.threat]}"
+        if facts:  # what the story has changed by now (production/stills/continuity.py)
+            picture += " Continuity: " + "; ".join(f.rstrip(". ") for f in facts[:4]) + "."
         return (f"One single 16:9 {look.get('noun', 'frame')}, one frame, never split into panels.{lens} "
                 f"{FRAMING.get(beat.framing, beat.framing)}. "
                 f"{picture}{empty}{where}{(' Characters: ' + people + '.') if people else ''} "
@@ -481,16 +497,21 @@ class IllustratorAgent:
                 f"panels.{warned}{avoid}").replace("  ", " ")
 
     @staticmethod
-    def check_text(beat: Shot, cast: dict[str, str]) -> str:
+    def check_text(beat: Shot, cast: dict[str, str], facts: list[str] | None = None) -> str:
         """What the critic compares the picture with: the moment, and each named person's design."""
         people = "; ".join(f"{n}: {cast[n]}" for n in beat.characters if cast.get(n))
+        limit = THREAT_LIMIT.get(getattr(beat, "threat", 0), "")
         # The description decides what is in the frame; the narration only rules out a contradiction.
         # Run 106: a close shot of the monitor alone was refused because "Mummy is asleep" names her.
         return (beat.picture + (f" People in it: {people}" if people else " No people need to be in it.")
                 + f" | The narrator says over it: \"{beat.text[:200]}\" - the description above decides what is "
                 "in the frame (a close shot of an object alone is right when it asks for one); fail the "
                 "picture only if it contradicts these words (a different action, a different place, the "
-                "opposite of what they say).")
+                "opposite of what they say)."
+                + (f" The threat must be {limit}: if it is shown fully visible, lit or in detail, that is serious "
+                   "(say 'threat shown too clearly')." if limit else "")
+                + (" It must not contradict what the story has established: " + "; ".join(facts[:4]) + "."
+                   if facts else ""))
 
     def run(self, board: Board) -> dict[str, Any]:
         cfg, d = board.cfg, board.data
@@ -528,16 +549,18 @@ class IllustratorAgent:
         warned = lessons.load(board.conn) if cfg.get("lessons", True) else ""
         d["tiers"] = {b.index: tier(b) for b in beats}
         dark = lights_off(beats, host_beats)
+        facts_of: dict[int, list[str]] = d.get("continuity") or {}
 
-        def one(beat: Shot, fix: str = "") -> tuple[int, Path | None]:
+        def one(beat: Shot, fix: str = "", capped: bool = True) -> tuple[int, Path | None]:
             names = [n for n in beat.characters if n in sheets][:3]
             place = place_of.get(beat.scene) if beat.index not in host_beats else None  # the host has his own place
             first = (place or {}).get("sheet") or style_frame
             refs = ([first] if first else []) + [p for n in names for p in
                                                  ([portraits[n]] if n in portraits else []) + [sheets[n]]]
             camera = str(cameras.get(beat.view, "")) if use_cameras else ""
+            facts = facts_of.get(beat.index) or []
             text = self.prompt(beat, d["house"], cast, names, bool(first), look, camera, place, warned,
-                               {n for n in names if n in portraits}, dark.get(beat.index))
+                               {n for n in names if n in portraits}, dark.get(beat.index), facts)
             faces = [(n, portraits[n]) for n in names if n in portraits] if cfg.get("face_check", True) else []
             if float(cfg.get("letterbox", 0) or 0) > 1.78:  # cinema bars will cover the top and bottom
                 text = text.replace("never split into panels.", "never split into panels. Composed for a wide "
@@ -546,12 +569,16 @@ class IllustratorAgent:
             if fix:  # the art review's note on the first version leads, so it is not lost at the end
                 text = f"Correct this from the previous attempt: {fix[:300].rstrip('. ')}. {text}"
             tag = f"_fix{abs(hash(fix)) % 10_000}" if fix else ""
+            # the scares and key beats are painted twice at once, and the better take is kept
+            options = cfg.get("candidates") or {}
+            takes = (int(options.get("takes", 2)) if options.get("enabled", False) and not fix
+                     and tier(beat) in tuple(options.get("tiers") or ()) else 1)
             path, source = painter.paint(text, refs, folder / f"beat_{beat.index:03d}{tag}.png",
                                          ["beat", beat.index, text], chains.get(tier(beat), chains["beat"]),
-                                         check=self.check_text(beat, cast) + "".join(
+                                         check=self.check_text(beat, cast, facts) + "".join(
                                              f" The {x} is off and dark." for x in dark.get(beat.index, [])),
                                          accept_minor=tier(beat) == "beat",
-                                         capped=True, redraw=bool(fix), faces=faces)
+                                         capped=capped, redraw=bool(fix), faces=faces, takes=takes)
             sources[beat.index] = source
             return beat.index, path  # clean: the colorist grades it, the edit adds grain and vignette
 
@@ -574,6 +601,19 @@ class IllustratorAgent:
             else:
                 pictures[b.index] = placeholder(folder / f"beat_{b.index:03d}.png", b.index)
                 placeholders += 1
+        # Beats a person asked to have repainted after watching (produce --redo, the workflow's redo=):
+        # their note leads the prompt, and the retry allowance does not hold them back.
+        redone = []
+        by_index = {b.index: b for b in beats}
+        for index, note in sorted((d.get("redo") or {}).items()):
+            beat = by_index.get(index)
+            if beat is None:
+                continue
+            fix = note or "a reviewer asked for a better picture of this moment"
+            path = one(beat, fix, capped=False)[1]
+            if path is not None:
+                pictures[index] = path
+                redone.append(index)
         d["pictures"] = pictures
         refused = [r.split("): ", 1)[1] for r in painter.rejections if r.startswith("beat_") and "): " in r]
         learned = lessons.record(board.conn, refused) if cfg.get("lessons", True) else {}
@@ -581,6 +621,7 @@ class IllustratorAgent:
                 "retry_usd": round(painter.retry_spent, 3), "retries_stopped": painter.retries_stopped, "cameras": {b.index: b.view for b in beats if b.view != "film"},
                 "pictures": len(beats) - borrowed - placeholders, "borrowed_neighbour": borrowed,
                 "placeholders": placeholders, "scare_shots": sorted(strongest), "key_beats": sorted(key_beats),
+                "redone": redone,
                 "by_painter": dict(painter.counts),
                 "doubted_beats": sorted(b.index for b in beats if f"beat_{b.index:03d}" in painter.doubted),
                 "painter_sizes": dict(painter.sizes), "rejected": painter.rejections[:30]}

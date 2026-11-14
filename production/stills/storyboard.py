@@ -47,6 +47,8 @@ SCHEMA = {
             "view": {"type": "string", "enum": list(VIEWS)},
             "atmosphere": {"type": "array", "items": {"type": "string", "enum": list(ATMOSPHERES)}},
             "motion": {"type": "string"},
+            "tension": {"type": "integer"},
+            "threat": {"type": "integer"},
         }}}},
 }
 
@@ -85,8 +87,16 @@ def prompt(beats: list[Shot], scenes: list[dict[str, Any]], cast: list[dict[str,
             "- motion: if this picture were filmed, the one small movement in it, in at most 12 words "
             "(\"her fingers tighten on the receiver\", \"the hooded shape leans closer\"); the camera holds still\n"
             "- sound: one short sound effect for this beat (\"a door creaks open slowly\"), or \"\"\n"
-            "- scare: true only for the few beats where something frightening is revealed\n"
+            "- scare: true only for the two or three beats of the whole story where something frightening is "
+            "revealed (a scare that comes often stops scaring)\n"
             "- importance: 1 (connective) to 5 (the moment the story turns on)\n"
+            "- tension: 1 (calm, ordinary life) to 5 (terror): how tense this moment feels. It sets how long the "
+            "picture holds, how the camera moves, how loud the music is and how the voice reads. Most beats are "
+            "2-3, the build 3-4, only the peaks 5; let it breathe (a calm beat after a peak)\n"
+            "- threat: how much of the threat THIS picture shows: 0 not in it, 1 only heard or implied (a sound's "
+            "source, a door ajar), 2 a shape in the dark, 3 partly seen (a hand, an outline, eyes at the edge of "
+            "the light), 4 fully seen. It rises across the story: 0-2 in the first half, fully seen (4) at most "
+            "once, at the climax, or never. What the viewer imagines is scarier than what a picture shows\n"
             "- view: \"film\" for almost every beat; \"cctv\", \"phone\" or \"polaroid\" only when the words "
             "say we are looking at a security-camera feed, a phone photo or video, or an old photograph, and "
             "then the picture shows what that camera sees. Never for [HOST] beats\n"
@@ -104,13 +114,17 @@ class StoryboardAgent:
     def run(self, board: Board) -> dict[str, Any]:
         cfg, d = board.cfg, board.data
         timeline, spans, scenes = d["timeline"], d["spans"], d["scenes"]
+        low, high = float(cfg.get("beat_min_seconds", 5.0)), float(cfg.get("beat_max_seconds", 11.0))
+        # The rhythm follows the tension: calm scenes hold their pictures longer, terrifying ones cut faster.
+        limits = shotlist.scene_limits(scenes, low, high) if cfg.get("rhythm", True) else {}
         beats = shotlist.cut(timeline.chunks, shotlist.scene_index(timeline.chunks, spans), timeline.duration,
-                             float(cfg.get("beat_min_seconds", 5.0)), float(cfg.get("beat_max_seconds", 11.0)))
+                             low, high, limits)
         host_beats = self._host_beats(beats, timeline, d)
         for b in beats:
             shotlist.fallback(b, scenes[b.scene] if b.scene < len(scenes) else {}, beats)
             if b.index in host_beats:
                 b.characters = [HOST]
+                b.tension, b.threat, b.scare = 2, 0, False
                 b.picture = (f"{HOST} sits by his lantern's red flame in the dark, looking at us as he speaks: "
                              f"\"{b.text[:160]}\"")
         names = [str(c.get("name")) for c in d["cast"] if c.get("name")] + [HOST]
@@ -119,9 +133,13 @@ class StoryboardAgent:
         if left and directed:  # the model skipped some: ask again for just those
             directed += self._direct(board, left, scenes, names, host_beats)
         checked = check(board, beats, scenes, host_beats)
+        allowed = limit_scares(beats, timeline.duration / 60.0, float(cfg.get("scares_per_minute", 0.35)),
+                               int(cfg.get("max_scares", 3)))
+        climb = ladder(beats, host_beats, int(cfg.get("max_full_reveals", 1)))
         d.update(beats=beats, host_beats=host_beats)
         return {"beats": len(beats), "directed_by_model": directed, "host_beats": len(host_beats),
-                "scares": sum(1 for b in beats if b.scare), "check": checked,
+                "scares": sum(1 for b in beats if b.scare), "scares_allowed": allowed, "check": checked,
+                "reveal_ladder": climb, "tension": [b.tension for b in beats],
                 "average_seconds": round(timeline.duration / max(len(beats), 1), 1)}
 
     def _host_beats(self, beats: list[Shot], timeline: Any, d: dict[str, Any]) -> set[int]:
@@ -166,6 +184,8 @@ class StoryboardAgent:
                     beat.importance = min(max(int(item.get("importance", 2)), 1), 5)
                 except (TypeError, ValueError):
                     pass
+                beat.tension = _level(item.get("tension"), 1, 5, beat.tension)
+                beat.threat = _level(item.get("threat"), 0, 4, beat.threat) if beat.index not in host_beats else 0
                 view = str(item.get("view") or "film")
                 beat.view = view if view in VIEWS and beat.index not in host_beats else "film"
                 air = item.get("atmosphere")
@@ -174,6 +194,47 @@ class StoryboardAgent:
                 beat.directed = True
                 got += 1
         return got
+
+
+def _level(value: Any, low: int, high: int, default: int) -> int:
+    try:
+        return min(max(int(value), low), high)
+    except (TypeError, ValueError):
+        return default
+
+
+def limit_scares(beats: list[Shot], minutes: float, per_minute: float = 0.35, most: int = 3) -> int:
+    """At most `per_minute` scares a minute (never fewer than one, never more than `most`): the most
+    important keep their stinger and the strongest painter; the rest stay tense beats."""
+    allowed = max(1, min(most, round(minutes * per_minute)))
+    scares = sorted((b for b in beats if b.scare), key=lambda b: (-b.importance, -b.tension, b.index))
+    for b in scares[allowed:]:
+        b.scare = False
+    return allowed
+
+
+def ladder(beats: list[Shot], host_beats: set[int], max_full: int = 1) -> dict[str, Any]:
+    """The reveal ladder: how much of the threat may be shown rises toward the climax (the most
+    important scare): a shape in the dark at most before halfway there, partly seen until the climax,
+    fully seen at most `max_full` times from the climax on. Image models show a monster clearly
+    unless told otherwise, and a threat shown early stops frightening."""
+    story = [b for b in beats if b.index not in host_beats]
+    if not story:
+        return {}
+    scares = [b for b in story if b.scare]
+    climax = max(scares or story[len(story) // 2:], key=lambda b: (b.importance, b.tension, b.index))
+    at = next(k for k, b in enumerate(story) if b.index == climax.index)
+    lowered = full = 0
+    for k, b in enumerate(story):
+        cap = 2 if k < at / 2 else 3 if k < at else 4
+        if b.threat == 4 and cap == 4:
+            full += 1
+            if full > max_full:
+                cap = 3
+        if b.threat > cap:
+            b.threat = cap
+            lowered += 1
+    return {"climax": climax.index, "lowered": lowered}
 
 
 def _words(text: str) -> list[str]:

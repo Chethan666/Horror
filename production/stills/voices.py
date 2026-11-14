@@ -127,6 +127,12 @@ class VoiceAgent:
         host_k = cfg.get("host_voice", {}).get("kokoro", "am_michael")
         teller_k = cfg.get("teller_voices", {}).get("kokoro", {}).get(casting["teller_kind"], host_k)
         host = self._speaker(board, eleven, casting["host"], host_k)
+        own = str((cfg.get("host_voice") or {}).get("elevenlabs_id") or "")
+        if eleven is not None and own and board.studio.models.get("host_voice"):
+            # the channel's own voice for the host (ElevenLabs' API); the stock voice reads nothing of his
+            kokoro = board.kokoro
+            free = kokoro.speaker(host_k, getattr(kokoro, "base_speed", 1.0)) if hasattr(kokoro, "speaker") else kokoro
+            host = eleven.speaker(own, free, role="host_voice")
         teller = host if d["pov"] != "first" else self._speaker(board, eleven, casting["teller"], teller_k)
         # Characters: the paid name when paid, else a Kokoro voice of the same kind.
         k_names = voice.pick_voices(d["kinds"],

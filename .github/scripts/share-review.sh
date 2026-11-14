@@ -39,6 +39,13 @@ else
 fi
 git add "run-$GITHUB_RUN_NUMBER"
 if git diff --cached --quiet; then echo "Nothing to share"; exit 0; fi
-git commit -q -m "Review media for run $GITHUB_RUN_NUMBER"
-git push -q "$remote" HEAD:review-media
-echo "Shared $(ls "run-$GITHUB_RUN_NUMBER" | wc -l) files on the review-media branch"
+# Only the newest runs are kept (REVIEW_KEEP_RUNS, 15), as one commit with no history behind it: every run
+# used to add its pictures to the repository for good. Older runs' review images stay in their artifacts.
+keep=${REVIEW_KEEP_RUNS:-15}
+for old in $(ls -d run-* 2>/dev/null | sed 's/^run-//' | sort -n | head -n -"$keep"); do
+  git rm -rq --cached --ignore-unmatch "run-$old" && rm -rf "run-$old"
+done
+tree=$(git write-tree)
+commit=$(echo "Review media: the last $keep runs (newest: run $GITHUB_RUN_NUMBER)" | git commit-tree "$tree")
+git push -q --force "$remote" "$commit:refs/heads/review-media"
+echo "Shared $(ls "run-$GITHUB_RUN_NUMBER" | wc -l) files on the review-media branch (keeping the last $keep runs)"
