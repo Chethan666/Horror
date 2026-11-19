@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Pushes small review images of a run (contact sheet, thumbnails, frames from the
-# video every 20 s, four full-size frames) and its reports to the review-media branch, under run-<number>/,
-# so they can be looked at without downloading the whole artifact. No audio, no full video.
+# video every 20 s, four full-size frames, a 360p watch copy of a short video) and its reports to the review-media branch, under run-<number>/,
+# so they can be looked at without downloading the whole artifact.
 set -euo pipefail
 src=out
 dest=$RUNNER_TEMP/review/run-$GITHUB_RUN_NUMBER
@@ -24,6 +24,12 @@ find "$src" -type f -name 'video.mp4' | while read -r v; do
     ffmpeg -nostdin -hide_banner -loglevel error -y -ss "$(( ${length:-0} * part / 100 ))" -i "$v" -frames:v 1 -q:v 2 \
       "$dest/${dir}_frame_${part}.jpg" || true
   done
+  # A small watch copy with its sound (360p, about 5 MB a minute) for videos up to REVIEW_WATCH_MAX_SECONDS
+  # (240), so a short test can be watched and listened to straight from the branch.
+  if [ "${length:-0}" -le "${REVIEW_WATCH_MAX_SECONDS:-240}" ]; then
+    ffmpeg -nostdin -hide_banner -loglevel error -y -i "$v" -vf "scale=-2:360" -c:v libx264 -preset veryfast -crf 30 \
+      -c:a aac -b:a 96k -movflags +faststart "$dest/${dir}_watch.mp4" || true
+  fi
 done
 find "$src" -type f \( -name 'report.json' -o -name 'beats.json' -o -name 'metadata.json' -o -name 'host_report.json' \) \
   ! -path '*/work/*' | while read -r f; do cp "$f" "$dest/$(echo "${f#$src/}" | tr '/' '_')"; done
