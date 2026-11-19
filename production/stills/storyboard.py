@@ -191,6 +191,10 @@ class StoryboardAgent:
                 air = item.get("atmosphere")
                 beat.atmosphere = ([str(a) for a in air if str(a) in ATMOSPHERES][:2] if isinstance(air, list)
                                    else shotlist.atmosphere_in(beat.picture))
+                place = str(scenes[beat.scene].get("location", "")) if beat.scene < len(scenes) else ""
+                if beat.view != "film" or not shotlist.outside(beat.picture):
+                    beat.atmosphere = shotlist.outdoor_air(beat.atmosphere, beat.picture, place,
+                                                           "" if beat.view == "film" else "screen")
                 beat.directed = True
                 got += 1
         return got
@@ -310,8 +314,8 @@ def check(board: Board, beats: list[Shot], scenes: list[dict[str, Any]], host_be
         if beat is None or len(picture) < 20:
             continue
         beat.picture = picture[:700]
-        if "rain" in beat.atmosphere and any(w in picture.lower() for w in shotlist.INSIDE):
-            beat.atmosphere = [a for a in beat.atmosphere if a != "rain"]  # the new picture is indoors
+        if not shotlist.outside(picture):
+            beat.atmosphere = shotlist.outdoor_air(beat.atmosphere, picture)  # the new picture may be indoors
         if isinstance(f.get("characters"), list):
             beat.characters = [shotlist._canonical(str(n), names + [HOST]) for n in f["characters"] if str(n).strip()][:3]
         fixed.append({"beat": beat.index, "problem": str(f.get("problem", ""))[:200]})

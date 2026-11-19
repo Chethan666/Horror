@@ -33,6 +33,12 @@ find "$src" -type f -name 'video.mp4' | while read -r v; do
 done
 find "$src" -type f \( -name 'report.json' -o -name 'beats.json' -o -name 'metadata.json' -o -name 'host_report.json' \) \
   ! -path '*/work/*' | while read -r f; do cp "$f" "$dest/$(echo "${f#$src/}" | tr '/' '_')"; done
+# What went wrong in the run, without the full log (whose host may be out of a reviewer's reach): the
+# warnings and errors of the video step, one line each, cut to 300 characters.
+if [ -f video-summary.txt ]; then
+  grep -E "WARNING|ERROR|failed|rejected|Traceback|Error:" video-summary.txt | grep -viE "huggingface|HF Hub|HF_TOKEN" \
+    | cut -c1-300 | head -400 > "$dest/log_digest.txt" || true
+fi
 cd "$RUNNER_TEMP/review"
 git init -q
 git config user.name "github-actions[bot]"

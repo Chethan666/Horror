@@ -41,7 +41,8 @@ class EditPlanAgent:
         beats: list[Shot] = d["beats"]
         audio, rate, timeline = d["audio"], d["rate"], d["timeline"]
         story_seconds = timeline.duration
-        cold = edit.pick_cold_open(beats, d["scenes"], 6.0, 16.0) if cfg.get("cold_open", True) else []
+        cold = (edit.pick_cold_open(beats, d["scenes"], 6.0, 16.0, set(d.get("host_beats") or ()),
+                                    float(cfg.get("cold_open_before", 0.65))) if cfg.get("cold_open", True) else [])
         cold = [i for i in cold if i not in d["host_beats"]]
         cold_a = beats[cold[0]].t0 if cold else 0.0
         cold_b = beats[cold[-1]].t1 if cold else 0.0

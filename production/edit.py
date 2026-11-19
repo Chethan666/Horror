@@ -128,13 +128,22 @@ def programme(shots: list[Shot], pictures: dict[int, Path], cold: list[int],
 
 
 def pick_cold_open(shots: list[Shot], scenes: list[dict[str, Any]], min_s: float = 6.0,
-                   max_s: float = 14.0) -> list[int]:
+                   max_s: float = 14.0, host: set[int] | frozenset[int] = frozenset(),
+                   before: float = 0.65) -> list[int]:
     """The scariest moment, before the ending: a scare (or the most important shot) in a key scene,
-    with the shots after it until 6-14 s are covered. Never from the final scene (no spoilers)."""
+    with the shots after it until 6-14 s are covered. Never a spoiler: never the host's frames, never
+    the story's final scene, and only from the first `before` of the story's running time, since a
+    twist or reveal sits in the last third (run 113 opened on the guest book signed with the
+    teller's own name, the story's last line, so the ending was given away in the first second)."""
     if not shots:
         return []
-    last_scene = shots[-1].scene
-    pool = [s for s in shots if s.scene != last_scene and s.t0 > 20] or shots
+    story = [s for s in shots if s.index not in host] or shots
+    last_scene = story[-1].scene
+    start_t, end_t = story[0].t0, story[-1].t1
+    cutoff = start_t + before * max(end_t - start_t, 0.0)
+    pool = ([s for s in story if s.scene != last_scene and s.t0 > 20 and s.t0 < cutoff]
+            or [s for s in story if s.scene != last_scene and s.t0 < cutoff]
+            or [s for s in story if s.scene != last_scene] or story)
     def rank(s: Shot) -> tuple:
         key = scenes[s.scene].get("key_moment") if s.scene < len(scenes) else False
         return (not s.scare, not key, -s.importance, s.index)

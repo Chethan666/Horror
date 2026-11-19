@@ -166,7 +166,33 @@ def scene_limits(scenes: list[dict[str, Any]], low: float, high: float) -> dict[
     return out
 
 
-INSIDE = ("inside", "interior", "indoors", "window", "windscreen", "windshield", "through the glass", "room")
+INSIDE = ("inside", "interior", "indoors", "window", "windscreen", "windshield", "through the glass", "room",
+          "office", "desk", "counter", "lobby", "kitchen", "hallway", "corridor", "landing", "staircase",
+          "bed", "ceiling", "screen", "monitor", "security camera", "cctv")
+
+
+def indoors(*texts: str) -> bool:
+    """True when any of the words (a picture, its scene's place) put the camera indoors, behind glass
+    or on a screen: no rain or fog may then fall across the frame (run 113: rain streaked over an office
+    because the line spoke of a wet raincoat)."""
+    return any(w in str(t or "").lower() for t in texts for w in INSIDE)
+
+
+OUTSIDE = ("outside", "exterior", "outdoors", "street", "road", "parking lot", "car park", "forest", "woods",
+           "field", "under the sky", "yard", "garden", "walkway")
+
+
+def outside(picture: str) -> bool:
+    """The picture's own words put the camera out of doors (a lit window seen from the lot is outside)."""
+    text = str(picture or "").lower()
+    return any(w in text for w in OUTSIDE)
+
+
+def outdoor_air(atmosphere: list[str], *texts: str) -> list[str]:
+    """The atmosphere with rain and fog taken out of an indoor picture."""
+    if not indoors(*texts):
+        return list(atmosphere)
+    return [a for a in atmosphere if a not in ("rain", "fog")]
 
 
 def atmosphere_in(picture: str) -> list[str]:
