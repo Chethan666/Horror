@@ -26,7 +26,7 @@
  "scenes": [
   {
    "text": "A guest book that knows who is coming. The lantern is lit.",
-   "visual": "The Storyteller in the dark of the hollow, mist at his boots, holding his red lantern low; far behind him, a lonely roadside motel sign glowing faintly through fog",
+   "visual": "The Storyteller in the dark of the hollow, mist at his boots, holding his red lantern low; far behind him, the dark outline of a lonely roadside motel in the fog, one window lit",
    "location": "the hollow",
    "characters": [],
    "mood": "eerie",
@@ -38,19 +38,19 @@
   },
   {
    "text": "I work the night desk at the Wayside Motel, out on Route 9, where the road runs between two towns that don't talk to each other. Twelve rooms. Most nights, nobody comes.",
-   "visual": "Wide exterior at night: a small, run-down roadside motel in fog, one long row of doors, a buzzing sign, a single lit window at the front office, an empty two-lane road",
+   "visual": "Wide exterior at night: a small, run-down single-storey roadside motel in fog, one long row of identical doors, a single lit window at the front office, an empty two-lane road; no signs or lettering anywhere",
    "location": "the Wayside Motel, outside",
    "characters": [],
    "mood": "uneasy",
    "delivery": "steady",
    "sfx": [
-    "a neon sign buzzing"
+    "distant traffic on a wet road"
    ],
    "key_moment": false
   },
   {
    "text": "The guest book sits open on the counter. The owner, Mr. Pell, likes ink. He says a name in ink is a promise.",
-   "visual": "Close on an old leather guest book lying open on a worn wooden front-desk counter, a fountain pen beside it, a brass desk bell, a single desk lamp",
+   "visual": "Close on an old leather guest book lying open on a worn wooden front-desk counter, its columns of handwriting too small and faded to read, a fountain pen beside it, a brass desk bell, a single desk lamp",
    "location": "the motel office",
    "characters": [],
    "mood": "uneasy",
@@ -60,7 +60,7 @@
   },
   {
    "text": "Every morning, when I hand over the keys, there's a new line in it. Room six. Signed at two fourteen a.m. A different name every night.",
-   "visual": "Over June's shoulder: her finger resting under a handwritten line in the guest book, the ink a dark blood red, grey dawn light at the office window",
+   "visual": "June at the counter in grey dawn light, tired, a ring of motel keys in one hand, her other finger resting under one line of dark blood-red ink in the open guest book (the writing a blur, unreadable)",
    "location": "the motel office",
    "characters": [
     "June"
@@ -74,7 +74,7 @@
   },
   {
    "text": "Room six has been boarded up since before I was hired.",
-   "visual": "Outside at night: the door of room six, nailed shut with weathered planks, a brass number 6 hanging crooked, the fog pressing close",
+   "visual": "Outside at night, under a dim yellow bulb: one motel door nailed shut with weathered grey planks, a brass number 6 hanging crooked on it, fog pressing close; no other numbers or signs",
    "location": "the Wayside Motel, outside",
    "characters": [],
    "mood": "dread",
@@ -86,7 +86,7 @@
   },
   {
    "text": "The first week, I blamed the day staff. The second week, I stopped blaming anyone. I started watching.",
-   "visual": "June at the front desk late at night, sitting upright and alert, her phone in her hand showing a security camera view, the guest book in front of her",
+   "visual": "June at the front desk late at night, sitting upright and alert, her phone held up in both hands, the guest book open in front of her, the window behind her black",
    "location": "the motel office",
    "characters": [
     "June"
@@ -112,7 +112,7 @@
   },
   {
    "text": "Not much. Just a roll. Like someone had brushed it with a sleeve.",
-   "visual": "June's face lit only by her phone screen, eyes fixed on it, refusing to look down at the counter",
+   "visual": "Close on June's face lit only by the cold blue light of her phone, eyes wide and fixed on the screen, jaw clenched, refusing to look down",
    "location": "the motel office",
    "characters": [
     "June"
@@ -138,7 +138,7 @@
   },
   {
    "text": "I didn't turn around. I couldn't.",
-   "visual": "Extreme close on June's face, frozen, tears in her eyes, a single drop of water falling past her cheek from above",
+   "visual": "Extreme close on June's face from the front, frozen, eyes wide with terror and wet with tears, staring straight ahead without turning; a single drop of water falls past her cheek from above",
    "location": "the motel office",
    "characters": [
     "June"
@@ -164,7 +164,7 @@
   },
   {
    "text": "Mr. Pell came in at six. He read the line very quietly. Then he took a key off the hook. A key I had never seen. \"It's always the one at the desk,\" he said. \"Your room's ready.\"",
-   "visual": "Mr. Pell, an old man in a buttoned brown cardigan, holding out an old brass key on a red tag with the number 6, his face kind and sad, June out of focus in the foreground",
+   "visual": "Mr. Pell, an old man in a buttoned brown cardigan, holding out an old brass key on a red tag across the counter, his face kind and sad, June out of focus in the foreground",
    "location": "the motel office",
    "characters": [
     "Mr. Pell",
@@ -179,7 +179,7 @@
   },
   {
    "text": "The Wayside Motel is still open. The night desk is always staffed. And if you sign the book, check the name above yours.",
-   "visual": "The Storyteller in the hollow lowers his red lantern; far behind him the motel sign flickers and one boarded door stands open, a dim light inside",
+   "visual": "The Storyteller in the hollow lowers his red lantern; far behind him, in the fog, the dark row of motel doors, one boarded door standing open with a dim light inside; no signs",
    "location": "the hollow",
    "characters": [],
    "mood": "eerie",
@@ -238,6 +238,7 @@
   "shorts": 1,
   "max_effects": 14,
   "parallel": 3,
-  "target_seconds": 120
+  "target_seconds": 120,
+  "voice_pace": 1.0
  }
 }
