@@ -1,0 +1,243 @@
+{
+ "id": 9004,
+ "title": "Room Six",
+ "kind": "long",
+ "intro": "A guest book that knows who is coming. The lantern is lit.",
+ "body": "I work the night desk at the Wayside Motel, out on Route 9, where the road runs between two towns that don't talk to each other. Twelve rooms. Most nights, nobody comes. The guest book sits open on the counter. The owner, Mr. Pell, likes ink. He says a name in ink is a promise. Every morning, when I hand over the keys, there's a new line in it. Room six. Signed at two fourteen a.m. A different name every night. Room six has been boarded up since before I was hired. The first week, I blamed the day staff. The second week, I stopped blaming anyone. I started watching. Last night, at two thirteen, the lights in the parking lot flickered. At two fourteen, the pen moved. Not much. Just a roll. Like someone had brushed it with a sleeve. I didn't look at the book. I looked at the camera. On the screen, I was sitting at the desk. And behind me, close enough to breathe on my neck, a man in a wet raincoat was leaning over my shoulder to write. I didn't turn around. I couldn't. When the lights came back, the office was empty. The book was open. The ink was still wet. Room six. Two fourteen a.m. And the name was mine. Mr. Pell came in at six. He read the line very quietly. Then he took a key off the hook. A key I had never seen. \"It's always the one at the desk,\" he said. \"Your room's ready.\"",
+ "outro": "The Wayside Motel is still open. The night desk is always staffed. And if you sign the book, check the name above yours.",
+ "narration": "A guest book that knows who is coming. The lantern is lit.\n\nI work the night desk at the Wayside Motel, out on Route 9, where the road runs between two towns that don't talk to each other. Twelve rooms. Most nights, nobody comes. The guest book sits open on the counter. The owner, Mr. Pell, likes ink. He says a name in ink is a promise. Every morning, when I hand over the keys, there's a new line in it. Room six. Signed at two fourteen a.m. A different name every night. Room six has been boarded up since before I was hired. The first week, I blamed the day staff. The second week, I stopped blaming anyone. I started watching. Last night, at two thirteen, the lights in the parking lot flickered. At two fourteen, the pen moved. Not much. Just a roll. Like someone had brushed it with a sleeve. I didn't look at the book. I looked at the camera. On the screen, I was sitting at the desk. And behind me, close enough to breathe on my neck, a man in a wet raincoat was leaning over my shoulder to write. I didn't turn around. I couldn't. When the lights came back, the office was empty. The book was open. The ink was still wet. Room six. Two fourteen a.m. And the name was mine. Mr. Pell came in at six. He read the line very quietly. Then he took a key off the hook. A key I had never seen. \"It's always the one at the desk,\" he said. \"Your room's ready.\"\n\nThe Wayside Motel is still open. The night desk is always staffed. And if you sign the book, check the name above yours.",
+ "cast": [
+  {
+   "name": "June",
+   "look": "a woman in her late twenties, night-shift tired, pale, straight black hair in a low ponytail, a dark green motel uniform polo shirt under an open grey hoodie, a name badge, no jewellery"
+  },
+  {
+   "name": "Mr. Pell",
+   "look": "a man in his seventies, thin white hair combed flat, deep-set grey eyes, a brown buttoned wool cardigan over a white shirt, reading glasses on a cord around his neck"
+  }
+ ],
+ "bible": {
+  "red_accent": "the red ink in the guest book",
+  "hero": {
+   "name": "June",
+   "who": "a night clerk at a lonely roadside motel"
+  }
+ },
+ "scenes": [
+  {
+   "text": "A guest book that knows who is coming. The lantern is lit.",
+   "visual": "The Storyteller in the dark of the hollow, mist at his boots, holding his red lantern low; far behind him, a lonely roadside motel sign glowing faintly through fog",
+   "location": "the hollow",
+   "characters": [],
+   "mood": "eerie",
+   "delivery": "steady",
+   "sfx": [
+    "wind through dry grass"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "I work the night desk at the Wayside Motel, out on Route 9, where the road runs between two towns that don't talk to each other. Twelve rooms. Most nights, nobody comes.",
+   "visual": "Wide exterior at night: a small, run-down roadside motel in fog, one long row of doors, a buzzing sign, a single lit window at the front office, an empty two-lane road",
+   "location": "the Wayside Motel, outside",
+   "characters": [],
+   "mood": "uneasy",
+   "delivery": "steady",
+   "sfx": [
+    "a neon sign buzzing"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "The guest book sits open on the counter. The owner, Mr. Pell, likes ink. He says a name in ink is a promise.",
+   "visual": "Close on an old leather guest book lying open on a worn wooden front-desk counter, a fountain pen beside it, a brass desk bell, a single desk lamp",
+   "location": "the motel office",
+   "characters": [],
+   "mood": "uneasy",
+   "delivery": "steady",
+   "sfx": [],
+   "key_moment": false
+  },
+  {
+   "text": "Every morning, when I hand over the keys, there's a new line in it. Room six. Signed at two fourteen a.m. A different name every night.",
+   "visual": "Over June's shoulder: her finger resting under a handwritten line in the guest book, the ink a dark blood red, grey dawn light at the office window",
+   "location": "the motel office",
+   "characters": [
+    "June"
+   ],
+   "mood": "uneasy",
+   "delivery": "steady",
+   "sfx": [
+    "a page turning"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "Room six has been boarded up since before I was hired.",
+   "visual": "Outside at night: the door of room six, nailed shut with weathered planks, a brass number 6 hanging crooked, the fog pressing close",
+   "location": "the Wayside Motel, outside",
+   "characters": [],
+   "mood": "dread",
+   "delivery": "slow",
+   "sfx": [
+    "wood creaking in the wind"
+   ],
+   "key_moment": true
+  },
+  {
+   "text": "The first week, I blamed the day staff. The second week, I stopped blaming anyone. I started watching.",
+   "visual": "June at the front desk late at night, sitting upright and alert, her phone in her hand showing a security camera view, the guest book in front of her",
+   "location": "the motel office",
+   "characters": [
+    "June"
+   ],
+   "mood": "dread",
+   "delivery": "tense",
+   "sfx": [
+    "a clock ticking"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "Last night, at two thirteen, the lights in the parking lot flickered. At two fourteen, the pen moved.",
+   "visual": "Close on the fountain pen on the open guest book, slightly rolled out of place, the lamp light dimmed and flickering, nobody's hand near it",
+   "location": "the motel office",
+   "characters": [],
+   "mood": "dread",
+   "delivery": "hushed",
+   "sfx": [
+    "a fluorescent light flickering"
+   ],
+   "key_moment": true
+  },
+  {
+   "text": "Not much. Just a roll. Like someone had brushed it with a sleeve.",
+   "visual": "June's face lit only by her phone screen, eyes fixed on it, refusing to look down at the counter",
+   "location": "the motel office",
+   "characters": [
+    "June"
+   ],
+   "mood": "dread",
+   "delivery": "hushed",
+   "sfx": [],
+   "key_moment": false
+  },
+  {
+   "text": "I didn't look at the book. I looked at the camera. On the screen, I was sitting at the desk. And behind me, close enough to breathe on my neck, a man in a wet raincoat was leaning over my shoulder to write.",
+   "visual": "A security camera view from a high corner of the motel office: June sitting at the desk, and directly behind her a tall, too-thin figure in a dripping dark raincoat bending over her shoulder toward the guest book, his face hidden by the hood",
+   "location": "the motel office",
+   "characters": [
+    "June"
+   ],
+   "mood": "terror",
+   "delivery": "hushed",
+   "sfx": [
+    "water dripping onto a wooden floor"
+   ],
+   "key_moment": true
+  },
+  {
+   "text": "I didn't turn around. I couldn't.",
+   "visual": "Extreme close on June's face, frozen, tears in her eyes, a single drop of water falling past her cheek from above",
+   "location": "the motel office",
+   "characters": [
+    "June"
+   ],
+   "mood": "terror",
+   "delivery": "hushed",
+   "sfx": [
+    "a slow, wet breath"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "When the lights came back, the office was empty. The book was open. The ink was still wet. Room six. Two fourteen a.m. And the name was mine.",
+   "visual": "Close on the guest book: a fresh line in wet red ink, the name June Marsh, room 6, written in someone else's handwriting, a puddle of water on the counter beside it",
+   "location": "the motel office",
+   "characters": [],
+   "mood": "terror",
+   "delivery": "slow",
+   "sfx": [
+    "a heartbeat"
+   ],
+   "key_moment": true
+  },
+  {
+   "text": "Mr. Pell came in at six. He read the line very quietly. Then he took a key off the hook. A key I had never seen. \"It's always the one at the desk,\" he said. \"Your room's ready.\"",
+   "visual": "Mr. Pell, an old man in a buttoned brown cardigan, holding out an old brass key on a red tag with the number 6, his face kind and sad, June out of focus in the foreground",
+   "location": "the motel office",
+   "characters": [
+    "Mr. Pell",
+    "June"
+   ],
+   "mood": "terror",
+   "delivery": "slow",
+   "sfx": [
+    "keys jingling"
+   ],
+   "key_moment": true
+  },
+  {
+   "text": "The Wayside Motel is still open. The night desk is always staffed. And if you sign the book, check the name above yours.",
+   "visual": "The Storyteller in the hollow lowers his red lantern; far behind him the motel sign flickers and one boarded door stands open, a dim light inside",
+   "location": "the hollow",
+   "characters": [],
+   "mood": "eerie",
+   "delivery": "slow",
+   "sfx": [],
+   "key_moment": false
+  }
+ ],
+ "pauses": [
+  {
+   "after": "Most nights, nobody comes.",
+   "ms": 600
+  },
+  {
+   "after": "since before I was hired.",
+   "ms": 900
+  },
+  {
+   "after": "the pen moved.",
+   "ms": 900
+  },
+  {
+   "after": "I couldn't.",
+   "ms": 1100
+  },
+  {
+   "after": "And the name was mine.",
+   "ms": 1300
+  }
+ ],
+ "packaging": {
+  "titles": [
+   "Room Six",
+   "The Guest Book Signed My Name"
+  ],
+  "thumbnail_text": "ROOM SIX",
+  "thumbnail_brief": "a terrified young night clerk at a motel desk, a tall hooded figure in a dripping raincoat leaning over her shoulder, an open guest book with red ink",
+  "description": "Every night at 2:14 a.m., someone signs for a room that has been boarded up for years. A Hollow Lines story.",
+  "tags": [
+   "horror",
+   "scary story",
+   "motel horror",
+   "night shift",
+   "creepy",
+   "horror story"
+  ],
+  "end_screen_line": "Room six is ready."
+ },
+ "comment_question": "Would you have turned around?",
+ "stills": {
+  "max_usd": 6.0,
+  "cold_open": true,
+  "title_seconds": 2.0,
+  "end_screen_seconds": 8.0,
+  "thumbnails": 2,
+  "shorts": 1,
+  "max_effects": 14,
+  "parallel": 3,
+  "target_seconds": 120
+ }
+}
