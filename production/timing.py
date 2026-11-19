@@ -12,6 +12,27 @@ from dataclasses import dataclass, field
 from typing import Any
 
 SENTENCE = re.compile(r"[^.!?…]+(?:[.!?…]+[\"'”’)]*|$)", re.UNICODE)
+# A full stop after a title or "a.m." does not end the sentence (run 114: "Mr. Pell came in at six" was
+# read as "Mr." and "Pell came in...", and the performance director's tag landed between them).
+TITLE = re.compile(r"\b(?:Mr|Mrs|Ms|Dr|St|Jr|Sr|Mt|Prof|Rev|Capt|Sgt)\.$")
+
+
+def sentence_spans(text: str) -> list[tuple[int, int]]:
+    """Where each sentence of `text` starts and ends, with a title ("Mr.") and "a.m." kept inside their
+    sentence; "a.m." ends one only when the next word starts a new sentence (a capital letter)."""
+    spans: list[tuple[int, int]] = []
+    for m in SENTENCE.finditer(text):
+        if spans:
+            prev = text[spans[-1][0]:spans[-1][1]].rstrip()
+            nxt = text[m.start():m.end()].lstrip()
+            join = (TITLE.search(prev)
+                    or (re.search(r"\b[aApP]\.$", prev) and re.match(r"[mM]\.", nxt))
+                    or (re.search(r"\b[aApP]\.[mM]\.$", prev) and nxt[:1].islower()))
+            if join:
+                spans[-1] = (spans[-1][0], m.end())
+                continue
+        spans.append((m.start(), m.end()))
+    return spans
 WORD = re.compile(r"\S+")
 
 
@@ -59,8 +80,8 @@ def split_chunks(narration: str, pauses: list[dict[str, Any]] | None = None, *, 
     paragraphs = [(m.start(), m.end()) for m in re.finditer(r"[^\n]+(?:\n(?!\n)[^\n]+)*", narration)]
     for p_index, (p_start, p_end) in enumerate(paragraphs):
         text = narration[p_start:p_end]
-        for m in SENTENCE.finditer(text):
-            s, e = p_start + m.start(), p_start + m.end()
+        for m_start, m_end in sentence_spans(text):
+            s, e = p_start + m_start, p_start + m_end
             while s < e and narration[s].isspace():
                 s += 1
             while e > s and narration[e - 1].isspace():

@@ -159,6 +159,54 @@ class ProvidersTests(unittest.TestCase):
         self.assertEqual(fal.asked, ["google/nano-banana-2.1/edit", "google/nano-banana-2.1", "fal-ai/other"])
         self.assertEqual(p.fell_back, 2)
 
+    class EmptyFal:
+        def __init__(self):
+            self.asked = []
+
+        def run(self, endpoint, args):
+            self.asked.append(endpoint)
+            raise MediaError('HTTP 403: {"detail":"User is locked. Reason: Exhausted balance."}')
+
+    class BusyThenFree:
+        def __init__(self, busy):
+            self.busy, self.asked = busy, 0
+
+        def run(self, endpoint, args):
+            self.asked += 1
+            if self.asked <= self.busy:
+                raise MediaError("HTTP 429 quota")
+            return {"images": [{"url": "data:image/png;base64,AA"}]}
+
+    def test_a_busy_vertex_is_asked_again_when_fal_has_no_balance(self):
+        fal, google = self.EmptyFal(), self.BusyThenFree(busy=2)
+        p = Providers(fal, google, {"vertex:nb": ["google/nano-banana-2.1"]})
+        waits = []
+        p.sleep = waits.append
+        self.assertIn("images", p.run("vertex:nb", {"prompt": "x"}))
+        self.assertEqual((google.asked, fal.asked, p.fal_empty), (3, ["google/nano-banana-2.1"], True))
+        self.assertEqual(waits, [90.0, 180.0])
+        # once fal is known empty, the next busy answer waits for Vertex without asking fal
+        google.busy, google.asked = 1, 0
+        p.run("vertex:nb", {"prompt": "y"})
+        self.assertEqual(fal.asked, ["google/nano-banana-2.1"])
+        self.assertEqual(p.waited_for_quota, 3)
+
+    def test_a_vertex_that_stays_busy_still_fails_after_the_long_waits(self):
+        p = Providers(self.EmptyFal(), self.BusyThenFree(busy=99), {"vertex:nb": ["google/nano-banana-2.1"]})
+        p.sleep = lambda s: None
+        with self.assertRaises(MediaError):
+            p.run("vertex:nb", {"prompt": "x"})
+        self.assertEqual(p.waited_for_quota, len(Providers.QUOTA_WAITS))
+
+    def test_a_refusal_is_not_waited_for(self):
+        class Refused:
+            def run(self, endpoint, args):
+                raise MediaError("vertex nb: content refused")
+        p = Providers(None, Refused(), {})
+        p.sleep = lambda s: self.fail("waited for a refusal")
+        with self.assertRaises(MediaError):
+            p.run("vertex:nb", {"prompt": "x"})
+
     def test_the_config_moves_nano_banana_2_1_and_the_checker_to_vertex(self):
         from story_factory.config import DEFAULTS
 

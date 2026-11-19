@@ -46,5 +46,16 @@ class IndoorAir(unittest.TestCase):
         self.assertTrue(shotlist.outside("Wide exterior: a motel in fog, one lit window"))
 
 
+
+class Sentences(unittest.TestCase):
+    def test_titles_and_times_do_not_end_a_sentence(self):
+        from production import timing
+
+        text = "Mr. Pell came in at six. Room six. Two fourteen a.m. And the name was mine. At 3 a.m. she woke."
+        self.assertEqual([c.text for c in timing.split_chunks(text)],
+                         ["Mr. Pell came in at six.", "Room six.", "Two fourteen a.m.", "And the name was mine.",
+                          "At 3 a.m. she woke."])
+
+
 if __name__ == "__main__":
     unittest.main()

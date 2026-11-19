@@ -406,6 +406,37 @@ class Providers:
         self.fal, self.vertex, self.fallback = fal, vertex, dict(fallback or {})
         self.others = dict(others or {})  # other services by prefix, e.g. {"elevenlabs:": ElevenLabs()}
         self.fell_back = 0
+        self.fal_empty = False  # set once fal answers that its balance is empty: it cannot be the fallback
+        self.waited_for_quota = 0
+        self.sleep = time.sleep
+
+    # A busy Vertex model (a per-minute quota) that fal cannot stand in for: wait for the quota to refill
+    # and ask Vertex again, rather than lose the picture (run 114: nine beats got HTTP 429 from Nano
+    # Banana, fal's balance was empty, and two beats were left showing a neighbour's picture).
+    QUOTA_WAITS = (90.0, 180.0)
+
+    @staticmethod
+    def _busy(exc: Exception) -> bool:
+        return any(w in str(exc) for w in ("HTTP 429", "HTTP 503", "RESOURCE_EXHAUSTED", "UNAVAILABLE"))
+
+    @staticmethod
+    def _fal_empty(exc: Exception) -> bool:
+        text = str(exc)
+        return any(w in text for w in ("Exhausted balance", "balance is empty", "User is locked"))
+
+    def _wait_for_vertex(self, endpoint: str, args: dict[str, Any], first: MediaError) -> dict[str, Any]:
+        last = first
+        for wait in self.QUOTA_WAITS:
+            log.info("Vertex %s still busy and fal cannot stand in; asking again in %.0f s", endpoint, wait)
+            self.sleep(wait)
+            self.waited_for_quota += 1
+            try:
+                return self.vertex.run(endpoint, args)
+            except MediaError as exc:
+                if not self._busy(exc):
+                    raise
+                last = exc
+        raise last
 
     def run(self, endpoint: str, args: dict[str, Any]) -> dict[str, Any]:
         for prefix, other in self.others.items():
@@ -414,7 +445,11 @@ class Providers:
         if not endpoint.startswith(PREFIX):
             if self.fal is None:
                 raise MediaError(f"{endpoint}: no FAL_KEY")
-            return self.fal.run(endpoint, args)
+            try:
+                return self.fal.run(endpoint, args)
+            except MediaError as exc:
+                self.fal_empty = self.fal_empty or self._fal_empty(exc)
+                raise
         try:
             if self.vertex is None:
                 raise MediaError("Vertex AI: no key")
@@ -424,11 +459,24 @@ class Providers:
             # with reference pictures, the fal model that takes them (".../edit"); without, the other
             refs = bool(args.get("image_urls"))
             spare = next((e for e in spares if e.endswith("/edit") == refs), spares[0] if spares else "")
+            busy = self.vertex is not None and self._busy(exc)
             if self.fal is None or not spare or "content refused" in str(exc):
+                if busy:
+                    return self._wait_for_vertex(endpoint, args, exc)
                 raise
+            if busy and self.fal_empty:
+                return self._wait_for_vertex(endpoint, args, exc)
             self.fell_back += 1
             log.warning("Vertex %s failed (%s); sent to %s on fal", endpoint, str(exc)[:200], spare)
-            return self.fal.run(spare, args)
+            try:
+                return self.fal.run(spare, args)
+            except MediaError as fal_exc:
+                if not self._fal_empty(fal_exc):
+                    raise
+                self.fal_empty = True
+                if busy:
+                    return self._wait_for_vertex(endpoint, args, exc)
+                raise
 
     def __getattr__(self, name: str) -> Any:  # schema(), price() and the rest stay fal's
         if self.fal is None:
