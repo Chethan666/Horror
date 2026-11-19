@@ -467,7 +467,7 @@ class Providers:
             if busy and self.fal_empty:
                 return self._wait_for_vertex(endpoint, args, exc)
             self.fell_back += 1
-            log.warning("Vertex %s failed (%s); sent to %s on fal", endpoint, str(exc)[:200], spare)
+            log.warning("Vertex %s failed (%s); sent to %s on fal", endpoint, " ".join(str(exc).split())[:400], spare)
             try:
                 return self.fal.run(spare, args)
             except MediaError as fal_exc:
