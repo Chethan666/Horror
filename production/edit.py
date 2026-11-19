@@ -145,8 +145,11 @@ def pick_cold_open(shots: list[Shot], scenes: list[dict[str, Any]], min_s: float
             or [s for s in story if s.scene != last_scene and s.t0 < cutoff]
             or [s for s in story if s.scene != last_scene] or story)
     def rank(s: Shot) -> tuple:
-        key = scenes[s.scene].get("key_moment") if s.scene < len(scenes) else False
-        return (not s.scare, not key, -s.importance, s.index)
+        # What the viewer sees of the threat counts most: run 115 opened on a boarded door the storyboard
+        # had called its one scare, over the figure leaning over her shoulder (threat 3) a minute later.
+        key = bool(scenes[s.scene].get("key_moment")) if s.scene < len(scenes) else False
+        weight = 3 * s.threat + s.tension + s.importance + 2 * s.scare + key
+        return (-weight, s.index)
     start = sorted(pool, key=rank)[0]
     chosen = [start.index]
     covered = start.seconds

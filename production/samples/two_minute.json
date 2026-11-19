@@ -38,7 +38,7 @@
   },
   {
    "text": "I work the night desk at the Wayside Motel, out on Route 9, where the road runs between two towns that don't talk to each other. Twelve rooms. Most nights, nobody comes.",
-   "visual": "Wide exterior at night: a small, run-down single-storey roadside motel in fog, one long row of identical doors, a single lit window at the front office, an empty two-lane road; no signs or lettering anywhere",
+   "visual": "Wide exterior at night: a small, run-down single-storey roadside motel in fog, one long row of identical doors, a single lit window at the front office, an empty two-lane road; not a single person or car anywhere, no signs or lettering anywhere",
    "location": "the Wayside Motel, outside",
    "characters": [],
    "mood": "uneasy",
@@ -82,7 +82,7 @@
    "sfx": [
     "wood creaking in the wind"
    ],
-   "key_moment": true
+   "key_moment": false
   },
   {
    "text": "The first week, I blamed the day staff. The second week, I stopped blaming anyone. I started watching.",

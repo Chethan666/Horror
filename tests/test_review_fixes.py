@@ -29,6 +29,12 @@ class ColdOpen(unittest.TestCase):
         self.assertTrue(cold and all(i not in host for i in cold))
         self.assertLess(beats[cold[0]].t0, 0.65 * 100)
 
+    def test_the_threat_seen_outranks_a_scare_flag_on_an_empty_place(self):
+        beats = story()
+        beats[5].scare, beats[5].threat, beats[5].tension, beats[5].importance = True, 2, 5, 5  # a boarded door
+        beats[11].threat, beats[11].tension, beats[11].importance = 3, 5, 5  # the figure over her shoulder
+        self.assertEqual(edit.pick_cold_open(beats, [{"key_moment": True}] * 10, 4.0, 14.0)[0], 11)
+
     def test_a_short_story_still_gets_a_cold_open(self):
         beats = story(6)
         cold = edit.pick_cold_open(beats, [{}] * 3, 6.0, 14.0)
