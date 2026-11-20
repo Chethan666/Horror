@@ -94,35 +94,6 @@ class Run118(unittest.TestCase):
         self.assertEqual(targets, {4: "show the figure", 2: ""})
         self.assertEqual(len(warnings), 2)
 
-    def test_the_stronger_checker_on_fal_is_asked_with_reasoning(self):
-        from story_factory.config import DEFAULTS
-
-        self.assertTrue(DEFAULTS["stills"]["model_args"]["vision_pro"]["reasoning"])
-
-    def test_a_video_to_watch_is_never_sent_to_fals_picture_checker(self):
-        from production.media import MediaError
-        from production.vertex import Providers
-
-        class Fal:
-            asked = []
-
-            def run(self, endpoint, args):
-                self.asked.append(endpoint)
-                return {}
-
-        class Refused:
-            def run(self, endpoint, args):
-                raise MediaError("HTTP 403: Request rejected")
-
-        fal = Fal()
-        p = Providers(fal, Refused(), {"vertex:pro": ["fal-ai/any-llm/vision"]})
-        with self.assertRaises(MediaError):
-            p.run("vertex:pro", {"prompt": "watch", "video_url": "data:video/mp4;base64,AA"})
-        self.assertEqual(fal.asked, [])
-        p.run("vertex:pro", {"prompt": "look", "image_urls": ["data:image/png;base64,AA"]})
-        self.assertEqual(fal.asked, ["fal-ai/any-llm/vision"])
-
-
 
 class GoogleOnly(unittest.TestCase):
     def test_pictures_and_checks_have_no_fal_fallback_and_elevenlabs_makes_the_score(self):
@@ -135,8 +106,6 @@ class GoogleOnly(unittest.TestCase):
             self.assertTrue(cfg["models"][role].startswith("vertex:"), role)
         for role in ("voice", "sfx", "music"):
             self.assertIn("elevenlabs", cfg["models"][role], role)
-        on, back = use_vertex(dict(DEFAULTS["stills"], vertex=dict(DEFAULTS["stills"]["vertex"], fallback_to_fal=True)))
-        self.assertTrue(back)  # the old behaviour, when asked for
 
     def test_a_score_cue_is_one_billed_minute(self):
         from story_factory.config import DEFAULTS
@@ -235,11 +204,11 @@ class GoodStanding(unittest.TestCase):
 
             painter._one = refuse
             out = Path(root) / "beat_005.png"
-            self.assertEqual(painter.paint("x", [], out, "k", ["fal:shot", "fal:shot_alt"], check=None),
+            self.assertEqual(painter.paint("x", [], out, "k", ["model:shot", "model:shot_alt"], check=None),
                              (None, "refused"))
             self.assertEqual(studio.asked, 1)  # not handed to the second painter
             fix = Path(root) / "beat_005_fix1234.png"  # the art review or a redo asking again
-            self.assertEqual(painter.paint("y", [], fix, "k2", ["fal:shot"], check=None), (None, "refused"))
+            self.assertEqual(painter.paint("y", [], fix, "k2", ["model:shot"], check=None), (None, "refused"))
             self.assertEqual(studio.asked, 1)
             self.assertIn("beat_005", painter.refused)
 
@@ -264,6 +233,22 @@ class GoodStanding(unittest.TestCase):
         self.assertEqual(changed, [1])
         self.assertEqual((beats[1].threat, beats[1].scare), (0, False))
         self.assertIn("nothing threatening shares the frame", beats[1].picture)
+
+
+    def test_without_a_google_sign_in_no_picture_goes_to_fal(self):
+        import os
+        from unittest import mock
+
+        from production.__main__ import media_client
+        from story_factory.config import DEFAULTS
+
+        env = {k: v for k, v in os.environ.items()
+               if k not in ("GEMINI_PLATFORM_API_KEY", "GCP_SERVICE_ACCOUNT_JSON", "ELEVENLABS_API_KEY")}
+        env["FAL_KEY"] = "test"
+        with mock.patch.dict(os.environ, env, clear=True):
+            stills, _ = media_client(dict(DEFAULTS["stills"]))
+        left = {k: v for k, v in stills["models"].items() if v}
+        self.assertTrue(left and all("elevenlabs" in v for v in left.values()), left)
 
 
 if __name__ == "__main__":

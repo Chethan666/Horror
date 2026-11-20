@@ -115,7 +115,7 @@ class FakeFal:
         self.calls.append((endpoint, {k: v for k, v in args.items() if not str(v).startswith("data:")
                                       and k != "image_urls"}))
         self.references.append((endpoint, len(args.get("image_urls") or [])))
-        if "any-llm" in endpoint:
+        if "gemini-3" in endpoint:  # the checkers (Gemini on Vertex)
             self.vision_images.append(len(args.get("image_urls") or []))
             if "versions of the same picture" in args.get("prompt", ""):  # the bake-off's judge
                 return {"output": json.dumps({"scores": {k: {"same_faces": 8, "moment": 7, "cinematic": 9 - n}
@@ -126,11 +126,11 @@ class FakeFal:
                 self.reject_vision -= 1
                 return {"output": '{"ok": false, "reason": "a watermark"}'}
             return {"output": '{"ok": true, "reason": "fine"}'}
-        if "elevenlabs" in endpoint or "ace-step" in endpoint:
+        if "elevenlabs" in endpoint:
             return {"audio": {"url": self.audio.as_uri()}}
         if "i2v" in endpoint:  # an image-to-video model: a short moving clip
             return {"video": {"url": self.clip.as_uri()}}
-        if ("seedream" in endpoint or "nano-banana-2.1" in endpoint) and self.bright_shots > 0:
+        if "nano-banana-2.1" in endpoint and self.bright_shots > 0:
             self.bright_shots -= 1
             return {"images": [{"url": self.bright.as_uri()}]}
         return {"images": [{"url": self.good.as_uri()}]}
@@ -247,16 +247,16 @@ class PainterTests(unittest.TestCase):
         painter = Painter(studio, c, self.root / "art", Critic(studio, "dark"))
         ref = painted(self.root / "ref.png")
         out, source = painter.paint("a bus", [ref], self.root / "beat.png", "k", c["chains"]["key"], check="a bus")
-        self.assertEqual(source, "fal:shot_alt")  # a key beat's corrector
+        self.assertEqual(source, "model:shot_alt")  # a key beat's corrector
         self.assertTrue(out.exists())
         self.assertIn("too bright", painter.rejections[0])
         with Image.open(out) as im:
             self.assertEqual(im.size, (1376, 774))  # kept larger than the frame until the edit
-        prompts = [a["prompt"] for e, a in fal.calls if "any-llm" not in e]
+        prompts = [a["prompt"] for e, a in fal.calls if "gemini-3" not in e]
         self.assertEqual(prompts[0], "a bus")
         self.assertIn("Correct this from the previous attempt: too bright", prompts[1])
-        self.assertEqual(painter.sizes["fal:shot"], "640x360")  # what the painter really sent back
-        self.assertAlmostEqual(studio.budget.spent, 0.08 + 0.08 + 0.002, places=3)  # two Nano Banana 2.1 pictures
+        self.assertEqual(painter.sizes["model:shot"], "640x360")  # what the painter really sent back
+        self.assertAlmostEqual(studio.budget.spent, 0.055 + 0.055 + 0.001, places=3)  # two pictures and a check on Google
 
     def test_without_a_paid_painter_nothing_is_painted(self):
         from production.stills.images import Critic, Painter
@@ -288,30 +288,28 @@ class TeamTests(unittest.TestCase):
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         fal = FakeFal(root)
         summary = bakeoff.run(story(first_person=True), root / "out", voice.SilentVoice(), Router(), cfg(max_usd=7.0),
-                              fal, names=["default", "seedream", "pro"])
+                              fal, names=["default", "corrector"])
         out = root / "out"
-        self.assertEqual(list(summary["setups"]), ["default", "seedream", "pro"])
+        self.assertEqual(list(summary["setups"]), ["default", "corrector"])
         beats = summary["beats"]
-        for name in ("default", "seedream", "pro"):
+        for name in ("default", "corrector"):
             self.assertEqual(len(list((out / name).glob("beat_*.jpg"))), beats, name)
             self.assertEqual(summary["setups"][name]["judge"]["same_faces"], 8.0)
         self.assertEqual(len(list(out.glob("compare_beat_*.jpg"))), beats)
         self.assertEqual(len(list(out.glob("detail_beat_*.jpg"))), beats)
         with Image.open(next(out.glob("compare_beat_*.jpg"))) as im:
-            self.assertEqual(im.size, (1280, 3 * (720 + 44)))  # three setups, one above the other
+            self.assertEqual(im.size, (1280, 2 * (720 + 44)))  # two setups, one above the other
         self.assertTrue((out / "faces.jpg").exists())  # the portraits every setup painted from
         endpoints = [e for e, _ in fal.calls]
-        self.assertIn("fal-ai/bytedance/seedream/v4.5/edit", endpoints)
-        self.assertIn("fal-ai/nano-banana-pro/edit", endpoints)
-        self.assertIn("google/nano-banana-2.1/edit", endpoints)
-        self.assertFalse(any("flux" in e or "stable-diffusion" in e or "upscale" in e for e in endpoints))
+        self.assertIn("vertex:gemini-nano-banana-2.1", endpoints)
+        self.assertTrue(all(e.startswith("vertex:") for e in endpoints), endpoints)  # Google only, nothing on fal
         self.assertFalse(any("elevenlabs" in e for e in endpoints))  # no paid voice in a bake-off
         self.assertIn(2, fal.vision_images)  # a picture is checked against Dana's portrait
-        self.assertIn(4, fal.vision_images)  # the judge: the portrait and the three versions
+        self.assertIn(3, fal.vision_images)  # the judge: the portrait and the two versions
         self.assertEqual(summary["agents"]["art"]["portraits"], ["Dana", "The Storyteller"])
         self.assertLessEqual(summary["usd"], 7.0)
         self.assertFalse((out / "work").exists())
-        nb21 = [a for e, a in fal.calls if e == "google/nano-banana-2.1/edit"]
+        nb21 = [a for e, a in fal.calls if e == "vertex:gemini-nano-banana-2.1"]
         self.assertEqual((nb21[0]["resolution"], nb21[0]["aspect_ratio"]), ("2K", "16:9"))
 
     def test_the_host_references_are_painted_once_and_then_used_by_every_video(self):
@@ -324,8 +322,9 @@ class TeamTests(unittest.TestCase):
         report = host.make(cfg(), fal, root / "host_refs", candidates=2)
         self.assertEqual([c.get("portrait") for c in report["candidates"]], ["host_portrait_1.jpg", "host_portrait_2.jpg"])
         endpoints = [e for e, _ in fal.calls]
-        self.assertEqual(endpoints.count("google/nano-banana-2.1"), 2)  # each sheet from words alone
-        self.assertEqual(endpoints.count("google/nano-banana-2.1/edit"), 2)  # each portrait from its sheet
+        painted = [n for e, n in fal.references if e == "vertex:gemini-nano-banana-2.1"]
+        self.assertEqual(painted.count(0), 2)  # each sheet from words alone
+        self.assertEqual(len([n for n in painted if n > 0]), 2)  # each portrait from its sheet
         self.assertFalse((root / "host_refs" / "work").exists())
         refs = {"sheet": str(root / "host_refs" / "host_sheet_1.jpg"),
                 "portrait": str(root / "host_refs" / "host_portrait_1.jpg")}
@@ -353,10 +352,11 @@ class TeamTests(unittest.TestCase):
         self.assertEqual(summary["qa"]["status"], "pass", summary["qa"])
         self.assertEqual(summary["point_of_view"], "third")
         endpoints = [e for e, _ in fal.calls]
-        self.assertIn("google/nano-banana-2.1", endpoints)  # the style frame, from words alone
-        self.assertIn("google/nano-banana-2.1/edit", endpoints)  # sheets, beats and the thumbnail, from references
-        self.assertFalse(any("seedream" in e or "nano-banana-pro" in e for e in endpoints))  # Nano Banana 2.1 only
-        self.assertNotIn("fal-ai/ace-step-1.5", endpoints)  # music is never made (generate_kinds ["sfx"])
+        painted = [n for (e, _), (_, n) in zip(fal.calls, fal.references) if e == "vertex:gemini-nano-banana-2.1"]
+        self.assertIn(0, painted)  # the style frame, from words alone
+        self.assertTrue(any(n > 0 for n in painted))  # sheets, beats and the thumbnail, from references
+        # pictures and checks on Google, sound on ElevenLabs: nothing else
+        self.assertTrue(all(e.startswith("vertex:") or e.startswith("fal-ai/elevenlabs/") for e in endpoints), endpoints)
         self.assertIn("fal-ai/elevenlabs/sound-effects/v2", endpoints)  # effects the library lacked are
         self.assertIn("art_review", summary["agents"])
         self.assertIn("script_check", summary["agents"])
@@ -378,7 +378,7 @@ class TeamTests(unittest.TestCase):
                                "stream=color_space,r_frame_rate", "-of", "csv=p=0", str(out / "video.mp4")],
                               capture_output=True, text=True).stdout.strip()
         self.assertEqual(tags, "bt709,24/1")
-        self.assertEqual(summary["agents"]["illustrator"]["painter_sizes"]["fal:shot"], "640x360")
+        self.assertEqual(summary["agents"]["illustrator"]["painter_sizes"]["model:shot"], "640x360")
         self.assertEqual(list(out.glob("short_*.mp4")), [])  # no Shorts are cut from the video
 
     def test_a_first_person_story_has_a_host_a_teller_and_a_character_voice(self):
@@ -397,15 +397,14 @@ class TeamTests(unittest.TestCase):
         prompts = [a.get("prompt", "") for e, a in fal.calls if "nano-banana-2.1" in e]
         self.assertTrue(any("navy driver's jacket" in p for p in prompts))  # the designed character
         self.assertFalse(any("stick figure" in p for p in prompts))
-        hero_prompts = [a.get("prompt", "") for e, a in fal.calls if "nano-banana-pro" in e]
-        self.assertTrue(any("security camera" in p for p in prompts + hero_prompts))  # beat 3 is seen on a camera
+        self.assertTrue(any("security camera" in p for p in prompts))  # beat 3 is seen on a camera
         self.assertTrue(all("close portrait of Dana: match this face exactly" in p
                             for p in prompts if "character sheet of Dana" in p))
         # the bus is designed once and every picture set in it is painted from its sheet
         places = summary["agents"]["art"]["places"]
         self.assertEqual([(x["name"], x["scenes"], x["sheet"]) for x in places], [("the night bus", [1, 2, 3], True)])
-        sheet = [a["prompt"] for e, a in fal.calls
-                 if e == "google/nano-banana-2.1/edit" and "location reference sheet" in a.get("prompt", "")]
+        sheet = [a["prompt"] for (e, a), (_, n) in zip(fal.calls, fal.references)
+                 if e == "vertex:gemini-nano-banana-2.1" and n > 0 and "location reference sheet" in a.get("prompt", "")]
         self.assertEqual(len(sheet), 1)
         self.assertIn("Two views of the same place side by side", sheet[0])
         in_bus = [p for p in prompts if "Place: the night bus: Outside: a cream" in p]
@@ -413,7 +412,8 @@ class TeamTests(unittest.TestCase):
         host = [p for p in prompts if "character sheet of The Storyteller" in p]
         self.assertTrue(host and not any("Place:" in p for p in host))  # the host stands in his own place
         # the style frame is the story's main place, and every sheet passed its check before use
-        frame = [a["prompt"] for e, a in fal.calls if e == "google/nano-banana-2.1"]
+        frame = [a["prompt"] for (e, a), (_, n) in zip(fal.calls, fal.references)
+                 if e == "vertex:gemini-nano-banana-2.1" and n == 0]
         self.assertIn("A wide establishing view of the night bus: Outside: a cream", frame[0])
         checked = summary["agents"]["art"]["reference_checks"]
         self.assertEqual(sorted(c["sheet"] for c in checked if c["kind"] != "portrait"),
@@ -425,7 +425,7 @@ class TeamTests(unittest.TestCase):
         self.assertTrue(json.loads((out / "metadata.json").read_text())["synthetic_media"])
         # the scare is painted like every picture, by Nano Banana 2.1
         self.assertEqual(summary["agents"]["illustrator"]["scare_shots"], [3])
-        scare = [a.get("prompt", "") for e, a in fal.calls if e == "google/nano-banana-2.1/edit" and "security camera" in a.get("prompt", "")]
+        scare = [a.get("prompt", "") for e, a in fal.calls if e == "vertex:gemini-nano-banana-2.1" and "security camera" in a.get("prompt", "")]
         self.assertEqual(len(scare), 2)  # two takes at once; the checker keeps the better
         # beat 1 has rain and a failing light, as the storyboard said ("snow" is not an atmosphere)
         beats = {b["index"]: b for b in json.loads((out / "beats.json").read_text())}
@@ -436,10 +436,10 @@ class TeamTests(unittest.TestCase):
         summary, _, fal = self.make(FakeFal)
         endpoints = {e for e, _ in fal.calls}
         self.assertIn("fal-ai/elevenlabs/music", endpoints)  # the channel's choice: ElevenLabs for all sound
-        self.assertFalse(any("ace-step" in e for e in endpoints), endpoints)
+        self.assertTrue(all(e.startswith("vertex:") or e.startswith("fal-ai/elevenlabs/") for e in endpoints), endpoints)
         off = dict(cfg()["sound_library"], generate_missing=False)  # library only: nothing made at all
         summary, _, fal = self.make(FakeFal, sound_library=off)
-        self.assertFalse(any("sound-effects" in e or "ace-step" in e for e, _ in fal.calls))
+        self.assertFalse(any("sound-effects" in e or "elevenlabs/music" in e for e, _ in fal.calls))
         self.assertEqual(summary["agents"]["sound"]["generated"], 0)
 
     def test_without_any_key_the_video_is_still_made_and_qa_says_what_to_check(self):
@@ -462,7 +462,7 @@ class TeamTests(unittest.TestCase):
         sheets = [(e, a["prompt"]) for e, a in fal.calls
                   if "A character reference sheet of one person, Dana" in a.get("prompt", "")]
         # Nano Banana 2.1 three times, each told what was wrong
-        self.assertEqual([e for e, _ in sheets], ["google/nano-banana-2.1/edit"] * 3)
+        self.assertEqual([e for e, _ in sheets], ["vertex:gemini-nano-banana-2.1"] * 3)
         self.assertIn("Correct this from the previous attempt: three different people", sheets[1][1])
         self.assertIn("reference: character sheet of Dana: three different people", summary["qa"]["issues"])
         self.assertEqual(summary["qa"]["status"], "check")
@@ -471,8 +471,8 @@ class TeamTests(unittest.TestCase):
     def test_switched_on_the_animation_stage_turns_the_scares_into_clips(self):
         from story_factory.config import DEFAULTS
 
-        models = dict(DEFAULTS["stills"]["models"], clip="fal-ai/fake/i2v")
-        prices = dict(DEFAULTS["stills"]["prices"], **{"fal-ai/fake/i2v": 0.05})
+        models = dict(DEFAULTS["stills"]["models"], clip="vertex:fake-i2v")
+        prices = dict(DEFAULTS["stills"]["prices"], **{"vertex:fake-i2v": 0.05})
         animation = dict(DEFAULTS["stills"]["animation"], enabled=True, beats="all", max_clips=2,
                          durations={"clip": [5, 10]})  # this fake model's lengths (Veo's are 4, 6 and 8 s)
         summary, out, fal = self.make(FakeFal, Router(), first_person=True, models=models, prices=prices,
@@ -482,7 +482,7 @@ class TeamTests(unittest.TestCase):
         cold = summary["agents"]["edit_plan"]["cold_open_beats"]  # the cold open may replay an animated beat
         self.assertGreaterEqual(summary["agents"]["edit"]["moves"].get("clip"), 2)
         self.assertLessEqual(summary["agents"]["edit"]["moves"].get("clip"), 2 + len(cold))
-        asked = [a for e, a in fal.calls if e == "fal-ai/fake/i2v"]
+        asked = [a for e, a in fal.calls if e == "vertex:fake-i2v"]
         self.assertTrue(all("Keep the picture exactly as it is" in a["prompt"] for a in asked))
         self.assertTrue(all(a["duration"] == "5" for a in asked))
         self.assertTrue((out / "video.mp4").exists())

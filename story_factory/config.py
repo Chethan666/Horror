@@ -340,43 +340,36 @@ DEFAULTS: dict[str, Any] = {
         "beat_min_seconds": 5.0, "beat_max_seconds": 11.0,
         "scene_dip_seconds": 0.35,
         # Painters tried in order until the critic passes a picture; each is told what the critic
-        # refused in the one before ("fal:<role>": the role's model, on Vertex AI or fal). There are
+        # refused in the one before ("model:<role>": the role's model, on Vertex AI or fal). There are
         # no free painters: they take no references, so their pictures broke continuity. A beat no
         # painter could paint borrows its neighbour's picture.
         "chains": {
             # A style frame or a sheet that fails its check is painted once more, told what was wrong.
-            "reference": ["fal:reference", "fal:reference"],
-            "sheet": ["fal:sheet", "fal:sheet", "fal:sheet_alt"],
+            "reference": ["model:reference", "model:reference"],
+            "sheet": ["model:sheet", "model:sheet", "model:sheet_alt"],
             # Every picture of the film: Nano Banana 2.1 (the 5-way bake-off, run 109: as good as Pro
             # for faces, places and the moment, at about half its price), and a second try only for a
             # serious fault (a picture refused for a detail is kept).
-            "beat": ["fal:shot", "fal:shot"],
+            "beat": ["model:shot", "model:shot"],
             # Key beats (`key_importance`, at most `key_share` of the story): two takes at once (the
             # better kept, `candidates`), then the corrector, told what was refused.
-            "key": ["fal:shot", "fal:shot_alt"],
+            "key": ["model:shot", "model:shot_alt"],
             # The scares (at most `scare_shots`, most important first): two takes, then once more told
             # what was refused.
-            "scare": ["fal:shot", "fal:hero"],
-            "thumbnail": ["fal:thumbnail"],
+            "scare": ["model:shot", "model:hero"],
+            "thumbnail": ["model:thumbnail"],
         },
-        # Google Cloud Vertex AI (production/vertex.py): with the secret GCP_SERVICE_ACCOUNT_JSON set,
-        # these fal models are called on Vertex instead, paid from Google Cloud (about $0.05 a 2K
-        # picture against $0.08 on fal); a Vertex failure goes back to the fal model.
+        # Google Cloud Vertex AI (production/vertex.py), signed in with GEMINI_PLATFORM_API_KEY or
+        # GCP_SERVICE_ACCOUNT_JSON: every picture and check ("vertex:" models below), paid from Google Cloud.
         "vertex": {
             "enabled": True,
-            # Pictures and checks on Google only (the channel's choice, November 2026): when Vertex refuses,
-            # nothing is sent to fal's copy of the same model. fal is for ElevenLabs alone (voices, music,
-            # effects). True sends a failed picture or check to the fal model it replaced, as before.
-            "fallback_to_fal": False,
+            # Pictures and checks on Google only (the channel's choice, November 2026). fal.ai is for
+            # ElevenLabs alone (voices, music, effects): production/media.py refuses any other model on fal.
             # Staying in good standing with Google (the project was blocked on 19 November 2026):
             # Google's default safety level (never lowered); every Google request stops for the run at a
             # terms block, after `max_failures_in_a_row` failures, or at `max_requests` requests.
             "safety": "BLOCK_MEDIUM_AND_ABOVE", "max_requests": 600, "max_failures_in_a_row": 8,
-            "models": {"google/nano-banana-2.1/edit": "gemini-nano-banana-2.1",
-                       "google/nano-banana-2.1": "gemini-nano-banana-2.1",
-                       "fal-ai/any-llm/vision": "gemini-3.6-flash"},  # run 111: 2.5 Flash is retired
-            # A role's own model on Vertex, whatever its fal endpoint (the newest Pro answering is used).
-            "roles": {"vision_pro": "gemini-3.6-pro"},
+            "models": {}, "roles": {},  # the models are named as "vertex:..." in `models` below
             # estimates (check the Google Cloud console): Lyria about $0.06 a piece, Veo Fast per second, no sound
             "prices": {"gemini-nano-banana-2.1": 0.055, "gemini-3.6-flash": 0.001, "gemini-3.6-pro": 0.01,
                        "lyria-002": 0.06, "veo-3.1-fast-generate-001": 0.15},
@@ -386,54 +379,43 @@ DEFAULTS: dict[str, Any] = {
         "bakeoff": {
             "max_usd": 8.0, "retry_share": 0.06,
             "setups": {
-                "default": {"label": "Default: Nano Banana 2.1 for everything"},
-                # the cheaper season: Seedream 4.5, with Nano Banana Pro for the scares (the default until run 109)
-                "seedream": {"label": "Seedream 4.5, Nano Banana Pro for scares (the default until run 109)",
-                             "chains": {"beat": ["fal:seedream", "fal:seedream"],
-                                        "key": ["fal:seedream", "fal:shot"],
-                                        "scare": ["fal:pro", "fal:seedream"]}},
-                # the premium setup (FLUX.2, Stable Diffusion 3.5 and the 4K detail pass lost run 109's
-                # bake-off and were removed in November 2026)
-                "pro": {"label": "Nano Banana Pro, every picture",
-                        "chains": {"beat": ["fal:pro", "fal:pro"], "key": ["fal:pro", "fal:pro"],
-                                   "scare": ["fal:pro", "fal:pro"]}},
+                "default": {"label": "Default: Nano Banana 2.1 on Google for everything"},
+                # every refused picture goes to the corrector (the default keeps that for key beats)
+                "corrector": {"label": "Nano Banana 2.1, the corrector for every refused picture",
+                              "chains": {"beat": ["model:shot", "model:shot_alt"]}},
+                # The setups on fal (Seedream 4.5, Nano Banana Pro) were removed in November 2026:
+                # fal is used for ElevenLabs alone.
             },
         },
         "references": True,  # a style frame, character sheets and location sheets keep look, people and places the same
         "models": {
-            # Nano Banana 2.1 paints everything (run 109's 5-way bake-off; the user's choice)
-            "reference": "google/nano-banana-2.1",                # style frame (text only)
-            "sheet": "google/nano-banana-2.1/edit",               # character and location sheets, portraits
-            "sheet_alt": "google/nano-banana-2.1/edit",
-            "shot": "google/nano-banana-2.1/edit",                # every beat, from the references
-            "shot_text": "google/nano-banana-2.1",
-            "shot_alt": "google/nano-banana-2.1/edit",            # the corrector for key beats
-            "shot_alt_text": "google/nano-banana-2.1",
-            "hero": "google/nano-banana-2.1/edit",                # a refused scare
-            "hero_text": "google/nano-banana-2.1",
-            "thumbnail": "google/nano-banana-2.1/edit",
+            # Nano Banana 2.1 on Google Vertex AI paints everything (run 109's 5-way bake-off; the user's choice)
+            "reference": "vertex:gemini-nano-banana-2.1",         # style frame (text only)
+            "sheet": "vertex:gemini-nano-banana-2.1",             # character and location sheets, portraits
+            "sheet_alt": "vertex:gemini-nano-banana-2.1",
+            "shot": "vertex:gemini-nano-banana-2.1",              # every beat, from the references
+            "shot_text": "vertex:gemini-nano-banana-2.1",
+            "shot_alt": "vertex:gemini-nano-banana-2.1",          # the corrector for key beats
+            "shot_alt_text": "vertex:gemini-nano-banana-2.1",
+            "hero": "vertex:gemini-nano-banana-2.1",              # a refused scare
+            "hero_text": "vertex:gemini-nano-banana-2.1",
+            "thumbnail": "vertex:gemini-nano-banana-2.1",
             "voice": "fal-ai/elevenlabs/tts/eleven-v3",
             "host_voice": "elevenlabs:eleven_v3",  # the channel's own host voice (used only when set up, above)
             "sfx": "fal-ai/elevenlabs/sound-effects/v2",
-            # Music the sound library lacks: ACE-Step 1.5 (open source, ~$0.0003 a second). For
-            # ElevenLabs instead: "fal-ai/elevenlabs/music" ($0.80 a minute, whole minutes).
             # The score: ElevenLabs Music on fal ($0.80 a minute, billed in whole minutes: one minute a cue,
-            # looped under the story by `music_max_seconds`). "fal-ai/ace-step-1.5" is the cheap open one.
+            # looped under the story by `music_max_seconds`).
             "music": "fal-ai/elevenlabs/music",
-            "vision": "fal-ai/any-llm/vision",                   # the critic's eye
+            "vision": "vertex:gemini-3.6-flash",                 # the critic's eye (run 111: 2.5 Flash is retired)
             # the stronger eye: the cinematographer, side-by-side choices, the art review and the screening
-            "vision_pro": "fal-ai/any-llm/vision",
-            # For the picture bake-off's other setups: Seedream 4.5 (the default until run 109; the
-            # cheaper setup) and Nano Banana Pro (the premium one).
-            "seedream": "fal-ai/bytedance/seedream/v4.5/edit",
-            "pro": "fal-ai/nano-banana-pro/edit", "pro_text": "fal-ai/nano-banana-pro",
+            "vision_pro": "vertex:gemini-3.6-pro",
             # Image-to-video for the motion stage (used only when `animation.enabled`): Veo on Vertex AI, paid
-            # from the Google credits; `clip_alt` may name an image-to-video model on fal as its fallback.
+            # from the Google credits.
             "clip": "vertex:veo-3.1-fast-generate-001", "clip_alt": "",
         },
         # An edit model asked without references uses its text-to-image twin.
         "text_roles": {"shot": "shot_text", "shot_alt": "shot_alt_text", "sheet": "reference", "sheet_alt": "reference",
-                       "thumbnail": "shot_alt_text", "hero": "hero_text", "seedream": "reference", "pro": "pro_text"},
+                       "thumbnail": "shot_alt_text", "hero": "hero_text"},
         # References sent to a model, longest side in pixels (2048 unless a model is named here).
         "reference_px": {},
         # Models that take no reference pictures: they are sent the words alone.
@@ -443,8 +425,8 @@ DEFAULTS: dict[str, Any] = {
             "sheet": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
             "sheet_alt": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
             # Pictures that go into the film are painted at 2K, a little larger than the 1440p frame,
-            # so they stay sharp under a camera move. Seedream: a custom size (from 2560x1440 up). Nano
-            # Banana 2 and Pro: "2K" (the default "1K" is 1376x768, which goes soft when enlarged).
+            # so they stay sharp under a camera move: "2K" (the default "1K" is 1376x768, which goes soft
+            # when enlarged).
             "shot": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
             "shot_text": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
             "shot_alt": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
@@ -454,30 +436,19 @@ DEFAULTS: dict[str, Any] = {
             "thumbnail": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
             "voice": {"stability": 0.5},
             "host_voice": {"stability": 0.5},
-            "vision": {"model": "google/gemini-2.5-flash"},
-            # fal refuses this model without reasoning (run 118: the staging, art review and side-by-side
-            # choices all failed with HTTP 422 while Vertex was down)
-            "vision_pro": {"model": "google/gemini-2.5-pro", "reasoning": True},
-            "judge": {"model": "google/gemini-2.5-pro", "reasoning": True},  # this model refuses without it
-            "seedream": {"image_size": {"width": 2752, "height": 1548}, "num_images": 1},
-            "pro": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
-            "pro_text": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},
         },
         # A role whose settings cost more than the model's base price (Nano Banana 2 at 2K: 1.5x).
         "model_units": {},
         # Estimated USD per picture, per 1,000 characters of speech, or per second of audio.
         "prices": {
-            "fal-ai/nano-banana-2": 0.08, "fal-ai/nano-banana-2/edit": 0.08,
-            "fal-ai/nano-banana-pro": 0.15, "fal-ai/nano-banana-pro/edit": 0.15,  # 1K and 2K; 4K is double
-            "fal-ai/bytedance/seedream/v5/lite/edit": 0.035,
-            "fal-ai/bytedance/seedream/v4.5/edit": 0.04, "fal-ai/bytedance/seedream/v4.5/text-to-image": 0.04,
             "fal-ai/elevenlabs/tts/eleven-v3": 0.10, "fal-ai/elevenlabs/sound-effects/v2": 0.002,
             # ElevenLabs' own API: characters come with the monthly plan; this is about the price past it
             "elevenlabs:eleven_v3": 0.15,
             # ElevenLabs music on fal: $0.80 a minute, billed in whole minutes (the score rounds up).
-            "fal-ai/elevenlabs/music": 0.80 / 60, "fal-ai/ace-step-1.5": 0.0003, "fal-ai/any-llm/vision": 0.002,
-            # billed by tokens on fal: about $0.06 a 2K picture reported; estimated on the high side
-            "google/nano-banana-2.1/edit": 0.08, "google/nano-banana-2.1": 0.08,
+            "fal-ai/elevenlabs/music": 0.80 / 60,
+            # Google Vertex AI estimates (check the Google Cloud console)
+            "vertex:gemini-nano-banana-2.1": 0.055, "vertex:gemini-3.6-flash": 0.001, "vertex:gemini-3.6-pro": 0.01,
+            "vertex:lyria-002": 0.06, "vertex:veo-3.1-fast-generate-001": 0.15,
         },
         # Voices. The host reads the intro and outro; a first-person story's teller gets a voice
         # matched to them; characters get distinct voices by kind. Kokoro names are the free fallback.
@@ -524,7 +495,7 @@ DEFAULTS: dict[str, Any] = {
         # fraction of a cent each) and uploaded with the video; [] turns it off.
         "languages": ["es", "pt", "hi", "id", "fr", "de"],
         # The channel's sound library (production/library.py; built by the sound-library workflow
-        # from Kevin MacLeod, OpenGameArt CC0, the Free Music Archive, Sonniss packs and ACE-Step).
+        # from Kevin MacLeod, OpenGameArt CC0, the Free Music Archive, Sonniss packs and ElevenLabs Music).
         # The sound director picks from it first; only what it lacks is generated, and saved back.
         "sound_library": {
             "enabled": True,

@@ -149,15 +149,16 @@ class ProvidersTests(unittest.TestCase):
         def run(self, endpoint, args):
             raise MediaError("HTTP 429 quota")
 
-    def test_vertex_models_go_to_google_and_a_failure_back_to_the_fal_model_it_replaced(self):
+    def test_a_google_failure_is_never_sent_to_fal(self):
         fal = self.Fal()
-        fallback = {"vertex:nb": ["google/nano-banana-2.1/edit", "google/nano-banana-2.1"]}
-        p = Providers(fal, self.Broken(), fallback)
-        p.run("vertex:nb", {"prompt": "x", "image_urls": ["data:image/png;base64,AA"]})
-        p.run("vertex:nb", {"prompt": "x"})
-        p.run("fal-ai/other", {})
-        self.assertEqual(fal.asked, ["google/nano-banana-2.1/edit", "google/nano-banana-2.1", "fal-ai/other"])
-        self.assertEqual(p.fell_back, 2)
+        p = Providers(fal, self.Broken(), {})
+        p.sleep, p.jitter = (lambda s: None), (lambda: 1.0)
+        for args in ({"prompt": "x", "image_urls": ["data:image/png;base64,AA"]}, {"prompt": "x"}):
+            with self.assertRaises(MediaError):
+                p.run("vertex:nb", args)
+        p.run("fal-ai/elevenlabs/tts/eleven-v3", {})  # fal answers its own (ElevenLabs) models only
+        self.assertEqual(fal.asked, ["fal-ai/elevenlabs/tts/eleven-v3"])
+        self.assertEqual(p.fell_back, 0)
 
     class EmptyFal:
         def __init__(self):
@@ -177,22 +178,18 @@ class ProvidersTests(unittest.TestCase):
                 raise MediaError("HTTP 429 quota")
             return {"images": [{"url": "data:image/png;base64,AA"}]}
 
-    def test_a_busy_vertex_is_asked_again_when_fal_has_no_balance(self):
+    def test_a_busy_google_is_asked_again_after_a_wait(self):
         fal, google = self.EmptyFal(), self.BusyThenFree(busy=2)
-        p = Providers(fal, google, {"vertex:nb": ["google/nano-banana-2.1"]})
+        p = Providers(fal, google, {})
         waits = []
         p.sleep, p.jitter = waits.append, lambda: 1.0
         self.assertIn("images", p.run("vertex:nb", {"prompt": "x"}))
-        self.assertEqual((google.asked, fal.asked, p.fal_empty), (3, ["google/nano-banana-2.1"], True))
+        self.assertEqual((google.asked, fal.asked), (3, []))  # fal is never asked
         self.assertEqual(waits, [90.0, 180.0])
-        # once fal is known empty, the next busy answer waits for Vertex without asking fal
-        google.busy, google.asked = 1, 0
-        p.run("vertex:nb", {"prompt": "y"})
-        self.assertEqual(fal.asked, ["google/nano-banana-2.1"])
-        self.assertEqual(p.waited_for_quota, 3)
+        self.assertEqual(p.waited_for_quota, 2)
 
     def test_a_vertex_that_stays_busy_still_fails_after_the_long_waits(self):
-        p = Providers(self.EmptyFal(), self.BusyThenFree(busy=99), {"vertex:nb": ["google/nano-banana-2.1"]})
+        p = Providers(self.EmptyFal(), self.BusyThenFree(busy=99), {})
         p.sleep = lambda s: None
         with self.assertRaises(MediaError):
             p.run("vertex:nb", {"prompt": "x"})
@@ -207,21 +204,26 @@ class ProvidersTests(unittest.TestCase):
         with self.assertRaises(MediaError):
             p.run("vertex:nb", {"prompt": "x"})
 
-    def test_the_config_moves_nano_banana_2_1_and_the_checker_to_vertex(self):
+    def test_pictures_and_checks_are_named_as_google_models(self):
         from story_factory.config import DEFAULTS
 
         cfg, fallback = use_vertex(DEFAULTS["stills"])
         self.assertEqual(cfg["models"]["shot"], "vertex:gemini-nano-banana-2.1")
         self.assertEqual(cfg["models"]["vision"], "vertex:gemini-3.6-flash")
-        self.assertEqual(fallback, {})  # Google only by default
-        _, fallback = use_vertex(dict(DEFAULTS["stills"], vertex=dict(DEFAULTS["stills"]["vertex"], fallback_to_fal=True)))
-        self.assertEqual(sorted(fallback["vertex:gemini-nano-banana-2.1"]),
-                         ["google/nano-banana-2.1", "google/nano-banana-2.1/edit"])
+        self.assertEqual(cfg["models"]["vision_pro"], "vertex:gemini-3.6-pro")
+        self.assertEqual(fallback, {})  # Google only
         self.assertEqual(cfg["prices"]["vertex:gemini-nano-banana-2.1"], 0.055)
-        self.assertEqual(DEFAULTS["stills"]["models"]["shot"], "google/nano-banana-2.1/edit")  # not changed in place
-        off, none = use_vertex(dict(DEFAULTS["stills"], vertex={"enabled": False}))
-        self.assertEqual((off["models"]["shot"], none), ("google/nano-banana-2.1/edit", {}))
 
+    def test_fal_refuses_every_model_but_elevenlabs_before_a_request_leaves(self):
+        from production.media import Fal
+
+        fal = Fal(key="test")
+        for endpoint in ("fal-ai/nano-banana-2", "google/nano-banana-2.1/edit", "fal-ai/any-llm/vision",
+                         "fal-ai/ace-step-1.5", "fal-ai/bytedance/seedream/v4.5/edit"):
+            with self.assertRaises(MediaError):
+                fal.run(endpoint, {"prompt": "x"})
+            with self.assertRaises(MediaError):
+                fal.schema(endpoint)
 
 if __name__ == "__main__":
     unittest.main()

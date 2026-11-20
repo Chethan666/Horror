@@ -395,57 +395,57 @@ class PainterRules(unittest.TestCase):
 
     def test_the_next_painter_is_told_what_was_wrong(self):
         p, asked = self.painter([(False, "she is leaning, the line says standing"), (True, "fine")],
-                                ("fal:shot", "fal:shot_alt"))
+                                ("model:shot", "model:shot_alt"))
         out, step = p.paint("She stands behind him.", [], self.root / "beat.png", "k",
-                            ["fal:shot", "fal:shot_alt"], check="standing")
-        self.assertEqual(step, "fal:shot_alt")
-        self.assertEqual([s for s, _ in asked], ["fal:shot", "fal:shot_alt"])
+                            ["model:shot", "model:shot_alt"], check="standing")
+        self.assertEqual(step, "model:shot_alt")
+        self.assertEqual([s for s, _ in asked], ["model:shot", "model:shot_alt"])
         self.assertNotIn("Correct this", asked[0][1])
         self.assertTrue(asked[1][1].startswith("Correct this from the previous attempt: she is leaning, the line "
                                                "says standing. She stands behind him."))  # the fault leads
-        self.assertEqual(p.counts, {"fal:shot_alt (corrected)": 1})
-        self.assertEqual(p.sizes, {"fal:shot": "640x360", "fal:shot_alt": "640x360"})
+        self.assertEqual(p.counts, {"model:shot_alt (corrected)": 1})
+        self.assertEqual(p.sizes, {"model:shot": "640x360", "model:shot_alt": "640x360"})
 
     def test_a_picture_refused_only_for_details_keeps_the_strongest_painters_try(self):
-        p, asked = self.painter([(False, "her face shows")], ("fal:shot", "fal:shot_alt"))
+        p, asked = self.painter([(False, "her face shows")], ("model:shot", "model:shot_alt"))
         out, step = p.paint("She stands behind him.", [], self.root / "beat.png", "k",
-                            ["fal:shot", "fal:shot_alt"], check="standing")
-        self.assertEqual([s for s, _ in asked], ["fal:shot", "fal:shot_alt"])
-        self.assertEqual(step, "fal:shot")  # both faults were details: the strongest painter's picture stays
-        self.assertEqual(p.counts, {"fal:shot (doubted)": 1})
+                            ["model:shot", "model:shot_alt"], check="standing")
+        self.assertEqual([s for s, _ in asked], ["model:shot", "model:shot_alt"])
+        self.assertEqual(step, "model:shot")  # both faults were details: the strongest painter's picture stays
+        self.assertEqual(p.counts, {"model:shot (doubted)": 1})
         self.assertEqual(p.doubted, {"beat"})
         self.assertTrue(out.exists())
 
     def test_a_correction_that_broke_something_worse_does_not_win(self):
         # run 96: the reveal was refused for the way she looked; its correction came back as a split screen
         p, asked = self.painter([(False, "she looks left, not right"), (False, "a split screen with two panels")],
-                                ("fal:hero", "fal:shot"))
-        out, step = p.paint("The reveal.", [], self.root / "beat.png", "k", ["fal:hero", "fal:shot"], check="x")
-        self.assertEqual(step, "fal:hero")
+                                ("model:hero", "model:shot"))
+        out, step = p.paint("The reveal.", [], self.root / "beat.png", "k", ["model:hero", "model:shot"], check="x")
+        self.assertEqual(step, "model:hero")
         self.assertTrue(out.exists())
-        self.assertEqual(p.counts, {"fal:hero (doubted)": 1})
+        self.assertEqual(p.counts, {"model:hero (doubted)": 1})
         # with serious faults only, the last (corrected) one is kept as before
-        p, _ = self.painter([(False, "it shows written text"), (False, "a collage of panels")], ("fal:shot", "fal:shot_alt"))
-        self.assertEqual(p.paint("x", [], self.root / "b2.png", "k2", ["fal:shot", "fal:shot_alt"], check="x")[1],
-                         "fal:shot_alt")
+        p, _ = self.painter([(False, "it shows written text"), (False, "a collage of panels")], ("model:shot", "model:shot_alt"))
+        self.assertEqual(p.paint("x", [], self.root / "b2.png", "k2", ["model:shot", "model:shot_alt"], check="x")[1],
+                         "model:shot_alt")
 
     def test_an_ordinary_beat_keeps_a_picture_refused_only_for_a_detail(self):
         from production.stills.images import MINOR
 
-        p, asked = self.painter([(False, MINOR + "the monitor's screen should be dark")], ("fal:shot",))
-        out, step = p.paint("A mother on the floor.", [], self.root / "beat.png", "k", ["fal:shot", "fal:shot"],
+        p, asked = self.painter([(False, MINOR + "the monitor's screen should be dark")], ("model:shot",))
+        out, step = p.paint("A mother on the floor.", [], self.root / "beat.png", "k", ["model:shot", "model:shot"],
                             check="x", accept_minor=True)
         self.assertEqual(len(asked), 1)  # no money spent on the detail
-        self.assertEqual(p.counts, {"fal:shot (minor fault kept)": 1})
+        self.assertEqual(p.counts, {"model:shot (minor fault kept)": 1})
         # a serious fault on an ordinary beat is still corrected
-        p, asked = self.painter([(False, "a split screen of two panels"), (True, "fine")], ("fal:shot",))
-        p.paint("x", [], self.root / "b2.png", "k2", ["fal:shot", "fal:shot"], check="x", accept_minor=True)
+        p, asked = self.painter([(False, "a split screen of two panels"), (True, "fine")], ("model:shot",))
+        p.paint("x", [], self.root / "b2.png", "k2", ["model:shot", "model:shot"], check="x", accept_minor=True)
         self.assertEqual(len(asked), 2)
         self.assertIn("Correct this from the previous attempt: a split screen", asked[1][1])
         # a key beat corrects details too, and the prompt does not carry the severity label
         p, asked = self.painter([(False, MINOR + "she holds it in the wrong hand"), (True, "fine")],
-                                ("fal:shot", "fal:shot_alt"))
-        p.paint("x", [], self.root / "b3.png", "k3", ["fal:shot", "fal:shot_alt"], check="x")
+                                ("model:shot", "model:shot_alt"))
+        p.paint("x", [], self.root / "b3.png", "k3", ["model:shot", "model:shot_alt"], check="x")
         self.assertEqual(len(asked), 2)
         self.assertTrue(asked[1][1].startswith("Correct this from the previous attempt: she holds it"))
 
@@ -483,19 +483,19 @@ class PainterRules(unittest.TestCase):
         self.assertTrue(serious("the door is ajar, contradicting 'her door was shut'"))
 
     def test_a_sheet_that_fails_its_own_check_is_painted_again_by_the_same_painter(self):
-        p, asked = self.painter([], ("fal:sheet",))
+        p, asked = self.painter([], ("model:sheet",))
         seen = []
 
         def check(image):
             seen.append(image)
             return (len(seen) > 1, "her face shows; the hood must hide it")
 
-        out, step = p.paint("A character sheet.", [], self.root / "sheet.png", "k", ["fal:sheet", "fal:sheet"],
+        out, step = p.paint("A character sheet.", [], self.root / "sheet.png", "k", ["model:sheet", "model:sheet"],
                             check=check)
-        self.assertEqual([s for s, _ in asked], ["fal:sheet", "fal:sheet"])
+        self.assertEqual([s for s, _ in asked], ["model:sheet", "model:sheet"])
         self.assertIn("Correct this from the previous attempt: her face shows", asked[1][1])
         self.assertEqual(self.retries, [0, 1])  # the second try is its own paid picture, not the first one again
-        self.assertEqual(p.counts, {"fal:sheet (corrected)": 1})
+        self.assertEqual(p.counts, {"model:sheet (corrected)": 1})
 
     def test_references_are_sent_as_small_jpegs(self):
         from production.stills.images import Critic, Painter
@@ -656,13 +656,13 @@ class RetryAllowance(unittest.TestCase):
         studio = SimpleNamespace(budget=Budget(1.0, {"m": 0.04}), models={"shot": "m"})
         p = P(studio, {"retry_share": 0.1}, root, Critic())  # retries may spend $0.10: two of them
         for k in range(3):
-            p.paint("x", [], root / f"b{k}.png", f"k{k}", ["fal:shot", "fal:shot"], check="x", capped=True)
-        self.assertEqual(asked.count("fal:shot"), 3 + 2)  # three first tries, only two retries
+            p.paint("x", [], root / f"b{k}.png", f"k{k}", ["model:shot", "model:shot"], check="x", capped=True)
+        self.assertEqual(asked.count("model:shot"), 3 + 2)  # three first tries, only two retries
         self.assertEqual(p.retries_stopped, 1)
         self.assertAlmostEqual(p.retry_spent, 0.08)
         self.assertTrue(all((root / f"b{k}.png").exists() for k in range(3)))  # each keeps its best try
         # an art-review redraw counts as a retry from its first call
-        self.assertEqual(p.paint("x", [], root / "r.png", "kr", ["fal:shot"], check="x", capped=True,
+        self.assertEqual(p.paint("x", [], root / "r.png", "kr", ["model:shot"], check="x", capped=True,
                                  redraw=True), (None, "none"))
 
 

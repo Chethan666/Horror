@@ -216,7 +216,7 @@ class BuilderTests(unittest.TestCase):
 
 class MadeMusicTests(unittest.TestCase):
     @unittest.skipUnless(HAVE, "audio libraries or ffmpeg not installed")
-    def test_music_the_director_asks_for_is_made_by_ace_step_with_its_words(self):
+    def test_music_the_director_asks_for_is_made_by_elevenlabs_with_its_words(self):
         from production.paid import Budget, Studio
         from production.score import Score
 
@@ -230,18 +230,19 @@ class MadeMusicTests(unittest.TestCase):
                 calls.append((endpoint, args))
                 return {"audio": {"url": audio.as_uri()}}
 
-        studio = Studio(Fal(), Budget(5.0, {"fal-ai/ace-step-1.5": 0.0003}), root / "cache",
-                        {"models": {"music": "fal-ai/ace-step-1.5"}})
+        studio = Studio(Fal(), Budget(5.0, {"fal-ai/elevenlabs/music": 0.80 / 60}), root / "cache",
+                        {"models": {"music": "fal-ai/elevenlabs/music"}})
         score = Score(studio, root / "w", 22050)
         score.cue_names = ["dread"]
         score.prompts = {"music_dread": "slow cello drone, instrumental"}
+        score.max_music = 60
         score.music(90)
         endpoint, args = calls[0]
-        self.assertEqual(endpoint, "fal-ai/ace-step-1.5")
+        self.assertEqual(endpoint, "fal-ai/elevenlabs/music")
         self.assertEqual(args["prompt"], "slow cello drone, instrumental")
-        self.assertEqual(args["lyrics"], "[Instrumental]")
-        self.assertEqual(args["duration"], 90.0)
-        self.assertAlmostEqual(studio.budget.spent, 0.027, places=3)  # 90 s at $0.0003
+        self.assertTrue(args["force_instrumental"])
+        self.assertEqual(args["music_length_ms"], 60000)  # one billed minute, looped under the story
+        self.assertAlmostEqual(studio.budget.spent, 0.80, places=2)
         self.assertEqual(score.generated[0]["name"], "music_dread")
 
 
@@ -292,7 +293,7 @@ class PickTests(unittest.TestCase):
                 asked.append(endpoint)
                 raise AssertionError("nothing should be generated")
 
-        studio = Studio(Fal(), Budget(1.0, {}), root / "cache", {"models": {"music": "fal-ai/ace-step-1.5"}})
+        studio = Studio(Fal(), Budget(1.0, {}), root / "cache", {"models": {"music": "fal-ai/elevenlabs/music"}})
         score = Score(studio, root / "w", 24000)
         score.make_kinds = {"sfx"}  # effects may be made, music never
         self.assertIsNone(score._gen("music", {"prompt": "drone"}, "music_dread"))
@@ -323,11 +324,12 @@ class DirectorTests(unittest.TestCase):
         sounds.append(Sound(id="bell", kind="sfx", title="Bus bell ring", file="bell.wav", tags=["bell"], seconds=2))
         write_catalogue(lib / "library.json", sounds)
         c = cfg(sound_library={"enabled": True, "local_dir": str(lib), "min_score": 0.5, "generate_missing": True,
+                               "music_source": "library",  # the library's tracks, not an original score
                                "save_generated": True})
         made = FakeFal(root)
         summary = pipeline.produce(story(False), root / "out", voice.SilentVoice(), None, c, made)
         endpoints = [e for e, _ in made.calls]
-        self.assertNotIn("fal-ai/ace-step-1.5", endpoints)  # every mood came from the library
+        self.assertNotIn("fal-ai/elevenlabs/music", endpoints)  # every mood came from the library
         report = summary["agents"]["sound"]["library"]
         self.assertTrue(report["library"])
         self.assertEqual(report["from_library_by_kind"]["music"], 3)

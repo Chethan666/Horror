@@ -4,7 +4,7 @@ For every sound the video needs (a score cue per mood, a room tone per place, an
 beat that asks for one, the scare sting), the library is searched for a short list of
 candidates. The planner model is the sound director: for each need it either picks a
 candidate (free), or, when none satisfies it, asks for a new one in its own words (music is
-made by ACE-Step 1.5 on fal.ai, other sounds by the sound-effects model), or leaves an effect
+made by ElevenLabs Music, other sounds by ElevenLabs Sound Effects, both on fal.ai), or leaves an effect
 out. Without a model, the best candidate is taken when it matches well enough, and the rest is
 made from the default descriptions. Every sound made is copied to `library_new/` so `library
 sync` adds it to the library after the run: each is paid for once.
@@ -120,7 +120,7 @@ def prompt(story_title: str, items: list[tuple[dict[str, Any], list[tuple[Sound,
             "tracks without a strong melody that sit quietly under a voice, and different tracks for different "
             "moods.\n"
             "2. Have a new one made: \"id\" = \"\" and \"generate\" = a description of it. Music is made by "
-            "ACE-Step 1.5 (about $0.05 a cue): describe genre, instruments, tempo and mood, always "
+            "ElevenLabs Music (about $0.80 a cue): describe genre, instruments, tempo and mood, always "
             "instrumental, e.g. \"dark ambient horror score, low cello drone, distant detuned piano, slow, "
             "sparse, instrumental\". Other sounds cost about $0.01: describe exactly what is heard.\n"
             "3. Leave it out (effects only): \"id\" = \"\" and \"generate\" = \"\".\n"

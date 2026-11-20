@@ -24,7 +24,7 @@
 #   mode=sound-library: builds or extends the channel's sound library (published as the GitHub release
 #               "sound-library") from free sources in sounds/sources.json: Kevin MacLeod, OpenGameArt CC0,
 #               the Free Music Archive (and a Sonniss pack if one is listed). No paid calls.
-#   mode=sound-library-music: the same, plus 9 score cues made with ACE-Step on fal.ai (about $0.25, capped at $1)
+#   mode=sound-library-music: the same, plus score cues made with ElevenLabs Music on fal.ai ($0.80 a cue, capped at $3)
 #   mode=video: pipeline 2 turns the next approved story (or story_id) into a video (film-still
 #               pictures under camera moves, host + teller + character voices, music; made by the agent
 #               team in production/stills), saved as an artifact named video-<run number> for 14 days.
@@ -289,7 +289,7 @@ jobs:
           sudo apt-get install -y -qq ffmpeg
           pip install -q numpy soundfile datasets
           GEN=()
-          if [ "$MODE" = sound-library-music ]; then GEN=(--generate-music --max-usd 1); fi
+          if [ "$MODE" = sound-library-music ]; then GEN=(--generate-music --max-usd 3); fi
           # overrides "fresh": start the library over (the release is deleted and rebuilt from the sources)
           if [[ " $OVERRIDES " == *" fresh "* ]]; then
             gh release delete sound-library --yes --cleanup-tag || true

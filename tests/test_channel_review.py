@@ -142,7 +142,7 @@ class Screening(unittest.TestCase):
         from production.stills.board import Board
         from production.stills.screening import ScreeningAgent
 
-        studio = SimpleNamespace(models={"vision": "fal-ai/any-llm/vision"})
+        studio = SimpleNamespace(models={"vision": "other:checker"})
         board = Board(story={}, out=Path("."), work=Path("."), cfg={}, studio=studio)
         board.data["video"] = Path(__file__)
         self.assertFalse(ScreeningAgent().run(board)["watched"])
@@ -200,7 +200,7 @@ class Languages(unittest.TestCase):
         srt = (root / "captions_es.srt").read_text()
         self.assertIn("[es] Nobody was there.", srt)
         self.assertIn("00:00:02,500 --> 00:00:04,000", srt)
-        fal_only = Studio(Gemini(), Budget(1.0, {}), root / "c2", {"models": {"vision": "fal-ai/any-llm/vision"}})
+        fal_only = Studio(Gemini(), Budget(1.0, {}), root / "c2", {"models": {"vision": "other:checker"}})
         self.assertEqual(localize(fal_only, "T", "D", cues, ["es"], root), {"localizations": {}, "captions": {}})
 
     def test_the_upload_carries_the_translations_and_every_caption_track(self):

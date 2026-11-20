@@ -39,9 +39,13 @@ can before the next agent builds on it (✓ = checks; ↻ = fixes itself):
 | 17 | Packager | Thumbnails, chapters, metadata, contact sheet, 60 s preview; the title, description and captions translated | ✓↻ thumbnail lettering read back | Nano Banana 2.1, Gemini on Vertex |
 | 18 | QA | Length, streams, loudness, black stretches, fallbacks to fal, the screening's serious notes, every gate's findings | ✓ `pass`, or `check` with the reasons | |
 
-Pictures, checks, the score and the screening are paid from the Google Cloud credits (Vertex AI);
-the narration and missing sound effects from fal. A 60-second test: workflow mode `video-test`
-with overrides `script=one_minute.json`.
+**Providers (November 2026).** Pictures, checks and the screening are made on Google Cloud
+(Vertex AI) only, with Google's default safety level. fal.ai is used for ElevenLabs alone: the
+voices, the score (ElevenLabs Music) and the sound effects. `production/media.py` refuses any other
+model on fal before a request leaves, and a Google failure is never sent to fal. If Google is not
+signed in or refuses the preflight check, the run stops before anything is bought. A 60-second
+test: workflow mode `video-test` with overrides `script=one_minute.json`; the 2-minute episode:
+`script=two_minute.json`.
 
 **Voices.** The Storyteller (host) reads the intro and outro in the third person, always in the
 same voice. A first-person story (decided from the text) is told by its teller in a voice of
@@ -384,7 +388,6 @@ Estimates for the balanced setup (the budget's prices, not fal's invoice):
 |---|---|---|
 | Premium (run 96's setup) | $2.20 | about $10-11 |
 | Balanced (the default) | about $1.50 | about $7-8 |
-| Cheap (run 98's setup, `production/samples/one_minute_cheap.json`) | $1.41 | about $6-7 |
 
 The balanced estimate is worked out from the two runs' pass rates; the first run with it will
 show the real figure. Every other cost is small: the narration about $0.10 a minute, the vision

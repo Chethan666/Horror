@@ -132,11 +132,13 @@ class PreflightTests(unittest.TestCase):
             PreflightAgent().run(board)
         self.assertIn("Top up fal.ai", str(caught.exception))
         self.assertEqual(board.budget.spent, 0)
-        # with the free voice allowed, the run carries on and says why
+        # with the free voice allowed, the voice failure is let through, but a Google checker that does not
+        # answer still stops the run: pictures are made on Google only
         board = self.board(Empty(), require_paid_voice=False)
-        report = PreflightAgent().run(board)
-        self.assertTrue(report["voice"].startswith("failed"))
-        self.assertTrue(report["checker"].startswith("failed"))
+        with self.assertRaises(PreflightFailed) as caught:
+            PreflightAgent().run(board)
+        self.assertIn("Google", str(caught.exception))
+        self.assertTrue(board.data["preflight"]["voice"].startswith("failed"))
 
     def test_a_working_narrator_and_checker_pass_and_the_cost_is_estimated(self):
         from production.stills.preflight import PreflightAgent
@@ -146,7 +148,7 @@ class PreflightTests(unittest.TestCase):
         class Fine:
             def run(self, endpoint, args):
                 asked.append((endpoint, args.get("text") or args.get("prompt")))
-                if "any-llm" in endpoint or "vision" in endpoint:
+                if "gemini-3" in endpoint:  # the checker, on Google
                     return {"output": "OK"}
                 return {"audio": {"url": "https://example.com/a.mp3"}}
 

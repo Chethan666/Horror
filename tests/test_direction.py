@@ -139,7 +139,7 @@ class Takes(unittest.TestCase):
 
         class Picky(FakeFal):
             def run(self, endpoint, args):
-                if "any-llm" in endpoint and "takes of the same frame" in args.get("prompt", ""):
+                if "gemini-3" in endpoint and "takes of the same frame" in args.get("prompt", ""):
                     self.calls.append((endpoint, {"prompt": args["prompt"]}))
                     return {"output": json.dumps({"best": 2, "why": "her fear reads"})}
                 return super().run(endpoint, args)
@@ -150,9 +150,9 @@ class Takes(unittest.TestCase):
         painter = Painter(studio, c, root / "art", Critic(studio, "dark"))
         out, step = painter.paint("the reveal", [painted(root / "ref.png")], root / "beat.png", "k",
                                   c["chains"]["scare"], check="the reveal", takes=2)
-        self.assertEqual(step, "fal:shot")
-        self.assertEqual(painter.counts, {"fal:shot (best of 2)": 1})
-        pictures = [e for e, _ in fal.calls if e == "google/nano-banana-2.1/edit"]
+        self.assertEqual(step, "model:shot")
+        self.assertEqual(painter.counts, {"model:shot (best of 2)": 1})
+        pictures = [e for e, _ in fal.calls if e == "vertex:gemini-nano-banana-2.1"]
         self.assertEqual(len(pictures), 2)  # two takes, both paid
         self.assertTrue(any("takes of the same frame" in a.get("prompt", "") for _, a in fal.calls))
         self.assertTrue(out.exists())
@@ -252,7 +252,7 @@ class ContinuityAndStaging(unittest.TestCase):
                      "why": "the set has no window on the left"},
                     {"index": 99, "picture": "not a beat in this place at all, ignored"}]})}
 
-        c = {"models": {"vision": "fal-ai/any-llm/vision", "vision_pro": "fal-ai/any-llm/vision"},
+        c = {"models": {"vision": "vertex:gemini-3.6-pro", "vision_pro": "vertex:gemini-3.6-pro"},
              "model_args": {"vision": {"model": "flash"}, "vision_pro": {"model": "pro"}}}
         studio = Studio(Eye(), Budget(1.0, {}), self.root / "cache", c)
         board = Board(story={}, out=self.root, work=self.root, cfg={}, studio=studio)
@@ -263,7 +263,7 @@ class ContinuityAndStaging(unittest.TestCase):
         self.assertEqual(report["rewritten"][0]["beat"], 2)
         self.assertTrue(beats[1].picture.startswith("From the back seat"))
         self.assertEqual(beats[0].picture, "picture 1")
-        self.assertEqual(asked, [("fal-ai/any-llm/vision", "pro", 1)])  # the stronger checker, with the sheet
+        self.assertEqual(asked, [("vertex:gemini-3.6-pro", "pro", 1)])  # the stronger checker, with the sheet
 
 
 class DreadPacing(unittest.TestCase):
@@ -279,19 +279,14 @@ class DreadPacing(unittest.TestCase):
 
 
 class StrongerChecker(unittest.TestCase):
-    def test_the_pro_role_has_its_own_vertex_model_and_falls_back_to_fal(self):
-        from production.vertex import PREFIX, use_vertex
+    def test_the_pro_role_has_its_own_google_model_and_no_fal_fallback(self):
+        from production.vertex import use_vertex
+        from story_factory.config import DEFAULTS
 
-        cfg = {"models": {"vision": "fal-ai/any-llm/vision", "vision_pro": "fal-ai/any-llm/vision",
-                          "music": "vertex:lyria-002"},
-               "vertex": {"models": {"fal-ai/any-llm/vision": "gemini-3.6-flash"},
-                          "roles": {"vision_pro": "gemini-3.6-pro"}, "prices": {"gemini-3.6-pro": 0.01},
-                          "fallback_to_fal": True}}
-        moved, fallback = use_vertex(cfg)
-        self.assertEqual(moved["models"]["vision"], PREFIX + "gemini-3.6-flash")
-        self.assertEqual(moved["models"]["vision_pro"], PREFIX + "gemini-3.6-pro")
-        self.assertEqual(moved["models"]["music"], "vertex:lyria-002")  # already on Vertex: left alone
-        self.assertEqual(fallback[PREFIX + "gemini-3.6-pro"], ["fal-ai/any-llm/vision"])
+        moved, fallback = use_vertex(DEFAULTS["stills"])
+        self.assertEqual(moved["models"]["vision"], "vertex:gemini-3.6-flash")
+        self.assertEqual(moved["models"]["vision_pro"], "vertex:gemini-3.6-pro")
+        self.assertEqual(fallback, {})
 
     def test_a_missing_pro_model_tries_the_other_pro_models_first(self):
         from production.media import MediaError

@@ -101,7 +101,7 @@ class Sound:
     author: str = ""
     credit: str = ""  # the line the video description must carry, "" when none is needed
     uses: int = 0  # how many videos used it: the least used is preferred, so videos sound different
-    origin: str = ""  # incompetech, opengameart, fma, zip, acestep, generated
+    origin: str = ""  # incompetech, opengameart, fma, zip, elevenlabs, generated
 
     def text(self) -> str:
         return " ".join([self.title, self.description, " ".join(self.tags)])

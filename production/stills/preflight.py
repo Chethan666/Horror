@@ -101,6 +101,13 @@ class PreflightAgent:
                         f"the narrator ({studio.models['voice']}) could not read a test line: {str(exc)[:300]}. "
                         "Top up fal.ai (fal.ai/dashboard/billing), or set stills.require_paid_voice=false to "
                         "make the video in the free Kokoro voice. Nothing was paid for.") from exc
+        google_only = True  # pictures and checks are made on Google only
+        # the picture roles were taken away at start-up (production/__main__.py: no Google sign-in)
+        if google_only and cfg.get("require_google", True) and (cfg.get("vertex") or {}).get("enabled", True) \
+                and not studio.models.get("shot"):
+            raise PreflightFailed("Google Vertex AI is not signed in (GEMINI_PLATFORM_API_KEY or "
+                                  "GCP_SERVICE_ACCOUNT_JSON), and pictures are made on Google only: the run stops "
+                                  "here. Nothing was paid for except the narrator's test line.")
         if studio.models.get("vision"):
             model = studio.models["vision"]
             usd = 0.0
@@ -116,13 +123,13 @@ class PreflightAgent:
                 if usd:
                     studio.budget.settle(usd, "preflight", model, ok=False)
                 report["checker"] = f"failed: {str(exc)[:200]}"
-                google_only = str(model).startswith("vertex:") and not (cfg.get("vertex") or {}).get("fallback_to_fal", False)
+                google_only = str(model).startswith("vertex:")
                 if google_only and cfg.get("require_google", True):
                     # Pictures and checks are made on Google only: a refused test means every picture
                     # would fail, so nothing more is bought (run 118: "Request rejected" on every request).
                     raise PreflightFailed(
                         f"Google Vertex AI refused the test check ({model}): {' '.join(str(exc).split())[:300]}. "
                         "Pictures are made on Google only, so the run stops here. Fix the Google Cloud project "
-                        "(billing, the Vertex AI API, the key), or set stills.vertex.fallback_to_fal=true.") from exc
+                        "(billing, the Vertex AI API, the key).") from exc
                 log.warning("The checker did not answer: pictures will be used unchecked (%s)", str(exc)[:200])
         return report

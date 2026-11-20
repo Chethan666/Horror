@@ -83,7 +83,7 @@ def main(argv: list[str] | None = None) -> int:
     lib.add_argument("--out", default="build/library", help="where new files and library.json are written")
     lib.add_argument("--existing", help="the current library.json (default: downloaded from the release)")
     lib.add_argument("--only", default="", help="comma-separated source types to run (e.g. incompetech,opengameart)")
-    lib.add_argument("--generate-music", action="store_true", help="also make the ACE-Step cues (paid, capped)")
+    lib.add_argument("--generate-music", action="store_true", help="also make score cues with ElevenLabs Music (paid, $0.80 a cue, capped)")
     lib.add_argument("--max-usd", type=float, default=1.0, help="cap for --generate-music")
     lib.add_argument("--runs", nargs="*", default=[], help="sync: video output folders (each with sounds_used.json)")
     lib.add_argument("--fresh", action="store_true", help="build: ignore the current library and start over")
@@ -262,13 +262,8 @@ def channel(args: argparse.Namespace, conn) -> int:
     return 0
 
 
-ALTERNATES = [  # listed alongside the configured models, to compare
-    "fal-ai/nano-banana-pro", "fal-ai/nano-banana-pro/edit", "fal-ai/nano-banana-2", "fal-ai/nano-banana-2/edit",
-    "fal-ai/bytedance/seedream/v4.5/text-to-image", "fal-ai/bytedance/seedream/v4.5/edit",
-    "fal-ai/elevenlabs/tts/eleven-v3", "fal-ai/elevenlabs/sound-effects/v2", "fal-ai/ace-step-1.5",
-    "fal-ai/elevenlabs/music",
-    # image-to-video on fal, for the motion stage if Veo on Vertex is not used
-    "fal-ai/veo3.1/fast/image-to-video", "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+ALTERNATES = [  # listed alongside the configured models: fal is used for ElevenLabs alone
+    "fal-ai/elevenlabs/tts/eleven-v3", "fal-ai/elevenlabs/sound-effects/v2", "fal-ai/elevenlabs/music",
 ]
 
 
@@ -338,13 +333,20 @@ def media_client(stills: dict) -> tuple[dict, object | None]:
         moved, fallback = vertex.use_vertex(stills)
         on_google = sorted({str(m) for m in moved.get("models", {}).values() if str(m).startswith(vertex.PREFIX)})
         print(f"Paid pictures and checks on Google ({client.project}, {client.location}): {on_google}; "
-              f"fal as their fallback: {'yes' if fal and fallback else 'no'}", flush=True)
+              "fal is used for ElevenLabs alone", flush=True)
         settings = stills.get("vertex") or {}
         vertex.set_safety(str(settings.get("safety", "BLOCK_MEDIUM_AND_ABOVE")))
         providers = vertex.Providers(fal, client, fallback, others)
         providers.max_requests = int(settings.get("max_requests", 600))
         providers.max_failures = int(settings.get("max_failures_in_a_row", 8))
         return moved, providers
+    if (stills.get("vertex") or {}).get("enabled", True):
+        # Google only: without a Google sign-in, no picture or check may go to fal's copy of the model
+        # (run 118 sent about 45 Nano Banana pictures to fal). fal keeps ElevenLabs alone; pictures fall to
+        # the placeholders and preflight stops the run.
+        stills["models"] = {k: v for k, v in models.items() if not v or "elevenlabs" in str(v)}
+        print("Google is not signed in: pictures and checks are Google-only, so none are made "
+              "(fal is used for ElevenLabs alone)", flush=True)
     if others:
         return stills, vertex.Providers(fal, None, {}, others)
     return stills, fal
@@ -400,7 +402,6 @@ def check_vertex(stills: dict) -> int:
     # which costs nothing: "found" when Google says the request is wrong, "not found" when the model is unknown.
     others = {str(m).split(":", 1)[1] for m in stills.get("models", {}).values() if str(m).startswith("vertex:")}
     others |= {str(v) for v in ((stills.get("vertex") or {}).get("roles") or {}).values()}
-    others |= {"lyria-002"} if "fal-ai/ace-step-1.5" in (stills.get("vertex") or {}).get("models", {}) else set()
     for model in sorted(others - set(models)):
         method, where = ("predict", "us-central1") if "lyria" in model else (
             ("predictLongRunning", "us-central1") if "veo" in model else ("generateContent", None))

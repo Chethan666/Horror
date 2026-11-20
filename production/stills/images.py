@@ -2,7 +2,7 @@
 
 A picture is asked of each painter in the chain until one passes the critic:
 
-    fal:<role>   a paid model (Nano Banana 2.1 on Vertex AI, or on fal.ai), with the place's
+    model:<role> a paid model (Nano Banana 2.1 on Google Vertex AI), with the place's
                  sheet (or the style frame), the portraits and the character sheets as
                  references
 
@@ -276,7 +276,7 @@ class Painter:
             self.counts[key] = self.counts.get(key, 0) + 1
 
     def available(self, step: str) -> bool:
-        return step.startswith("fal:") and self.studio is not None and step[4:] in self.studio.models
+        return step.startswith("model:") and self.studio is not None and step[6:] in self.studio.models
 
     def reference(self, path: Path, px: int = 2048) -> str:
         """A reference picture as the models are sent it: a JPEG at most `px` wide. The
@@ -301,7 +301,7 @@ class Painter:
         """The first paid painter paints `takes` versions at once; the critic passes or refuses each,
         and the stronger checker chooses between the ones that pass. Returns (the picture, its painter,
         the first refusal, a refused take whose fault was only a detail)."""
-        step = next((x for x in chain if x.startswith("fal:") and self.available(x)), None)
+        step = next((x for x in chain if x.startswith("model:") and self.available(x)), None)
         if step is None:
             return None, "", "", None
 
@@ -386,7 +386,7 @@ class Painter:
             paid_picture = bool(step) and (mild is not None or bool(why))
             doubted = mild
         for k, step in enumerate(s for s in chain if self.available(s)):
-            paid = step.startswith("fal:")
+            paid = step.startswith("model:")
             if paid_picture and not paid:
                 continue  # a refused paid picture still has the right people and place; a free one would not
             # the correction leads the prompt: at the end of 400 words it would be the least-read part
@@ -468,9 +468,9 @@ class Painter:
         return None, ("refused" if self._base(out) in self.refused else "none")
 
     def _price(self, step: str) -> float:
-        if not step.startswith("fal:") or self.studio is None or step[4:] not in self.studio.models:
+        if not step.startswith("model:") or self.studio is None or step[6:] not in self.studio.models:
             return 0.0
-        role = step[4:]
+        role = step[6:]
         units = float((self.cfg.get("model_units") or {}).get(role, 1.0))
         return float(self.studio.budget.price(self.studio.models[role], units))
 
@@ -482,8 +482,8 @@ class Painter:
     def _one(self, step: str, prompt: str, refs: list[Path], raw: Path, key: Any, retry: int = 0) -> Path | None:
         """One picture from one painter. `retry`: the corrected try's place in the chain, so the
         same painter asked twice is paid twice rather than handed its first picture again."""
-        if step.startswith("fal:"):
-            role = step[4:]
+        if step.startswith("model:"):
+            role = step[6:]
             if role in (self.cfg.get("text_only_roles") or ()):  # it takes no pictures: the words alone
                 refs = []
             if refs:

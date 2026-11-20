@@ -215,78 +215,78 @@
       "max": 200
     },
     {
-      "type": "acestep",
-      "name": "ACE-Step 1.5 on fal.ai: newly made score cues (only when the workflow is started in mode sound-library-music)",
-      "model": "fal-ai/ace-step-1.5",
-      "usd_per_second": 0.0003,
+      "type": "elevenlabs_music",
+      "name": "ElevenLabs Music on fal.ai: newly made score cues (only when the workflow is started in mode sound-library-music)",
+      "model": "fal-ai/elevenlabs/music",
       "args": {
-        "lyrics": "[Instrumental]"
+        "force_instrumental": true
       },
       "tracks": [
         {
           "mood": "unease",
           "intensity": 2,
-          "seconds": 150,
+          "seconds": 60,
           "title": "Hollow Unease I",
           "prompt": "dark ambient horror soundtrack, slow evolving low drone, distant detuned piano notes, soft eerie synth textures, sparse, patient, no drums, instrumental"
         },
         {
           "mood": "unease",
           "intensity": 2,
-          "seconds": 150,
+          "seconds": 60,
           "title": "Hollow Unease II",
           "prompt": "minimal dark ambient, sub-bass hum, faint metallic resonances, breathy noise swells, lonely and cold, no melody, no drums, instrumental"
         },
         {
           "mood": "unease",
           "intensity": 1,
-          "seconds": 150,
+          "seconds": 60,
           "title": "Hollow Unease III",
           "prompt": "haunting music box melody slowed down, tape hiss, reverb, melancholy and unsettling, very quiet, instrumental"
         },
         {
           "mood": "dread",
           "intensity": 3,
-          "seconds": 150,
+          "seconds": 60,
           "title": "Hollow Dread I",
           "prompt": "tense horror score, slow heartbeat-like sub pulse, rising dissonant synth pads, creeping and suspenseful, dark electronic, instrumental"
         },
         {
           "mood": "dread",
           "intensity": 3,
-          "seconds": 150,
+          "seconds": 60,
           "title": "Hollow Dread II",
           "prompt": "cinematic dark suspense, low cello drone, ticking pulse, uneasy string clusters slowly rising, instrumental"
         },
         {
           "mood": "dread",
           "intensity": 4,
-          "seconds": 150,
+          "seconds": 60,
           "title": "Hollow Dread III",
           "prompt": "industrial dark ambient, distant mechanical rumble, pulsing low synth, menacing and claustrophobic, instrumental"
         },
         {
           "mood": "terror",
           "intensity": 5,
-          "seconds": 120,
+          "seconds": 60,
           "title": "Hollow Terror I",
           "prompt": "intense horror climax, pounding low percussion, aggressive distorted synth bass, screeching dissonant textures, frantic, instrumental"
         },
         {
           "mood": "terror",
           "intensity": 5,
-          "seconds": 120,
+          "seconds": 60,
           "title": "Hollow Terror II",
           "prompt": "frantic horror chase score, fast pulsing strings ostinato, brass stabs, rising panic, dark orchestral, instrumental"
         },
         {
           "mood": "terror",
           "intensity": 4,
-          "seconds": 120,
+          "seconds": 60,
           "title": "Hollow Terror III",
           "prompt": "dark electronic horror, glitching noise bursts over a relentless low pulse, chaotic and terrifying, instrumental"
         }
-      ]
+      ],
+      "usd_per_minute": 0.8
     }
   ]
 }

@@ -427,15 +427,16 @@ class VertexKey(Vertex):
 
 
 class Providers:
-    """fal and Vertex behind one `run()`: "vertex:" models go to Google, every other to fal.
-    A Vertex failure (not a refused picture) is sent to the fal model it replaced."""
+    """fal and Vertex behind one `run()`: "vertex:" models go to Google, ElevenLabs models to fal (fal is
+    used for nothing else; production/media.py refuses any other model). A Google failure is never sent
+    to fal: a busy Google is asked again after a wait, anything else is reported."""
 
     def __init__(self, fal: Any = None, vertex: Vertex | None = None,
                  fallback: dict[str, list[str]] | None = None, others: dict[str, Any] | None = None):
-        self.fal, self.vertex, self.fallback = fal, vertex, dict(fallback or {})
+        self.fal, self.vertex = fal, vertex  # `fallback` is no longer used: Google is never replaced by fal
         self.others = dict(others or {})  # other services by prefix, e.g. {"elevenlabs:": ElevenLabs()}
         self.fell_back = 0
-        self.fal_empty = False  # set once fal answers that its balance is empty: it cannot be the fallback
+        self.fal_empty = False  # set once fal answers that its balance is empty
         self.waited_for_quota = 0
         self.sleep = time.sleep
         self.jitter = lambda: random.uniform(1.0, 1.5)
@@ -523,30 +524,9 @@ class Providers:
                 self.failures_in_a_row = 0
             return answer
         except MediaError as exc:
-            spares = self.fallback.get(endpoint) or []
-            # with reference pictures, the fal model that takes them (".../edit"); without, the other
-            refs = bool(args.get("image_urls"))
-            spare = next((e for e in spares if e.endswith("/edit") == refs), spares[0] if spares else "")
-            busy = self.vertex is not None and self._busy(exc)
-            # fal's stand-in looks at pictures only: a video or a sound to watch (the screening) cannot go there
-            watches = any(args.get(k) for k in ("video_url", "audio_url"))
-            if self.fal is None or not spare or watches or "content refused" in str(exc):
-                if busy:
-                    return self._wait_for_vertex(endpoint, args, exc)
-                raise
-            if busy and self.fal_empty:
+            if self.vertex is not None and self._busy(exc) and not policy_refusal(exc):
                 return self._wait_for_vertex(endpoint, args, exc)
-            self.fell_back += 1
-            log.warning("Vertex %s failed (%s); sent to %s on fal", endpoint, " ".join(str(exc).split())[:400], spare)
-            try:
-                return self.fal.run(spare, args)
-            except MediaError as fal_exc:
-                if not self._fal_empty(fal_exc):
-                    raise
-                self.fal_empty = True
-                if busy:
-                    return self._wait_for_vertex(endpoint, args, exc)
-                raise
+            raise
 
     def __getattr__(self, name: str) -> Any:  # schema(), price() and the rest stay fal's
         if self.fal is None:
@@ -576,9 +556,7 @@ def use_vertex(cfg: dict[str, Any]) -> tuple[dict[str, Any], dict[str, list[str]
     prices = cfg.setdefault("prices", {})
     for target, usd in (settings.get("prices") or {}).items():
         prices[PREFIX + str(target)] = float(usd)
-    if not settings.get("fallback_to_fal", False):
-        return cfg, {}  # Google only: a refused picture or check is not sent to fal
-    return cfg, fallback
+    return cfg, {}  # Google only: a failed picture or check is never sent to fal
 
 
 def traffic(client: Any) -> dict[str, Any]:

@@ -150,12 +150,10 @@ class Score:
                 if parts:
                     return key, _joined(parts, self.rate)
                 return key, self._library(name, channels=2)
-            if "ace-step" in model:  # ACE-Step (open source): billed by the second
-                args = {"prompt": prompt[:500], "lyrics": "[Instrumental]", "duration": float(length)}
-                units = float(length)
-            else:  # ElevenLabs: billed in whole minutes
-                args = {"prompt": prompt, "music_length_ms": length * 1000, "force_instrumental": True}
-                units = math.ceil(length / 60) * 60
+            # ElevenLabs Music on fal (the only model fal is used for besides voices and effects):
+            # billed in whole minutes
+            args = {"prompt": prompt, "music_length_ms": length * 1000, "force_instrumental": True}
+            units = math.ceil(length / 60) * 60
             return key, self._gen("music", args, f"music_{key}", units=units, channels=2)
         with ThreadPoolExecutor(max_workers=3) as pool:
             got = {k: v for k, v in pool.map(one, [(k, CUES[k]) for k in self.cue_names if k in CUES])

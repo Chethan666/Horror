@@ -9,8 +9,9 @@ during a video. Every source is optional: one that fails is logged and skipped. 
                   instrumental tracks in dark genres
     zip           any pack of sounds by URL, with its license given in the source entry
                   (e.g. a Sonniss GDC bundle part, or a CC0 pack)
-    acestep       music made with ACE-Step on fal.ai, for moods the free sources miss (paid, about
-                  $0.0002 a second; off unless the workflow is started with generate_music)
+    elevenlabs_music  score cues made with ElevenLabs Music on fal.ai, for moods the free sources
+                  miss ($0.80 a minute, billed in whole minutes; off unless the workflow is started
+                  with generate_music). fal.ai is used for ElevenLabs alone.
 
 Every file is converted to 48 kHz Ogg Vorbis, trimmed of silence (effects) and levelled, its
 length measured, and its catalogue entry written: kind, moods, intensity, tags, license,
@@ -24,6 +25,7 @@ import hashlib
 import html
 import io
 import json
+import math
 import logging
 import re
 import subprocess
@@ -383,36 +385,35 @@ class Builder:
                            origin=src.get("name", "zip"))
             n += 1 if got else 0
 
-    def src_acestep(self, src: dict[str, Any]) -> None:
+    def src_elevenlabs_music(self, src: dict[str, Any]) -> None:
         if self.fal is None:
-            log.info("ACE-Step skipped: no fal key, or generate_music is off")
+            log.info("ElevenLabs Music skipped: no fal key, or generate_music is off")
             return
         from production.media import download
-        model = str(src.get("model", "fal-ai/ace-step-1.5"))
-        per_second = float(src.get("usd_per_second", 0.0003))
+        model = str(src.get("model", "fal-ai/elevenlabs/music"))
+        per_minute = float(src.get("usd_per_minute", 0.80))
         for k, t in enumerate(src.get("tracks", [])):
-            seconds = float(t.get("seconds", 120))
-            cost = seconds * per_second
+            seconds = float(t.get("seconds", 60))
+            cost = math.ceil(seconds / 60) * per_minute  # billed in whole minutes
             if self.spent + cost > self.max_usd:
-                log.warning("ACE-Step stopped at the $%.2f cap", self.max_usd)
+                log.warning("ElevenLabs Music stopped at the $%.2f cap", self.max_usd)
                 break
-            args = dict(src.get("args", {}), prompt=t["prompt"], duration=seconds)
+            args = dict(src.get("args", {}), prompt=t["prompt"], music_length_ms=int(seconds * 1000))
             try:
                 result = self.fal.run(model, args)
             except Exception as exc:  # noqa: BLE001
-                log.warning("ACE-Step track %d: %s", k, str(exc)[:200])
+                log.warning("ElevenLabs Music track %d: %s", k, str(exc)[:200])
                 continue
             self.spent += cost
             audio = result.get("audio") or result.get("audio_file") or {}
             url = audio.get("url") if isinstance(audio, dict) else str(audio)
             with tempfile.TemporaryDirectory() as tmp:
-                path = download(url, Path(tmp) / "ace.wav")
-                self.add(path, ".wav", kind="music", title=t.get("title", f"ACE-Step {t['mood']} {k + 1}"),
+                path = download(url, Path(tmp) / "music.mp3")
+                self.add(path, ".mp3", kind="music", title=t.get("title", f"ElevenLabs {t['mood']} {k + 1}"),
                          description=t["prompt"], tags=[t["mood"], "generated"], moods=[t["mood"]],
-                         intensity=t.get("intensity"), source=f"fal:{model}", license="generated",
-                         origin="acestep", loop=True)
-        self.report.setdefault("acestep", {})["usd"] = round(self.spent, 3)
-
+                         intensity=t.get("intensity"), source=f"elevenlabs:{model}", license="generated",
+                         origin="elevenlabs", loop=True)
+        self.report.setdefault("elevenlabs_music", {})["usd"] = round(self.spent, 3)
 
 HORROR_WORDS = ("horror", "creepy", "scary", "spooky", "dark", "eerie", "haunt", "ghost", "fear", "dread", "suspense",
                 "tension", "tense", "ominous", "sinister", "nightmare", "terror", "menac", "unsettl", "ambient",

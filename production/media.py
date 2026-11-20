@@ -56,8 +56,23 @@ def download(url: str, path: Path) -> Path:
     return path
 
 
+# fal.ai is used for ElevenLabs alone: voices, music and sound effects (the channel's rule, November 2026).
+# Pictures and checks are made on Google; run 118 sent about 45 Nano Banana pictures to fal and drained
+# the balance. Any other model is refused here, before a request leaves, whatever a config asks for.
+FAL_ALLOWED = ("fal-ai/elevenlabs/",)
+
+
+def fal_allowed(endpoint: str) -> bool:
+    return str(endpoint or "").startswith(FAL_ALLOWED)
+
+
 class Fal:
-    """fal.ai's queue API: submit, poll the status URL, fetch the result."""
+    """fal.ai's queue API: submit, poll the status URL, fetch the result. ElevenLabs models only."""
+
+    @staticmethod
+    def _guard(endpoint: str) -> None:
+        if not fal_allowed(endpoint):
+            raise MediaError(f"{endpoint}: fal.ai is used for ElevenLabs only; this model is never called on fal")
 
     QUEUE = "https://queue.fal.run"
 
@@ -73,6 +88,7 @@ class Fal:
         return {"Authorization": f"Key {self.key}", "Accept": "application/json"}
 
     def run(self, endpoint: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        self._guard(endpoint)
         submitted = _request(f"{self.QUEUE}/{endpoint}", method="POST", headers=self.headers, body=arguments)
         status_url, response_url = submitted.get("status_url"), submitted.get("response_url")
         if not status_url or not response_url:
@@ -95,6 +111,7 @@ class Fal:
 
     def price(self, endpoint: str) -> str:
         """fal's listed price for a model ("0.03 USD per image"), or "" when it cannot be read."""
+        self._guard(endpoint)
         try:
             got = _request("https://api.fal.ai/v1/models/pricing?endpoint_id=" + urllib.parse.quote(endpoint, safe=""),
                            headers=self.headers, timeout=30)
@@ -107,6 +124,7 @@ class Fal:
 
     def schema(self, endpoint: str) -> dict[str, Any]:
         """The model's input fields, from fal's public OpenAPI description."""
+        self._guard(endpoint)
         url = "https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=" + urllib.parse.quote(endpoint, safe="")
         spec = _request(url)
         schemas = spec.get("components", {}).get("schemas", {})

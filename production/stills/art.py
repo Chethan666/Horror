@@ -335,7 +335,7 @@ class ArtDirectorAgent:
                     f"it in deep shadow. Empty: no people. No text, no labels. {look['avoid']}").strip()
             path, step = painter.paint(text, refs, out, ["place", place["name"], place["design"], views],
                                        cfg["chains"]["sheet"], check=checked("location", place["name"], place["design"]))
-            if path is not None and out.stem in painter.doubted and not step.startswith("fal:"):
+            if path is not None and out.stem in painter.doubted and not step.startswith("model:"):
                 return place["name"], None
             return place["name"], path
 
@@ -355,7 +355,7 @@ class ArtDirectorAgent:
                     f"clothes and accessories in all three. No text, no labels. {look['avoid']}").strip()
             path, step = painter.paint(text, refs, out, ["sheet", c["name"], c["design"]], cfg["chains"]["sheet"],
                                        check=checked("character", c["name"], c["design"]))
-            if path is not None and out.stem in painter.doubted and not step.startswith("fal:"):
+            if path is not None and out.stem in painter.doubted and not step.startswith("model:"):
                 return c["name"], None  # a free painter's refused sheet (run 96: an empty room for Lily) misleads
             return c["name"], path
 
@@ -386,7 +386,7 @@ class ArtDirectorAgent:
                         f"labels. {look['avoid']}").strip()
             path, step = painter.paint(text, [sheets[c["name"]]], out, ["portrait", c["name"], c["design"]],
                                        cfg["chains"]["sheet"], check=checked("portrait", c["name"], c["design"]))
-            if path is not None and out.stem in painter.doubted and not step.startswith("fal:"):
+            if path is not None and out.stem in painter.doubted and not step.startswith("model:"):
                 return c["name"], None
             return c["name"], path
 
