@@ -1,0 +1,98 @@
+2026-11-19 18:44:26,146 INFO [preflight] done: {'paid': True, 'voice': 'failed: POST https://queue.fal.run/fal-ai/elevenlabs/tts/eleven-v3: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}', 'checker': 'ok', 'seconds': 0.2}
+2026-11-19 18:44:26,712 WARNING ElevenLabs could not read 'The Wayside Motel is still open. The night desk is always st' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:26,713 WARNING ElevenLabs could not read 'A guest book that knows who is coming. The lantern is lit.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,171 WARNING ElevenLabs could not read 'The guest book sits open on the counter. The owner, Mr. Pell' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,173 WARNING ElevenLabs could not read 'I work the night desk at the Wayside Motel, out on Route 9, ' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,179 WARNING ElevenLabs could not read '[hesitantly] Room six has been boarded up since before I was' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,414 WARNING ElevenLabs could not read '[whispers] Not much. [quietly] Just a roll. Like someone had' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,417 WARNING ElevenLabs could not read 'The first week, I blamed the day staff. [quietly] The second' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,417 WARNING ElevenLabs could not read 'Last night, at two thirteen, the lights in the parking lot f' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,609 WARNING ElevenLabs could not read '[quietly] When the lights came back, the office was empty. T' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,613 WARNING ElevenLabs could not read "[fearfully] I didn't look at the book. I looked at the camer" (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,613 WARNING ElevenLabs could not read 'Mr. [ominously] Pell came in at six. [quietly] He read the l' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,808 WARNING ElevenLabs could not read '[ominously] he said.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,983 WARNING ElevenLabs could not read "It's always the one at the desk," (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:27,985 WARNING ElevenLabs could not read "Your room's ready." (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:28,161 WARNING ElevenLabs could not read 'A guest book that knows who is coming. The lantern is lit.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:31,294 WARNING ElevenLabs could not read 'I work the night desk at the Wayside Motel, out on Route 9, ' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:36,967 WARNING ElevenLabs could not read 'The guest book sits open on the counter. The owner, Mr. Pell' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:45,212 WARNING ElevenLabs could not read '[hesitantly] Room six has been boarded up since before I was' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:47,735 WARNING ElevenLabs could not read 'The first week, I blamed the day staff. [quietly] The second' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:51,598 WARNING ElevenLabs could not read 'Last night, at two thirteen, the lights in the parking lot f' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:55,507 WARNING Take 'Last night, at two thirteen, the lights in the par' matched its text 78%: read again sentence by sentence
+2026-11-19 18:44:55,682 WARNING ElevenLabs could not read 'Last night, at two thirteen, the lights in the parking lot f' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:57,874 WARNING ElevenLabs could not read '[fearfully] At two fourteen, the pen moved.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:44:59,208 WARNING ElevenLabs could not read '[whispers] Not much. [quietly] Just a roll. Like someone had' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:45:02,282 WARNING ElevenLabs could not read "[fearfully] I didn't look at the book. I looked at the camer" (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:45:12,912 WARNING ElevenLabs could not read '[quietly] When the lights came back, the office was empty. T' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:45:18,121 WARNING ElevenLabs could not read 'Mr. [ominously] Pell came in at six. [quietly] He read the l' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:45:22,780 WARNING ElevenLabs could not read "It's always the one at the desk," (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:45:24,558 WARNING ElevenLabs could not read '[ominously] he said.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:45:25,902 WARNING ElevenLabs could not read "Your room's ready." (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:45:27,397 WARNING ElevenLabs could not read 'The Wayside Motel is still open. The night desk is always st' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 18:47:25,754 INFO style_frame from fal:reference rejected (serious: The image contains readable text on the neon sign and noticeboard.); next painter
+2026-11-19 18:48:00,042 INFO style_frame from fal:reference rejected (serious: The image contains readable text on the window sign and notice board, but it should present the motel office scene without readable words or text.); next painter
+2026-11-19 18:48:30,863 INFO place_motel_office from fal:sheet rejected (The image contains visible written words and labels on the notice board and neon sign, which violates the reference sheet requirements.); next painter
+2026-11-19 18:53:03,530 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 18:53:04,118 WARNING beat_011: take 2 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 18:53:05,978 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 18:53:06,534 WARNING beat_016: take 1 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 18:53:07,371 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 18:53:07,907 WARNING beat_012: take 2 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 18:55:11,852 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 18:55:11,939 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 18:55:12,340 WARNING beat_005: take 2 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 18:55:12,639 WARNING beat_008: take 1 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 18:55:13,292 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 18:55:13,771 WARNING beat_008: take 2 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 18:57:19,037 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 18:57:19,598 WARNING beat_013: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 18:57:19,620 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 18:57:20,107 WARNING beat_008: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 18:57:59,459 INFO beat_008 from fal:shot_alt rejected (serious: The image contains readable text written on the guest book pages.); next painter
+2026-11-19 18:59:25,536 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 18:59:26,078 WARNING beat_013: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:00:04,954 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:00:05,611 WARNING beat_019: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:01:54,842 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:01:55,381 WARNING beat_007: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:03:08,481 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:03:09,026 WARNING beat_009: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:03:25,747 INFO beat_007 from fal:shot rejected (serious: The image contains readable text on the neon sign, which should not be present.); next painter
+2026-11-19 19:04:01,340 INFO beat_018 from fal:shot rejected (serious: The image contains readable text written in the book.); next painter
+2026-11-19 19:04:04,396 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:04:04,937 WARNING beat_017: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:05:14,078 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:05:14,675 WARNING beat_009: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:06:06,794 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:06:07,337 WARNING beat_018: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:07:04,487 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:07:04,961 WARNING beat_003: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:08:00,973 INFO beat_003 from fal:shot rejected (serious: The image contains readable words written in red ink inside the guest book.); next painter
+2026-11-19 19:08:12,078 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:08:12,725 WARNING beat_020: take 2 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:08:12,821 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:08:13,469 WARNING beat_000: take 1 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:08:15,445 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:08:16,033 WARNING beat_000: take 2 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:10:22,812 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 429: {
+2026-11-19 19:10:23,488 WARNING beat_000: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 19:12:09,048 INFO beat_014_fix5528 from fal:shot rejected (serious: contradicts the line: the image shows a woman sitting at the desk, but it should show an empty motel office with no people in it.); next painter
+2026-11-19 19:15:57,947 WARNING Sound room_376905ccc7d0a693 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:15:57,950 WARNING Sound room_b9d1c7a39a8e47b3 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:15:57,951 WARNING Sound room_449e92e9991b8d65 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:18,650 WARNING Sound fx_006 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:18,653 WARNING Sound fx_004 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:18,654 WARNING Sound fx_000 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:18,827 WARNING Sound fx_007 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:18,838 WARNING Sound fx_014 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:18,839 WARNING Sound fx_011 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:19,003 WARNING Sound fx_015 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:19,014 WARNING Sound fx_018 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:19,014 WARNING Sound fx_017 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:16:19,182 WARNING Sound fx_020 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 19:24:06,625 INFO Made stills video: {'mode': 'stills', 'video': '/home/runner/work/Horror/Horror/out/story-9004/video.mp4', 'seconds': 124.2, 'story_seconds': 106.9, 'beats': 21, 'point_of_view': 'first', 'voices': {'engine': 'elevenlabs', 'host': 'Brian', 'teller': 'Charlotte', 'teller_
+      "20 pictures or checks went to fal because Vertex failed (at fal's price)"
+      "voice": "failed: POST https://queue.fal.run/fal-ai/elevenlabs/tts/eleven-v3: HTTP 403: {\"detail\":\"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing.\"}",
+      "rejected": [
+        "20 pictures or checks went to fal because Vertex failed (at fal's price)"

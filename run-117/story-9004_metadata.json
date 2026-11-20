@@ -1,0 +1,62 @@
+{
+  "story_id": 9004,
+  "title": "Room Six",
+  "other_titles": [
+    "The Guest Book Signed My Name"
+  ],
+  "description": "Every night at 2:14 a.m., someone signs for a room that has been boarded up for years. A Hollow Lines story.\n\nMusic and sound:\n\"A Singular Perversion\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Bump in the Night\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0\n\n0:00 The Hollow\n0:46 Night Watch\n1:32 The Next Keeper",
+  "tags": [
+    "horror",
+    "scary story",
+    "motel horror",
+    "night shift",
+    "creepy",
+    "horror story"
+  ],
+  "pinned_comment": "Would you have turned around?",
+  "end_screen_line": "Room six is ready.",
+  "credit": "",
+  "made_for_kids": false,
+  "duration_seconds": 123.7,
+  "chapters": [
+    [
+      0.0,
+      "The Hollow"
+    ],
+    [
+      46.0,
+      "Night Watch"
+    ],
+    [
+      92.3,
+      "The Next Keeper"
+    ]
+  ],
+  "sound_credits": [
+    "\"A Singular Perversion\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/",
+    "\"Bump in the Night\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/",
+    "\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0"
+  ],
+  "sounds_used": [
+    "music-a-singular-perversion-1016ec71",
+    "music-tense-horror-film-score-building-0b79d8d5",
+    "music-bump-in-the-night-2af874f7",
+    "sting-horror-hit-horror-hit-9a540839",
+    "sfx-40-cc0-water-splash-slime-sfx-lo-27355644"
+  ],
+  "thumbnails": [
+    "thumbnail_1.jpg",
+    "thumbnail_2.jpg"
+  ],
+  "end_screen_starts": 115.7,
+  "synthetic_media": true,
+  "localizations": {},
+  "captions": {
+    "es": "captions_es.srt",
+    "pt": "captions_pt.srt",
+    "hi": "captions_hi.srt",
+    "id": "captions_id.srt",
+    "fr": "captions_fr.srt",
+    "de": "captions_de.srt"
+  }
+}

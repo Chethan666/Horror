@@ -1,0 +1,84 @@
+{
+  "story_id": 9005,
+  "title": "The Window Across the Courtyard",
+  "other_titles": [
+    "She Answered His Candle"
+  ],
+  "description": "Three summers of being careful. One night of rain, a candle in the window across the courtyard, and a woman who decides to ask. A short cinematic story for adults.\n\n0:00 The Evening Gaze\n0:46 Rain and Candlelight\n1:38 Dawn Afterglow",
+  "tags": [
+    "romance",
+    "short story",
+    "cinematic",
+    "love story",
+    "Lisbon",
+    "storytelling"
+  ],
+  "pinned_comment": "Would you have crossed the courtyard?",
+  "end_screen_line": "Some nights, ask.",
+  "credit": "",
+  "made_for_kids": false,
+  "duration_seconds": 120.8,
+  "chapters": [
+    [
+      0.0,
+      "The Evening Gaze"
+    ],
+    [
+      46.5,
+      "Rain and Candlelight"
+    ],
+    [
+      98.8,
+      "Dawn Afterglow"
+    ]
+  ],
+  "sound_credits": [],
+  "sounds_used": [
+    "ambience-quiet-room-tone-with-faint-hollo-cca810d5",
+    "ambience-night-ambience-distant-crickets--ea6fe0da",
+    "ambience-night-ambience-distant-crickets--ea6fe0da",
+    "ambience-quiet-room-tone-with-faint-hollo-cca810d5",
+    "sfx-30-cc0-sfx-loops-rain-d6b10192",
+    "sting-horror-hit-soundpack-1-c7a7ebdf"
+  ],
+  "thumbnails": [
+    "thumbnail_1.jpg",
+    "thumbnail_2.jpg"
+  ],
+  "end_screen_starts": 114.8,
+  "synthetic_media": true,
+  "localizations": {
+    "es": {
+      "title": "La ventana al otro lado del patio",
+      "description": "Tres veranos guardando las distancias. Una noche de lluvia, una vela en la ventana de enfrente y una mujer que decide pedir lo que desea. Una historia cinematográfica corta para adultos.\n\n0:00 Miradas al caer la tarde\n0:46 Lluvia y luz de velas\n1:38 El resplandor del amanecer"
+    },
+    "pt": {
+      "title": "A Janela do Outro Lado do Pátio",
+      "description": "Três verões de pura cautela. Uma noite de chuva, uma vela na janela do outro lado do pátio e uma mulher que decide pedir. Uma breve história cinematográfica para adultos.\n\n0:00 Olhares ao Anoitecer\n0:46 Chuva e Luz de Velas\n1:38 O Brilho do Amanhecer"
+    },
+    "hi": {
+      "title": "आँगन पार की वो खिड़की",
+      "description": "तीन गर्मियाँ, जो खुद को संभालते हुए गुज़र गईं। फिर बारिश की एक रात, आँगन पार की खिड़की पर जलती एक मोमबत्ती, और एक औरत जो आज अपनी ख़्वाहिश ज़ाहिर करने का फैसला करती है। बड़ों के लिए एक रूमानी सिनेमैटिक कहानी।\n\n0:00 शाम की ख़ामोश निगाहें\n0:46 बारिश और मोमबत्ती की लौ\n1:38 भोर का वो हसीन एहसास"
+    },
+    "id": {
+      "title": "Jendela di Seberang Halaman",
+      "description": "Tiga musim panas berlalu dalam kehati-hatian. Satu malam berteman hujan, pendar lilin di jendela seberang halaman, dan seorang wanita yang akhirnya berani meminta. Sebuah cerita sinematik pendek untuk dewasa.\n\n0:00 Tatapan Petang\n0:46 Hujan dan Cahaya Lilin\n1:38 Hangat Fajar"
+    },
+    "fr": {
+      "title": "La fenêtre de l'autre côté de la cour",
+      "description": "Trois étés de retenue. Une nuit de pluie, une bougie à la fenêtre d'en face, et une femme qui décide enfin de demander. Un court récit cinématographique pour adultes.\n\n0:00 Le regard du soir\n0:46 Pluie et lueur de bougie\n1:38 La douceur de l'aube"
+    },
+    "de": {
+      "title": "Das Fenster drüben im Hof",
+      "description": "Drei Sommer der Zurückhaltung. Eine Regennacht, ein Kerzenschein im Fenster gegenüber – und eine Frau, die beschließt zu fragen. Eine kurze cinematische Geschichte für Erwachsene.\n\n0:00 Der Blick am Abend\n0:46 Regen und Kerzenschein\n1:38 Morgenglühen"
+    }
+  },
+  "captions": {
+    "es": "captions_es.srt",
+    "pt": "captions_pt.srt",
+    "hi": "captions_hi.srt",
+    "id": "captions_id.srt",
+    "fr": "captions_fr.srt",
+    "de": "captions_de.srt"
+  }
+}

@@ -1,0 +1,831 @@
+{
+  "mode": "stills",
+  "video": "/home/runner/work/Horror/Horror/out/story-9005/video.mp4",
+  "seconds": 120.8,
+  "story_seconds": 112.8,
+  "beats": 17,
+  "point_of_view": "first",
+  "voices": {
+    "engine": "elevenlabs",
+    "host": "Brian",
+    "teller": "Charlotte",
+    "teller_kind": "woman",
+    "characters": {
+      "In\u00e9s": "Alice",
+      "Tom\u00e1s": "George"
+    }
+  },
+  "usd": 3.92,
+  "usd_by_task": {
+    "art_review": 0.04,
+    "choose": 0.04,
+    "picture_reference": 0.06,
+    "picture_sheet": 0.44,
+    "picture_sheet_alt": 0.06,
+    "picture_shot": 1.21,
+    "picture_thumbnail": 0.11,
+    "preflight": 0.0,
+    "reference_check": 0.01,
+    "screening": 0.08,
+    "sound_music": 1.6,
+    "sound_sfx": 0.05,
+    "staging": 0.03,
+    "thumbnail_check": 0.0,
+    "translate": 0.01,
+    "vision": 0.02,
+    "voice": 0.15
+  },
+  "fal_balance_ran_out": false,
+  "vertex_fallbacks": 0,
+  "google": {
+    "requests": 100,
+    "busy_answers": 47,
+    "refused_for_content": 0,
+    "stopped": "",
+    "waited_for_quota": 7
+  },
+  "answers_reused": {
+    "planner": 0,
+    "paid_models": 0
+  },
+  "beat_times": [
+    {
+      "beat": 0,
+      "start": 2.0,
+      "end": 11.77,
+      "scene": 0,
+      "tension": 2,
+      "scare": false,
+      "line": "For three summers I had been careful. Careful with my words, careful with my heart, carefu"
+    },
+    {
+      "beat": 1,
+      "start": 11.77,
+      "end": 18.17,
+      "scene": 1,
+      "tension": 2,
+      "scare": false,
+      "line": "Then the heat came to Lisbon, and with it, the man across the courtyard."
+    },
+    {
+      "beat": 2,
+      "start": 18.17,
+      "end": 25.11,
+      "scene": 2,
+      "tension": 2,
+      "scare": false,
+      "line": "Every evening at nine, his window opened. Every evening, I pretended not to watch."
+    },
+    {
+      "beat": 3,
+      "start": 25.11,
+      "end": 30.41,
+      "scene": 2,
+      "tension": 2,
+      "scare": false,
+      "line": "He read with his sleeves rolled, a glass of wine catching the last of the light."
+    },
+    {
+      "beat": 4,
+      "start": 30.41,
+      "end": 35.8,
+      "scene": 3,
+      "tension": 4,
+      "scare": false,
+      "line": "Once, he looked up. I didn't look away. Neither did he."
+    },
+    {
+      "beat": 5,
+      "start": 35.8,
+      "end": 41.97,
+      "scene": 4,
+      "tension": 3,
+      "scare": false,
+      "line": "I began to dress for that window. A silk slip the colour of wine. My hair down."
+    },
+    {
+      "beat": 6,
+      "start": 41.97,
+      "end": 46.46,
+      "scene": 4,
+      "tension": 3,
+      "scare": false,
+      "line": "The lamp turned low, so he could see only what I chose."
+    },
+    {
+      "beat": 7,
+      "start": 46.46,
+      "end": 53.16,
+      "scene": 5,
+      "tension": 3,
+      "scare": false,
+      "line": "On the night of the storm, the power failed across the whole street. Candles appeared in w"
+    },
+    {
+      "beat": 8,
+      "start": 53.16,
+      "end": 58.03,
+      "scene": 5,
+      "tension": 4,
+      "scare": false,
+      "line": "His was the last. He held it up, like a question."
+    },
+    {
+      "beat": 9,
+      "start": 58.03,
+      "end": 60.23,
+      "scene": 6,
+      "tension": 4,
+      "scare": false,
+      "line": "I answered it."
+    },
+    {
+      "beat": 10,
+      "start": 60.23,
+      "end": 67.9,
+      "scene": 7,
+      "tension": 4,
+      "scare": false,
+      "line": "I crossed the courtyard barefoot, rain on my shoulders, my heart louder than the thunder. "
+    },
+    {
+      "beat": 11,
+      "start": 67.9,
+      "end": 72.52,
+      "scene": 8,
+      "tension": 3,
+      "scare": false,
+      "line": "\"I wondered when you'd come,\" he said. \"So did I,\" I told him."
+    },
+    {
+      "beat": 12,
+      "start": 72.52,
+      "end": 78.65,
+      "scene": 9,
+      "tension": 4,
+      "scare": false,
+      "line": "For three summers I had been careful. That night, I was honest."
+    },
+    {
+      "beat": 13,
+      "start": 78.65,
+      "end": 88.59,
+      "scene": 9,
+      "tension": 3,
+      "scare": false,
+      "line": "I told him exactly what I wanted, and I watched it land in his eyes. Not surprise. Relief."
+    },
+    {
+      "beat": 14,
+      "start": 88.59,
+      "end": 98.84,
+      "scene": 10,
+      "tension": 4,
+      "scare": false,
+      "line": "His hand found the small of my back. Mine found the buttons of his shirt, slowly, one at a"
+    },
+    {
+      "beat": 15,
+      "start": 98.84,
+      "end": 104.18,
+      "scene": 11,
+      "tension": 2,
+      "scare": false,
+      "line": "The candle burned down. The rain didn't stop until morning."
+    },
+    {
+      "beat": 16,
+      "start": 104.18,
+      "end": 114.84,
+      "scene": 12,
+      "tension": 2,
+      "scare": false,
+      "line": "I don't know his last name. I know the sound he makes when he says mine. Some nights, the "
+    }
+  ],
+  "qa": {
+    "status": "check",
+    "issues": [
+      "Google answered 'busy' 47 times: lower stills.parallel"
+    ],
+    "video_seconds": 120.8,
+    "loudness_lufs": -14.0,
+    "true_peak_dbtp": -1.3,
+    "vertex_fallbacks": 0,
+    "seconds": 25.1
+  },
+  "agents": {
+    "preflight": {
+      "paid": true,
+      "estimate": {
+        "words": 270,
+        "seconds": 100,
+        "beats": 12,
+        "pictures": 27,
+        "usd": 1.65,
+        "usd_with_retries": 2.7
+      },
+      "voice": "ok",
+      "checker": "ok",
+      "seconds": 5.8
+    },
+    "script_check": {
+      "words": 270,
+      "estimated_seconds": 100.0,
+      "target_seconds": 120.0,
+      "scenes": 13,
+      "issues": [],
+      "seconds": 0.0
+    },
+    "casting": {
+      "point_of_view": "first",
+      "teller": "woman",
+      "why": "The story\u2019s narrator uses a first-person perspective that aligns with the hero, In\u00e9s\u2014a woman in Lisbon who chooses to pursue her desire. The language is sensual, introspective, and deeply personal, an",
+      "engine": "elevenlabs",
+      "host_voice": "Brian",
+      "teller_voice": "Charlotte",
+      "quoted_lines": 2,
+      "character_voices": {
+        "In\u00e9s": "Alice",
+        "Tom\u00e1s": "George"
+      },
+      "seconds": 8.7
+    },
+    "voice": {
+      "seconds_of_speech": 112.8,
+      "chunks": 36,
+      "speakers": [
+        "In\u00e9s",
+        "Tom\u00e1s",
+        "narrator"
+      ],
+      "lines_read_by_kokoro": 0,
+      "words_per_minute": 144,
+      "performance": {
+        "directed": true,
+        "sentences": 34,
+        "plain": 17,
+        "tags": {
+          "[curious]": 2,
+          "[hesitantly]": 1,
+          "[quietly]": 1,
+          "[sighs]": 1,
+          "[softly]": 10,
+          "[whispers]": 2
+        },
+        "unknown_tags": []
+      },
+      "listener": {
+        "model": "base.en",
+        "takes": 13,
+        "reread": 0,
+        "worst_match": 0.89
+      },
+      "seconds": 75.8
+    },
+    "storyboard": {
+      "beats": 17,
+      "directed_by_model": 17,
+      "host_beats": 0,
+      "children_kept_safe": [],
+      "scares": 0,
+      "scares_allowed": 0,
+      "check": {
+        "checked": true,
+        "fixed": [
+          {
+            "beat": 0,
+            "problem": "The line describes being 'careful' over three summers. The picture shows a contemplative moment, but does not illustrate the specific concept of carefulness."
+          },
+          {
+            "beat": 5,
+            "problem": "The line describes an ongoing action: 'I began to dress for that window.' The picture shows a static moment of letting her hair down, not the act of dressing or the intention behind it for a specific "
+          },
+          {
+            "beat": 7,
+            "problem": "The line describes a sequence: 'Candles appeared in windows, one by one.' The picture is a wide, static view showing several candles already lit, not illustrating their progressive, sequential appeara"
+          },
+          {
+            "beat": 9,
+            "problem": "The line is 'I answered it.' The picture is an extreme close-up of her face looking, which shows her reaction but not the active, decisive choice to answer. It's contemplative, not an action."
+          }
+        ]
+      },
+      "reveal_ladder": {
+        "climax": 14,
+        "lowered": 0
+      },
+      "tension": [
+        2,
+        2,
+        2,
+        2,
+        4,
+        3,
+        3,
+        3,
+        4,
+        4,
+        4,
+        3,
+        4,
+        3,
+        4,
+        2,
+        2
+      ],
+      "average_seconds": 6.6,
+      "seconds": 68.7
+    },
+    "continuity": {
+      "facts": 13,
+      "beats_with_facts": 13,
+      "kept_in_their_place": 14,
+      "sheet": [
+        {
+          "fact": "The courtyard window with blue shutters is open",
+          "from": 1,
+          "until": 10
+        },
+        {
+          "fact": "In\u00e9s is wearing her wine-red silk slip",
+          "from": 5,
+          "until": 10
+        },
+        {
+          "fact": "The street power is off, lights and appliances not working",
+          "from": 7,
+          "until": 15
+        },
+        {
+          "fact": "Candles are lit in the windows",
+          "from": 7,
+          "until": 10
+        },
+        {
+          "fact": "It is raining heavily in the courtyard",
+          "from": 7,
+          "until": 10
+        },
+        {
+          "fact": "In\u00e9s is soaking wet from the rain",
+          "from": 10,
+          "until": 11
+        },
+        {
+          "fact": "In\u00e9s is barefoot",
+          "from": 10,
+          "until": 11
+        },
+        {
+          "fact": "In\u00e9s is inside Tom\u00e1s's apartment, no longer in the rain",
+          "from": 11,
+          "until": 16
+        },
+        {
+          "fact": "Tom\u00e1s's white linen shirt is unbuttoned (first, top button undone)",
+          "from": 14,
+          "until": 16
+        },
+        {
+          "fact": "The candle on the windowsill has burned down to a stub",
+          "from": 15,
+          "until": 15
+        },
+        {
+          "fact": "Two empty wine glasses are on the windowsill",
+          "from": 15,
+          "until": 15
+        },
+        {
+          "fact": "It is morning, the rain has stopped",
+          "from": 16,
+          "until": 16
+        },
+        {
+          "fact": "In\u00e9s is wearing Tom\u00e1s's unbuttoned, oversized white linen shirt",
+          "from": 16,
+          "until": 16
+        }
+      ],
+      "seconds": 10.5
+    },
+    "art": {
+      "style_frame": true,
+      "style_frame_by": "model:reference",
+      "sheets": [
+        "In\u00e9s",
+        "Tom\u00e1s"
+      ],
+      "portraits": [
+        "In\u00e9s",
+        "Tom\u00e1s"
+      ],
+      "host_references": true,
+      "designs": {
+        "In\u00e9s": "a Portuguese woman in her mid-thirties, olive skin, dark wavy shoulder-length hair, dark brown eyes, natural features, a wine-red silk slip dress with thin straps under a loose open white-and-blue striped linen shirt, a thin gold chain, barefoot at night; Portuguese, mid-thirties. Olive skin, slim build. Oval face with a straight nose. Dark, wavy shoulder-length hair, worn loose down. Always wears only the noted clothing, no jewellery beyond the thin gold chain. Barefoot in interior night scenes.",
+        "Tom\u00e1s": "a Portuguese man in his early forties, short dark hair greying at the temples, a short dark beard, warm brown eyes, a white linen shirt with the sleeves rolled to the elbow, dark trousers; Portuguese, early forties. Tanned skin, average build. Square face with laugh lines around warm brown eyes. Short, dark hair, greying at temples, kept neat. Short, dark beard. Trousers are charcoal grey. Always has sleeves rolled to the elbow."
+      },
+      "places": [
+        {
+          "name": "The tiled courtyard",
+          "scenes": [
+            1,
+            2,
+            3,
+            5,
+            6,
+            7
+          ],
+          "design": "A small, square, private courtyard paved with worn, irregular terracotta tiles and surrounded by three-storey residential buildings with tall windows and painted shutters. At dusk, the last orange sunlight rakes across it. *At night, it is plunged into near-total darkness*, lit only by the glow from the few visible windows and, during a heavy rainstorm, the carried candles. The framing windows are the real set pieces: Tom\u00e1s's (open blue shutters) and In\u00e9s's (open, no shutters). Weather shifts from dry dusk to a heavy, sound-muffling rain at night.",
+          "sheet": true
+        },
+        {
+          "name": "Tom\u00e1s's apartment",
+          "scenes": [
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "design": "A modest, lived-in 19th-century Lisbon apartment. Monochromatic base of faded white plaster and dark wood floor. Primary colours are in the details: blue shutters on the window, an ochre blanket, a worn Persian rug. Key permanent elements: a tall wooden window frame with deep sill, a heavy timber door, an old armchair, a low bedside table. Nightlight comes solely from one or two flickering, warm-toned candles held or placed in the room. At dawn, cold blue-grey light filters through rain-streaked glass.",
+          "sheet": true
+        },
+        {
+          "name": "In\u00e9s's apartment",
+          "scenes": [
+            0,
+            4
+          ],
+          "design": "A slightly austere apartment in an old building. Off-white plaster walls, dark wood flooring. Furniture is sparse: a simple wooden wardrobe, a standing lamp with a cream fabric shade (warm, low, single source of light), a small wooden-framed mirror. The colour accent is the wine-red silk of the slip dress. The tall window has no curtains, only inward-opening blue shutters. The weather is dry dusk turning to night.",
+          "sheet": true
+        }
+      ],
+      "reference_checks": [
+        {
+          "sheet": "The tiled courtyard",
+          "kind": "location",
+          "ok": true,
+          "why": "The image accurately depicts the rainy, candlelit tiled courtyard surrounded by residential buildings with warm window lights."
+        },
+        {
+          "sheet": "Tom\u00e1s's apartment",
+          "kind": "location",
+          "ok": true,
+          "why": "The reference sheet accurately depicts two consistent views of Tom\u00e1s's cozy, candlelit 19th-century apartment with blue shutters, an ochre blanket, and a Persian rug."
+        },
+        {
+          "sheet": "In\u00e9s's apartment",
+          "kind": "location",
+          "ok": true,
+          "why": "The image accurately depicts In\u00e9s's apartment matching all specified elements."
+        },
+        {
+          "sheet": "In\u00e9s",
+          "kind": "character",
+          "ok": true,
+          "why": "The reference sheet accurately depicts In\u00e9s with consistent features, clothing, and tone across all three views."
+        },
+        {
+          "sheet": "Tom\u00e1s",
+          "kind": "character",
+          "ok": true,
+          "why": "The reference sheet accurately depicts Tom\u00e1s with consistent views matching all character specifications."
+        },
+        {
+          "sheet": "In\u00e9s",
+          "kind": "portrait",
+          "ok": true,
+          "why": "The image accurately depicts In\u00e9s according to the character design specifications."
+        },
+        {
+          "sheet": "Tom\u00e1s",
+          "kind": "portrait",
+          "ok": false,
+          "why": "The image includes another person and is a cinematic scene rather than a single close portrait of Tom\u00e1s alone."
+        },
+        {
+          "sheet": "Tom\u00e1s",
+          "kind": "portrait",
+          "ok": false,
+          "why": "The image shows two people instead of a single portrait of one person."
+        },
+        {
+          "sheet": "Tom\u00e1s",
+          "kind": "portrait",
+          "ok": true,
+          "why": "The image accurately depicts Tom\u00e1s as a Portuguese man in his early forties with short dark hair greying at the temples, a short dark beard, warm brown eyes, and a white shirt."
+        }
+      ],
+      "seconds": 784.2
+    },
+    "staging": {
+      "staged": true,
+      "places": 3,
+      "rewritten": [
+        {
+          "beat": 0,
+          "place": "In\u00e9s's apartment",
+          "why": "Grounded the background in the set's specific tall window with blue shutters and city twilight, rather than an expansive outdoor landscape."
+        }
+      ],
+      "seconds": 27.7
+    },
+    "illustrator": {
+      "look": "cinematic",
+      "warned": "no writing of any kind; the exact action the line describes; faces show the line's feeling clearly",
+      "faults_seen": {},
+      "retry_usd": 0.0,
+      "retries_stopped": 0,
+      "cameras": {},
+      "pictures": 17,
+      "borrowed_neighbour": 0,
+      "placeholders": 0,
+      "scare_shots": [],
+      "key_beats": [
+        4,
+        12,
+        13,
+        16
+      ],
+      "redone": [],
+      "redone_lines": {},
+      "redo_warnings": [],
+      "google_refused": {},
+      "prompts_softened": 0,
+      "by_painter": {
+        "model:reference": 1,
+        "model:sheet": 6,
+        "model:sheet_alt (corrected)": 1,
+        "model:shot (best of 2)": 4,
+        "model:shot": 13
+      },
+      "doubted_beats": [],
+      "painter_sizes": {
+        "model:reference": "2752x1536",
+        "model:sheet": "2752x1536",
+        "model:sheet_alt": "2752x1536",
+        "model:shot": "2752x1536"
+      },
+      "rejected": [
+        "face_tom_s (model:sheet): The image includes another person and is a cinematic scene rather than a single close portrait of Tom\u00e1s alone.",
+        "face_tom_s (model:sheet): The image shows two people instead of a single portrait of one person."
+      ],
+      "seconds": 1630.4
+    },
+    "art_review": {
+      "reviewed": true,
+      "looks": 4,
+      "score": 9,
+      "scores": [
+        9,
+        10,
+        10,
+        10
+      ],
+      "flagged": [
+        {
+          "picture": 8,
+          "problem": "Line describes Tom\u00e1s holding up his candle as a question, but shot shows In\u00e9s looking out window instead of Tom\u00e1s holding his candle."
+        }
+      ],
+      "redrawn": [
+        {
+          "picture": 8,
+          "problem": "Line describes Tom\u00e1s holding up his candle as a question, but shot shows In\u00e9s looking out window instead of Tom\u00e1s holding his candle."
+        }
+      ],
+      "strongest_picture": 11,
+      "seconds": 78.7
+    },
+    "colorist": {
+      "graded": 17,
+      "pictures": 17,
+      "film_brightness": 40.0,
+      "printed_down": 0.26,
+      "film_contrast": 26.1,
+      "changes": {
+        "0": {
+          "brightness": -14.3
+        },
+        "1": {
+          "brightness": -9.8
+        },
+        "2": {
+          "brightness": -15.2
+        },
+        "3": {
+          "brightness": -14.3
+        },
+        "4": {
+          "brightness": -16.4
+        },
+        "5": {
+          "brightness": -12.4
+        },
+        "6": {
+          "brightness": -11.8
+        },
+        "7": {
+          "brightness": -9.7
+        },
+        "8": {
+          "brightness": -5.2
+        },
+        "9": {
+          "brightness": -10.6
+        },
+        "10": {
+          "brightness": -7.2
+        },
+        "11": {
+          "brightness": -10.0
+        },
+        "12": {
+          "brightness": -17.4
+        },
+        "13": {
+          "brightness": -15.4
+        },
+        "14": {
+          "brightness": -17.7
+        },
+        "15": {
+          "brightness": -16.5,
+          "colour": 5.6
+        },
+        "16": {
+          "brightness": -18.4
+        }
+      },
+      "seconds": 35.6
+    },
+    "motion": {
+      "enabled": false,
+      "seconds": 0.0
+    },
+    "depth": {
+      "enabled": false,
+      "seconds": 0.0
+    },
+    "edit_plan": {
+      "cold_open_beats": [],
+      "cold_open_seconds": 0.0,
+      "total_seconds": 120.8,
+      "scares_built": [],
+      "seconds": 0.0
+    },
+    "sound": {
+      "music": [
+        "dread",
+        "unease"
+      ],
+      "ambience": 4,
+      "effects": 10,
+      "synthesized": [],
+      "stereo": {
+        "off": 3,
+        "near": 6,
+        "close": 1
+      },
+      "library": {
+        "library_sounds": 299,
+        "needs": 17,
+        "decided_by_model": 16,
+        "from_library": 6,
+        "made_new": 11,
+        "left_out": 0,
+        "from_library_by_kind": {
+          "music": 0,
+          "ambience": 4,
+          "sfx": 1,
+          "sting": 1
+        },
+        "picks": {
+          "room_0edf9269d79ae8b0": "ambience-quiet-room-tone-with-faint-hollo-cca810d5",
+          "room_3601ef5e70fcb431": "ambience-night-ambience-distant-crickets--ea6fe0da",
+          "room_9d7b81c247d07262": "ambience-night-ambience-distant-crickets--ea6fe0da",
+          "room_03e63113bc887943": "ambience-quiet-room-tone-with-faint-hollo-cca810d5",
+          "fx_007": "sfx-30-cc0-sfx-loops-rain-d6b10192",
+          "sting": "sting-horror-hit-soundpack-1-c7a7ebdf"
+        },
+        "made": {
+          "music_unease": "tender, introspective romantic score, warm swelling strings, soft piano, slow tempo, intimate, longing, instrumental",
+          "music_dread": "romantic, slow-building anticipation score, pulsing low strings, subtle heartbeat-like rhythm, rising warm textures, intimate, instrumental",
+          "fx_001": "distant, warm city hum at night, faint traffic, a quiet electrical buzz",
+          "fx_002": "soft, deliberate page turn on a hardcover book",
+          "fx_005": "the gentle tap and soft scrape of a hairbrush being placed down on a wooden vanity",
+          "fx_008": "gentle rain pattering on a single pane of glass, up-close and subtle",
+          "fx_009": "soft, intimate human breath, a quiet inhale and exhale of anticipation",
+          "fx_010": "rain falling on cobblestones and roof tiles, a distant rumble of thunder",
+          "fx_011": "the sound of rain outside an open door, a slight shift in acoustics as the door opens to the storm",
+          "fx_012": "the quiet, warm crackle of a single candle flame",
+          "fx_013": "a gentle, human sigh of relief and contentment"
+        },
+        "library": true,
+        "fetched": 6,
+        "credits": 0
+      },
+      "generated": 11,
+      "saved_for_library": 11,
+      "mix": {
+        "checked": true,
+        "voice_over_bed_db": 17.9,
+        "after_db": 17.9,
+        "bed_lowered_db": 0
+      },
+      "original_score": true,
+      "seconds": 113.2
+    },
+    "edit": {
+      "segments": 19,
+      "size": "2560x1440",
+      "motion": "drift",
+      "moves": {
+        "push_in": 13,
+        "pan_left": 2,
+        "pan_right": 2,
+        "pull_out": 1,
+        "none": 1
+      },
+      "atmosphere": {
+        "flicker": 9,
+        "rain": 1
+      },
+      "seconds": 361.3
+    },
+    "screening": {
+      "watched": true,
+      "score": 9,
+      "hook": "The first 30 seconds pull the viewer in with lush Lisboan evening visual aesthetics, warm lighting, soft voiceover, and immediate romantic tension surrounding restrained desire.",
+      "notes": [
+        {
+          "at": "00:36",
+          "beat": 4,
+          "kind": "picture",
+          "severity": 1,
+          "note": "The narrator says 'I began to dress for that window', but the visual shows her already wearing the burgundy silk slip while looking into the closet, missing the act of putting it on."
+        },
+        {
+          "at": "01:00",
+          "beat": 9,
+          "kind": "continuity",
+          "severity": 1,
+          "note": "At 00:58 at her window, she is wearing only her red slip, but as she steps out into the rain at 01:00 she is suddenly wearing an unbuttoned striped shirt over it."
+        }
+      ],
+      "scares": [],
+      "leave_at": "",
+      "leave_beat": null,
+      "redo_hint": "",
+      "seconds": 32.2
+    },
+    "packager": {
+      "thumbnails": 2,
+      "chapters": 3,
+      "thumbnail_checks": [
+        {
+          "thumbnail": 1,
+          "ok": true,
+          "why": "The title text 'SHE ASKED' is spelled correctly, large, readable, and there are no extra logos or visual defects."
+        },
+        {
+          "thumbnail": 2,
+          "ok": true,
+          "why": "The title text 'SHE ASKED' is correctly spelled, clear, and readable against a fitting cinematic image with no visible distortions or unwanted branding."
+        }
+      ],
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "id",
+        "pt"
+      ],
+      "caption_languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "id",
+        "pt"
+      ],
+      "seconds": 197.2
+    },
+    "qa": {
+      "status": "check",
+      "issues": [
+        "Google answered 'busy' 47 times: lower stills.parallel"
+      ],
+      "video_seconds": 120.8,
+      "loudness_lufs": -14.0,
+      "true_peak_dbtp": -1.3,
+      "vertex_fallbacks": 0,
+      "seconds": 25.1
+    }
+  },
+  "review": "pending",
+  "render_minutes": 57.6
+}

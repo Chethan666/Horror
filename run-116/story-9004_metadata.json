@@ -1,0 +1,86 @@
+{
+  "story_id": 9004,
+  "title": "Room Six",
+  "other_titles": [
+    "The Guest Book Signed My Name"
+  ],
+  "description": "Every night at 2:14 a.m., someone signs for a room that has been boarded up for years. A Hollow Lines story.\n\nMusic and sound:\n\"Measured Paces\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0\n\"Creaky light wooden door\" by fractilegames (OpenGameArt.org, https://opengameart.org/content/creaky-light-wooden-door), licensed CC-BY-3.0\n\n0:00 The Hollow\n0:46 Night Watch\n1:32 The Next Keeper",
+  "tags": [
+    "horror",
+    "scary story",
+    "motel horror",
+    "night shift",
+    "creepy",
+    "horror story"
+  ],
+  "pinned_comment": "Would you have turned around?",
+  "end_screen_line": "Room six is ready.",
+  "credit": "",
+  "made_for_kids": false,
+  "duration_seconds": 123.7,
+  "chapters": [
+    [
+      0.0,
+      "The Hollow"
+    ],
+    [
+      46.0,
+      "Night Watch"
+    ],
+    [
+      92.3,
+      "The Next Keeper"
+    ]
+  ],
+  "sound_credits": [
+    "\"Measured Paces\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/",
+    "\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0",
+    "\"Creaky light wooden door\" by fractilegames (OpenGameArt.org, https://opengameart.org/content/creaky-light-wooden-door), licensed CC-BY-3.0"
+  ],
+  "sounds_used": [
+    "music-measured-paces-10bb0bc5",
+    "music-tense-horror-film-score-building-0b79d8d5",
+    "sting-horror-hit-dd612c9d",
+    "sfx-creaky-light-wooden-door-ff732a2b"
+  ],
+  "thumbnails": [
+    "thumbnail_1.jpg",
+    "thumbnail_2.jpg"
+  ],
+  "end_screen_starts": 115.7,
+  "synthetic_media": true,
+  "localizations": {
+    "es": {
+      "title": "La Habitación Seis",
+      "description": "Todas las noches, a las 2:14 a. m., alguien firma el registro de una habitación que lleva años tapiada. Una historia de Hollow Lines.\n\nMúsica y sonido:\n\"Measured Paces\" Kevin MacLeod (incompetech.com) Licencia Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Horror Hit\" de vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licencia CC-BY-3.0\n\"Creaky light wooden door\" de fractilegames (OpenGameArt.org, https://opengameart.org/content/creaky-light-wooden-door), licencia CC-BY-3.0\n\n0:00 El Vacío\n0:46 Guardia Nocturna\n1:32 El Siguiente Guardián"
+    },
+    "pt": {
+      "title": "Quarto Seis",
+      "description": "Todas as noites, às 2:14 da manhã, alguém assina a entrada para um quarto que está lacrado há anos. Uma história do Hollow Lines.\n\nMúsica e som:\n\"Measured Paces\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Horror Hit\" por vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licenciado sob CC-BY-3.0\n\"Creaky light wooden door\" por fractilegames (OpenGameArt.org, https://opengameart.org/content/creaky-light-wooden-door), licenciado sob CC-BY-3.0\n\n0:00 The Hollow\n0:46 Ronda Noturna\n1:32 O Próximo Guardião"
+    },
+    "hi": {
+      "title": "कमरा नंबर 6",
+      "description": "हर रात ठीक 2:14 बजे, कोई एक ऐसे कमरे के लिए दस्तखत करता है जो बरसों से बंद पड़ा है। 'Hollow Lines' की एक खौफनाक कहानी।\n\nMusic and sound:\n\"Measured Paces\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0\n\"Creaky light wooden door\" by fractilegames (OpenGameArt.org, https://opengameart.org/content/creaky-light-wooden-door), licensed CC-BY-3.0\n\n0:00 द हॉलो\n0:46 नाइट वॉच\n1:32 अगला रखवाला"
+    },
+    "id": {
+      "title": "Kamar Nomor 6",
+      "description": "Setiap malam tepat pukul 02.14, seseorang selalu menandatangani buku tamu untuk kamar yang telah dipapan rapat selama bertahun-tahun. Sebuah cerita Hollow Lines.\n\nMusik dan suara:\n\"Measured Paces\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0\n\"Creaky light wooden door\" by fractilegames (OpenGameArt.org, https://opengameart.org/content/creaky-light-wooden-door), licensed CC-BY-3.0\n\n0:00 The Hollow\n0:46 Night Watch\n1:32 The Next Keeper"
+    },
+    "fr": {
+      "title": "La Chambre 6",
+      "description": "Chaque nuit, à 2 h 14 précises, quelqu'un signe pour une chambre condamnée depuis des années. Une histoire de Hollow Lines.\n\nMusique et sons :\n\"Measured Paces\" Kevin MacLeod (incompetech.com) Sous licence Creative Commons : Par Attribution 4.0 http://creativecommons.org/licenses/by/4.0/\n\"Horror Hit\" par vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), sous licence CC-BY-3.0\n\"Creaky light wooden door\" par fractilegames (OpenGameArt.org, https://opengameart.org/content/creaky-light-wooden-door), sous licence CC-BY-3.0\n\n0:00 The Hollow\n0:46 La garde de nuit\n1:32 Le prochain gardien"
+    },
+    "de": {
+      "title": "Zimmer 6",
+      "description": "Jede Nacht um Punkt 2:14 Uhr trägt sich jemand für ein Zimmer ein, das seit Jahren vernagelt ist. Eine Geschichte von Hollow Lines.\n\nMusik und Sound:\n\"Measured Paces\" Kevin MacLeod (incompetech.com) Lizenziert unter Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Horror Hit\" von vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), lizenziert unter CC-BY-3.0\n\"Creaky light wooden door\" von fractilegames (OpenGameArt.org, https://opengameart.org/content/creaky-light-wooden-door), lizenziert unter CC-BY-3.0\n\n0:00 Die Leere\n0:46 Nachtwache\n1:32 Der nächste Hüter"
+    }
+  },
+  "captions": {
+    "es": "captions_es.srt",
+    "pt": "captions_pt.srt",
+    "hi": "captions_hi.srt",
+    "id": "captions_id.srt",
+    "fr": "captions_fr.srt",
+    "de": "captions_de.srt"
+  }
+}

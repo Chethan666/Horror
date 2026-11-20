@@ -1,0 +1,74 @@
+{
+  "story_id": 9004,
+  "title": "Room Six",
+  "other_titles": [
+    "The Guest Book Signed My Name"
+  ],
+  "description": "Every night at 2:14 a.m., someone signs for a room that has been boarded up for years. A Hollow Lines story.\n\nMusic and sound:\n\"Cryptic Sorrow\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Night Break\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Spooky ambience background\" by copyc4t (OpenGameArt.org, https://opengameart.org/content/spooky-ambience-background), licensed CC-BY-3.0\n\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0",
+  "tags": [
+    "horror",
+    "scary story",
+    "motel horror",
+    "night shift",
+    "creepy",
+    "horror story"
+  ],
+  "pinned_comment": "Would you have turned around?",
+  "end_screen_line": "Room six is ready.",
+  "credit": "",
+  "made_for_kids": false,
+  "duration_seconds": 113.8,
+  "chapters": [],
+  "sound_credits": [
+    "\"Cryptic Sorrow\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/",
+    "\"Night Break\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/",
+    "\"Spooky ambience background\" by copyc4t (OpenGameArt.org, https://opengameart.org/content/spooky-ambience-background), licensed CC-BY-3.0",
+    "\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0"
+  ],
+  "sounds_used": [
+    "music-cryptic-sorrow-c3f1be30",
+    "music-night-break-ec6d60d8",
+    "ambience-spooky-ambience-background-f59c5884",
+    "sting-horror-hit-dd612c9d"
+  ],
+  "thumbnails": [
+    "thumbnail_1.jpg",
+    "thumbnail_2.jpg"
+  ],
+  "end_screen_starts": 105.8,
+  "synthetic_media": true,
+  "localizations": {
+    "es": {
+      "title": "La Habitación Seis",
+      "description": "Todas las noches a las 2:14 a. m., alguien se registra en una habitación que lleva años tapiada. Una historia de Hollow Lines.\n\nMúsica y sonido:\n\"Cryptic Sorrow\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Night Break\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Spooky ambience background\" by copyc4t (OpenGameArt.org, https://opengameart.org/content/spooky-ambience-background), licensed CC-BY-3.0\n\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0"
+    },
+    "pt": {
+      "title": "O Quarto Seis",
+      "description": "Todas as noites, às 2h14 da manhã, alguém dá entrada em um quarto que está lacrado há anos. Uma história de Hollow Lines.\n\nMúsica e som:\n\"Cryptic Sorrow\" Kevin MacLeod (incompetech.com) Licenciado sob Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Night Break\" Kevin MacLeod (incompetech.com) Licenciado sob Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Spooky ambience background\" por copyc4t (OpenGameArt.org, https://opengameart.org/content/spooky-ambience-background), licenciado sob CC-BY-3.0\n\"Horror Hit\" por vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licenciado sob CC-BY-3.0"
+    },
+    "hi": {
+      "title": "कमरा नंबर 6",
+      "description": "हर रात ठीक 2:14 बजे, कोई एक ऐसे कमरे के लिए दस्तखत करता है जो सालों से बंद पड़ा है। Hollow Lines की एक ख़ौफ़नाक कहानी।\n\nम्यूज़िक और साउंड:\n\"Cryptic Sorrow\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Night Break\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Spooky ambience background\" by copyc4t (OpenGameArt.org, https://opengameart.org/content/spooky-ambience-background), licensed CC-BY-3.0\n\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0"
+    },
+    "id": {
+      "title": "Kamar Nomor 6",
+      "description": "Setiap malam pukul 02.14 dini hari, seseorang selalu memesan kamar yang sebenarnya sudah bertahun-tahun dipaku rapat. Sebuah cerita dari Hollow Lines.\n\nMusik dan efek suara:\n\"Cryptic Sorrow\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Night Break\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Spooky ambience background\" by copyc4t (OpenGameArt.org, https://opengameart.org/content/spooky-ambience-background), licensed CC-BY-3.0\n\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0"
+    },
+    "fr": {
+      "title": "La Chambre 6",
+      "description": "Chaque nuit, à 2h14 du matin, quelqu'un s'enregistre pour une chambre condamnée depuis des années. Une histoire signée Hollow Lines.\n\nMusique et effets sonores :\n\"Cryptic Sorrow\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Night Break\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"Spooky ambience background\" by copyc4t (OpenGameArt.org, https://opengameart.org/content/spooky-ambience-background), licensed CC-BY-3.0\n\"Horror Hit\" by vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), licensed CC-BY-3.0"
+    },
+    "de": {
+      "title": "Zimmer 6",
+      "description": "Jede Nacht um punkt 2:14 Uhr unterschreibt jemand für ein Zimmer, das seit Jahren vernagelt ist. Eine Geschichte von Hollow Lines.\n\nMusik und Sound:\n\"Cryptic Sorrow\" Kevin MacLeod (incompetech.com) Lizenziert unter Creative Commons: By Attribution 4.0 Lizenz http://creativecommons.org/licenses/by/4.0/\n\"Night Break\" Kevin MacLeod (incompetech.com) Lizenziert unter Creative Commons: By Attribution 4.0 Lizenz http://creativecommons.org/licenses/by/4.0/\n\"Spooky ambience background\" von copyc4t (OpenGameArt.org, https://opengameart.org/content/spooky-ambience-background), lizenziert unter CC-BY-3.0\n\"Horror Hit\" von vividreality (OpenGameArt.org, https://opengameart.org/content/horror-hit), lizenziert unter CC-BY-3.0"
+    }
+  },
+  "captions": {
+    "es": "captions_es.srt",
+    "pt": "captions_pt.srt",
+    "hi": "captions_hi.srt",
+    "id": "captions_id.srt",
+    "fr": "captions_fr.srt",
+    "de": "captions_de.srt"
+  }
+}

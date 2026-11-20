@@ -1,0 +1,165 @@
+2026-11-19 21:40:19,888 WARNING redo: '_nobody_in_the_picture' is not a beat number; ignored
+2026-11-19 21:40:19,888 WARNING redo: '_no_clothes_or_shirt_on_the_chair' is not a beat number; ignored
+2026-11-19 21:40:19,888 WARNING redo: '_nobody_in_the_picture' is not a beat number; ignored
+2026-11-19 21:40:19,983 INFO [preflight] done: {'paid': True, 'voice': 'failed: POST https://queue.fal.run/fal-ai/elevenlabs/tts/eleven-v3: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}', 'checker': 'ok', 'seconds': 0.1}
+2026-11-19 21:40:20,372 WARNING ElevenLabs could not read 'A guest book that knows who is coming. The lantern is lit.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,380 WARNING ElevenLabs could not read 'The Wayside Motel is still open. The night desk is always st' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,485 WARNING ElevenLabs could not read '[quietly] Room six has been boarded up since before I was hi' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,501 WARNING ElevenLabs could not read '[quietly] I work the night desk at the Wayside Motel, out on' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,503 WARNING ElevenLabs could not read '[hesitantly] The guest book sits open on the counter. The ow' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,621 WARNING ElevenLabs could not read 'The first week, I blamed the day staff. [nervously] The seco' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,634 WARNING ElevenLabs could not read '[fearfully] Last night, at two thirteen, the lights in the p' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,635 WARNING ElevenLabs could not read '[quietly] Not much. Just a roll. [hesitantly] Like someone h' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,726 WARNING ElevenLabs could not read "[fearfully] I didn't look at the book. I looked at the camer" (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,742 WARNING ElevenLabs could not read '[quietly] Mr. Pell came in at six. He read the line very qui' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,744 WARNING ElevenLabs could not read '[ominously] When the lights came back, the office was empty.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,826 WARNING ElevenLabs could not read 'he said.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,936 WARNING ElevenLabs could not read "Your room's ready." (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:20,940 WARNING ElevenLabs could not read "It's always the one at the desk," (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:21,070 WARNING ElevenLabs could not read 'A guest book that knows who is coming. The lantern is lit.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:23,406 WARNING ElevenLabs could not read '[quietly] I work the night desk at the Wayside Motel, out on' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:27,632 WARNING ElevenLabs could not read '[hesitantly] The guest book sits open on the counter. The ow' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:34,031 WARNING ElevenLabs could not read '[quietly] Room six has been boarded up since before I was hi' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:36,008 WARNING ElevenLabs could not read 'The first week, I blamed the day staff. [nervously] The seco' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:39,076 WARNING ElevenLabs could not read '[fearfully] Last night, at two thirteen, the lights in the p' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:42,177 WARNING Take '[fearfully] Last night, at two thirteen, the light' matched its text 78%: read again sentence by sentence
+2026-11-19 21:40:42,331 WARNING ElevenLabs could not read '[fearfully] Last night, at two thirteen, the lights in the p' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:44,074 WARNING ElevenLabs could not read '[whispers] At two fourteen, the pen moved.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:45,170 WARNING ElevenLabs could not read '[quietly] Not much. Just a roll. [hesitantly] Like someone h' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:47,747 WARNING ElevenLabs could not read "[fearfully] I didn't look at the book. I looked at the camer" (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:40:57,349 WARNING ElevenLabs could not read '[ominously] When the lights came back, the office was empty.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:41:07,060 WARNING ElevenLabs could not read '[quietly] Mr. Pell came in at six. He read the line very qui' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:41:10,410 WARNING ElevenLabs could not read "It's always the one at the desk," (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:41:11,888 WARNING ElevenLabs could not read 'he said.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:41:13,031 WARNING ElevenLabs could not read "Your room's ready." (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:41:14,229 WARNING ElevenLabs could not read 'The Wayside Motel is still open. The night desk is always st' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 21:42:34,811 INFO style_frame from fal:reference rejected (serious: The image contains readable text ('WAYSIDE' neon sign).); next painter
+2026-11-19 21:44:32,340 INFO style_frame from fal:reference rejected (serious: The picture contains readable text on the wall signs and neon lights.); next painter
+2026-11-19 21:45:08,085 INFO place_the_motel_office from fal:sheet rejected (The reference sheet contains written words and labels, such as the 'OFFICE VACANCY' neon sign and 'GUEST REGISTER' text.); next painter
+2026-11-19 21:46:31,209 INFO place_the_motel_office from fal:sheet rejected (The image contains written words on the neon sign, notice board, and guest book, but reference sheets must not contain written words or labels.); next painter
+2026-11-19 21:48:49,565 INFO place_the_motel_office from fal:sheet_alt rejected (The image contains written words on the window sign, but it should show the motel office without any written words or labels.); next painter
+2026-11-19 21:58:37,693 WARNING Vertex vertex:gemini-3.6-flash failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 21:58:37,828 WARNING Vision check unavailable: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 21:58:38,130 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:38,134 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:38,334 WARNING beat_013: take 2 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:38,359 WARNING beat_013: take 1 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:38,693 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:38,930 WARNING beat_013: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:39,272 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:40,129 WARNING beat_013: fal:shot_alt failed: fal.ai balance is empty (picture_shot_alt)
+2026-11-19 21:58:40,446 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:40,648 WARNING beat_015: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:40,955 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:41,156 WARNING beat_015: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:41,636 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:41,930 WARNING beat_019: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:42,225 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:42,474 WARNING beat_019: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:42,768 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:42,974 WARNING beat_003: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:43,340 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:43,770 WARNING beat_003: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:44,175 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:44,358 WARNING beat_005: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:44,617 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:44,818 WARNING beat_005: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:45,108 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:45,310 WARNING beat_006: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:45,596 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:45,827 WARNING beat_006: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:46,122 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:46,301 WARNING beat_007: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:46,555 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:46,755 WARNING beat_007: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:47,024 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:47,240 WARNING beat_009: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:47,490 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:48,241 WARNING beat_009: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:48,502 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:48,756 WARNING beat_016: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:49,020 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:49,242 WARNING beat_016: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:49,517 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:49,778 WARNING beat_017: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:50,112 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:50,318 WARNING beat_017: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:50,517 WARNING picture_shot (vertex:gemini-nano-banana-2.1) attempt 1 failed: POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+    "message": "Request rejected in accordance with our terms of use and policies.",
+2026-11-19 21:58:50,517 WARNING beat_012: take 1 from fal:shot failed: POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:50,568 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:50,809 WARNING beat_018: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:50,996 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:51,010 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:51,058 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:51,193 WARNING beat_000: take 1 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:51,262 WARNING beat_000: take 2 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:51,272 WARNING beat_018: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:51,513 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:51,588 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:51,734 WARNING beat_001: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:51,869 WARNING beat_000: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:52,017 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:52,206 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:52,210 WARNING beat_001: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:52,440 WARNING beat_000: fal:shot_alt failed: fal.ai balance is empty (picture_shot_alt)
+2026-11-19 21:58:52,443 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:52,641 WARNING beat_002: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:52,694 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:52,859 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:52,896 WARNING beat_014: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:53,027 WARNING beat_002: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:53,130 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:53,310 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:53,343 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:53,352 WARNING beat_014: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:53,535 WARNING beat_020: take 1 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:53,565 WARNING beat_020: take 2 from fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:53,902 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:54,163 WARNING beat_020: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 21:58:54,475 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 21:58:54,725 WARNING beat_020: fal:shot_alt failed: fal.ai balance is empty (picture_shot_alt)
+2026-11-19 22:02:29,360 WARNING Vertex vertex:gemini-3.6-flash failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:02:29,551 WARNING Vision check unavailable: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:02:29,808 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 22:02:30,047 WARNING beat_005_fix4026: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 22:02:30,330 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 22:02:30,630 WARNING beat_005_fix4026: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 22:02:30,917 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 22:02:31,146 WARNING beat_014_fix208: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 22:02:31,405 WARNING Vertex vertex:gemini-nano-banana-2.1 failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-nano-banana-2.1:generateContent: HTTP 403: {
+2026-11-19 22:02:31,612 WARNING beat_014_fix208: fal:shot failed: fal.ai balance is empty (picture_shot)
+2026-11-19 22:02:33,306 WARNING Vertex vertex:gemini-3.6-pro failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:02:33,511 WARNING art_review: vision model unavailable: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:02:34,638 WARNING Vertex vertex:gemini-3.6-pro failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:02:34,828 WARNING art_review: vision model unavailable: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:02:36,425 WARNING Vertex vertex:gemini-3.6-pro failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:02:36,654 WARNING art_review: vision model unavailable: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:02:37,478 WARNING Vertex vertex:gemini-3.6-pro failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:02:37,657 WARNING art_review: vision model unavailable: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:03:10,175 WARNING Sound room_449e92e9991b8d65 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 22:03:10,188 WARNING Sound room_376905ccc7d0a693 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 22:03:10,193 WARNING Sound room_b9d1c7a39a8e47b3 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 22:03:27,452 WARNING Sound fx_006 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 22:03:27,471 WARNING Sound fx_007 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 22:03:27,728 WARNING Sound fx_013 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 22:08:08,521 WARNING Vertex vertex:gemini-3.6-pro failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:08:11,649 WARNING Vertex vertex:gemini-3.6-flash failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:08:11,833 WARNING thumbnail_check: vision model unavailable: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:08:14,624 WARNING Vertex vertex:gemini-3.6-flash failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:08:14,731 WARNING Translation failed: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:08:14,910 WARNING Vertex vertex:gemini-3.6-flash failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:08:15,031 WARNING Translation failed: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:08:15,186 WARNING Vertex vertex:gemini-3.6-flash failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:08:15,288 WARNING Translation failed: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:08:15,429 WARNING Vertex vertex:gemini-3.6-flash failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:08:15,498 WARNING Translation failed: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:08:15,595 WARNING Vertex vertex:gemini-3.6-flash failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:08:15,712 WARNING Translation failed: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:08:15,792 WARNING Vertex vertex:gemini-3.6-flash failed (POST https://aiplatform.googleapis.com/v1/projects/491158032192/locations/global/publishers/google/models/gemini-3.6-flash:generateContent: HTTP 403: {
+2026-11-19 22:08:15,898 WARNING Translation failed: POST https://queue.fal.run/fal-ai/any-llm/vision: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}
+2026-11-19 22:08:29,081 INFO Made stills video: {'mode': 'stills', 'video': '/home/runner/work/Horror/Horror/out/story-9004/video.mp4', 'seconds': 123.7, 'story_seconds': 106.4, 'beats': 21, 'point_of_view': 'first', 'voices': {'engine': 'elevenlabs', 'host': 'Brian', 'teller': 'Charlotte', 'teller_
+      "56 pictures or checks went to fal because Vertex failed (at fal's price)"
+      "voice": "failed: POST https://queue.fal.run/fal-ai/elevenlabs/tts/eleven-v3: HTTP 403: {\"detail\":\"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing.\"}",
+      "rejected": [
+        "56 pictures or checks went to fal because Vertex failed (at fal's price)"

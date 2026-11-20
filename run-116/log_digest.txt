@@ -1,0 +1,58 @@
+2026-11-19 20:41:28,265 INFO [preflight] done: {'paid': True, 'voice': 'failed: POST https://queue.fal.run/fal-ai/elevenlabs/tts/eleven-v3: HTTP 403: {"detail":"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."}', 'checker': 'ok', 'seconds': 0.2}
+2026-11-19 20:41:40,616 WARNING ElevenLabs could not read 'The Wayside Motel is still open. The night desk is always st' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:40,626 WARNING ElevenLabs could not read 'A guest book that knows who is coming. The lantern is lit.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:40,841 WARNING ElevenLabs could not read '[quietly] I work the night desk at the Wayside Motel, out on' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:40,843 WARNING ElevenLabs could not read '[quietly] Room six has been boarded up since before I was hi' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:40,849 WARNING ElevenLabs could not read '[hesitantly] The guest book sits open on the counter. The ow' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:40,981 WARNING ElevenLabs could not read 'The first week, I blamed the day staff. [nervously] The seco' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:40,999 WARNING ElevenLabs could not read '[fearfully] Last night, at two thirteen, the lights in the p' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:40,999 WARNING ElevenLabs could not read '[quietly] Not much. Just a roll. [hesitantly] Like someone h' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:41,097 WARNING ElevenLabs could not read '[ominously] When the lights came back, the office was empty.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:41,113 WARNING ElevenLabs could not read '[quietly] Mr. Pell came in at six. He read the line very qui' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:41,114 WARNING ElevenLabs could not read "[fearfully] I didn't look at the book. I looked at the camer" (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:41,236 WARNING ElevenLabs could not read 'he said.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:41,316 WARNING ElevenLabs could not read "Your room's ready." (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:41,328 WARNING ElevenLabs could not read "It's always the one at the desk," (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:41,452 WARNING ElevenLabs could not read 'A guest book that knows who is coming. The lantern is lit.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:43,953 WARNING ElevenLabs could not read '[quietly] I work the night desk at the Wayside Motel, out on' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:41:48,688 WARNING ElevenLabs could not read '[hesitantly] The guest book sits open on the counter. The ow' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:00,917 WARNING ElevenLabs could not read '[quietly] Room six has been boarded up since before I was hi' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:03,107 WARNING ElevenLabs could not read 'The first week, I blamed the day staff. [nervously] The seco' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:06,555 WARNING ElevenLabs could not read '[fearfully] Last night, at two thirteen, the lights in the p' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:09,756 WARNING Take '[fearfully] Last night, at two thirteen, the light' matched its text 78%: read again sentence by sentence
+2026-11-19 20:42:09,852 WARNING ElevenLabs could not read '[fearfully] Last night, at two thirteen, the lights in the p' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:11,529 WARNING ElevenLabs could not read '[whispers] At two fourteen, the pen moved.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:12,660 WARNING ElevenLabs could not read '[quietly] Not much. Just a roll. [hesitantly] Like someone h' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:15,222 WARNING ElevenLabs could not read "[fearfully] I didn't look at the book. I looked at the camer" (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:21,930 WARNING ElevenLabs could not read '[ominously] When the lights came back, the office was empty.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:25,971 WARNING ElevenLabs could not read '[quietly] Mr. Pell came in at six. He read the line very qui' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:29,430 WARNING ElevenLabs could not read "It's always the one at the desk," (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:31,018 WARNING ElevenLabs could not read 'he said.' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:32,209 WARNING ElevenLabs could not read "Your room's ready." (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:42:33,511 WARNING ElevenLabs could not read 'The Wayside Motel is still open. The night desk is always st' (fal.ai balance is empty (voice)); Kokoro reads it
+2026-11-19 20:44:03,962 INFO style_frame from fal:reference rejected (serious: The image contains visible readable text on the neon sign.); next painter
+2026-11-19 20:44:28,362 INFO style_frame from fal:reference rejected (serious: The image contains readable text on the neon sign, wall notice, and guest register.); next painter
+2026-11-19 20:44:58,768 INFO place_the_motel_office from fal:sheet rejected (The image contains written words and labels, such as 'GUEST REGISTER' and neon signs, which are not allowed.); next painter
+2026-11-19 20:56:37,397 INFO beat_019 from fal:shot rejected (serious: The image contains visible readable text on the guest book pages, which should not be present.); next painter
+2026-11-19 20:57:32,904 INFO beat_015 from fal:shot rejected (serious: The image contains clearly readable text and letters, which violates the strict rule against readable text.); next painter
+2026-11-19 21:06:46,886 INFO beat_014 from fal:shot rejected (serious: contradicts the line: June is shown sitting at the desk, but the line states the office was empty.); next painter
+2026-11-19 21:10:13,498 INFO beat_001 from fal:shot rejected (serious: The image contains readable text on the motel sign.); next painter
+2026-11-19 21:16:58,544 INFO beat_002 from fal:shot rejected (serious: The image contains readable text on the motel sign and door, which breaks channel rules.); next painter
+2026-11-19 21:23:36,313 INFO beat_002_fix3916 from fal:shot rejected (serious: contains readable text on the sign reading 'WAYSIDE MOTEL'.); next painter
+2026-11-19 21:27:58,550 INFO beat_002_fix3916 from fal:shot rejected (serious: The image contains readable text on the sign, which violates the requirement to have no readable words or letters.); next painter
+2026-11-19 21:29:29,075 WARNING Sound room_b9d1c7a39a8e47b3 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:29,078 WARNING Sound room_376905ccc7d0a693 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:29,079 WARNING Sound room_449e92e9991b8d65 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:46,786 WARNING Sound fx_006 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:46,789 WARNING Sound fx_000 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:46,794 WARNING Sound fx_007 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:46,920 WARNING Sound fx_011 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:46,927 WARNING Sound fx_013 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:46,933 WARNING Sound fx_014 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:47,042 WARNING Sound fx_015 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:47,044 WARNING Sound fx_016 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:47,056 WARNING Sound fx_017 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:47,275 WARNING Sound fx_018 not generated: fal.ai balance is empty (sound_sfx)
+2026-11-19 21:29:47,281 WARNING Sound fx_019 not generated: fal.ai balance is empty (sound_sfx)
+      "voice": "failed: POST https://queue.fal.run/fal-ai/elevenlabs/tts/eleven-v3: HTTP 403: {\"detail\":\"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing.\"}",
+      "rejected": [

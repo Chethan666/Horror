@@ -1,0 +1,84 @@
+{
+  "story_id": 9004,
+  "title": "Room Six",
+  "other_titles": [
+    "The Guest Book Signed My Name"
+  ],
+  "description": "Every night at 2:14 a.m., someone signs for a room that has been boarded up for years. A Hollow Lines story.\n\nMusic and sound:\n\"Hush\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\n0:00 The Hollow\n0:46 Night Watch\n1:32 The Next Keeper",
+  "tags": [
+    "horror",
+    "scary story",
+    "motel horror",
+    "night shift",
+    "creepy",
+    "horror story"
+  ],
+  "pinned_comment": "Would you have turned around?",
+  "end_screen_line": "Room six is ready.",
+  "credit": "",
+  "made_for_kids": false,
+  "duration_seconds": 124.2,
+  "chapters": [
+    [
+      0.0,
+      "The Hollow"
+    ],
+    [
+      46.2,
+      "Night Watch"
+    ],
+    [
+      92.8,
+      "The Next Keeper"
+    ]
+  ],
+  "sound_credits": [
+    "\"Hush\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/"
+  ],
+  "sounds_used": [
+    "music-dark-ambient-horror-film-score-s-bbd5ef61",
+    "music-tense-horror-film-score-building-0b79d8d5",
+    "music-hush-2b17b445",
+    "sting-unleeched-sound-effects-pack-lee-e3c4e17c"
+  ],
+  "thumbnails": [
+    "thumbnail_1.jpg",
+    "thumbnail_2.jpg"
+  ],
+  "end_screen_starts": 116.2,
+  "synthetic_media": true,
+  "localizations": {
+    "es": {
+      "title": "La habitación seis",
+      "description": "Todas las noches, a las 2:14 a. m., alguien firma el registro de una habitación que lleva años tapiada. Una historia de Hollow Lines.\n\nMúsica y sonido:\n\"Hush\" Kevin MacLeod (incompetech.com) Licenciado bajo Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\n0:00 El vacío\n0:46 Guardia nocturna\n1:32 El siguiente guardián"
+    },
+    "pt": {
+      "title": "O Quarto Seis",
+      "description": "Toda noite, às 2:14 da manhã, alguém dá entrada em um quarto que está lacrado há anos. Uma história de Hollow Lines.\n\nMúsica e som:\n\"Hush\" Kevin MacLeod (incompetech.com) Licenciado sob Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\n0:00 O Vazio\n0:46 Ronda Noturna\n1:32 O Próximo Guardião"
+    },
+    "hi": {
+      "title": "कमरा नंबर 6",
+      "description": "हर रात ठीक 2:14 बजे, कोई एक ऐसे कमरे की एंट्री करता है जो सालों से बंद पड़ा है। 'Hollow Lines' की एक ख़ौफ़नाक कहानी।\n\nम्यूज़िक और साउंड:\n\"Hush\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\n0:00 द हॉलो\n0:46 नाइट वॉच\n1:32 अगला रखवाला"
+    },
+    "id": {
+      "title": "Kamar Nomor 6",
+      "description": "Setiap malam tepat pukul 02.14 dini hari, seseorang mengisi daftar tamu untuk kamar yang sebenarnya sudah dipaku rapat selama bertahun-tahun. Sebuah kisah Hollow Lines.\n\nMusik dan suara:\n\"Hush\" Kevin MacLeod (incompetech.com) Dilisensikan di bawah Lisensi Creative Commons: By Attribution 4.0 http://creativecommons.org/licenses/by/4.0/\n\n0:00 The Hollow\n0:46 Night Watch\n1:32 The Next Keeper"
+    },
+    "fr": {
+      "title": "La Chambre 6",
+      "description": "Chaque nuit, à 2 h 14 du matin, quelqu'un signe le registre pour une chambre condamnée depuis des années. Une histoire signée Hollow Lines.\n\nMusique et sons :\n\"Hush\" Kevin MacLeod (incompetech.com) Sous licence Creative Commons : Par Attribution 4.0 http://creativecommons.org/licenses/by/4.0/\n\n0:00 The Hollow\n0:46 Night Watch\n1:32 The Next Keeper"
+    },
+    "de": {
+      "title": "Zimmer 6",
+      "description": "Jede Nacht um genau 2:14 Uhr unterschreibt jemand für ein Zimmer, das seit Jahren vernagelt ist. Eine Geschichte von Hollow Lines.\n\nMusik und Sound:\n\"Hush\" Kevin MacLeod (incompetech.com) Lizenziert unter Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\n0:00 Die Leere\n0:46 Nachtwache\n1:32 Der nächste Hüter"
+    }
+  },
+  "captions": {
+    "es": "captions_es.srt",
+    "pt": "captions_pt.srt",
+    "hi": "captions_hi.srt",
+    "id": "captions_id.srt",
+    "fr": "captions_fr.srt",
+    "de": "captions_de.srt"
+  }
+}

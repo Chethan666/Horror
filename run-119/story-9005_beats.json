@@ -1,0 +1,392 @@
+[
+  {
+    "index": 0,
+    "scene": 0,
+    "t0": 0.0,
+    "t1": 9.77,
+    "text": "For three summers I had been careful. Careful with my words, careful with my heart, careful never to want anything I couldn't explain.",
+    "framing": "close",
+    "picture": "MEDIUM shot of Inés standing rigid by the blue-shuttered window, arms crossed protectively over her chest, posture closed, eyes distant. Evening light through the glass casts long shadows across the dark floor, framing her against the quiet city twilight.",
+    "characters": [
+      "Inés"
+    ],
+    "sound": "",
+    "motion": "",
+    "scare": false,
+    "importance": 1,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [],
+    "tension": 2,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 1,
+    "scene": 1,
+    "t0": 9.77,
+    "t1": 16.170566893424034,
+    "text": "Then the heat came to Lisbon, and with it, the man across the courtyard.",
+    "framing": "wide",
+    "picture": "WIDE view across a small sun-warmed courtyard at dusk. Opposite, one tall window with blue shutters stands open. Warm lamplight spills from it, and the silhouette of a man moves within the room.",
+    "characters": [],
+    "sound": "distant city hum",
+    "motion": "",
+    "scare": false,
+    "importance": 2,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [],
+    "tension": 2,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 2,
+    "scene": 2,
+    "t0": 16.170566893424034,
+    "t1": 23.110566893424036,
+    "text": "Every evening at nine, his window opened. Every evening, I pretended not to watch.",
+    "framing": "medium",
+    "picture": "MEDIUM shot of Tomás framed in his open window across the courtyard. He holds a paperback, his white linen sleeves neatly rolled. A glass of red wine rests on the sill, catching the fiery sunset.",
+    "characters": [
+      "Tomás"
+    ],
+    "sound": "page turn",
+    "motion": "",
+    "scare": false,
+    "importance": 2,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [],
+    "tension": 2,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 3,
+    "scene": 2,
+    "t0": 23.110566893424036,
+    "t1": 28.406417233560088,
+    "text": "He read with his sleeves rolled, a glass of wine catching the last of the light.",
+    "framing": "insert",
+    "picture": "INSERT shot of the glass of red wine on the windowsill, the dying sunset igniting its contents like liquid flame.",
+    "characters": [],
+    "sound": "",
+    "motion": "",
+    "scare": false,
+    "importance": 1,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [],
+    "tension": 2,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 4,
+    "scene": 3,
+    "t0": 28.406417233560088,
+    "t1": 33.804489795918364,
+    "text": "Once, he looked up. I didn't look away. Neither did he.",
+    "framing": "close",
+    "picture": "CLOSE on Tomás, his gaze lifted from the book. He looks directly across the courtyard, a slow, curious half-smile softening his face in the warm lamplight.",
+    "characters": [
+      "Tomás"
+    ],
+    "sound": "",
+    "motion": "",
+    "scare": false,
+    "importance": 4,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [],
+    "tension": 4,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 5,
+    "scene": 4,
+    "t0": 33.804489795918364,
+    "t1": 39.974489795918366,
+    "text": "I began to dress for that window. A silk slip the colour of wine. My hair down.",
+    "framing": "medium",
+    "picture": "MEDIUM shot of Inés standing thoughtfully before a wardrobe, her hands tracing the strap of the wine-red silk slip hanging out. Her expression shows deliberate choice, warm lamplight reflecting in the mirror behind her.",
+    "characters": [
+      "Inés"
+    ],
+    "sound": "hairbrush on wood",
+    "motion": "",
+    "scare": false,
+    "importance": 3,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [],
+    "tension": 3,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 6,
+    "scene": 4,
+    "t0": 39.974489795918366,
+    "t1": 44.45843537414966,
+    "text": "The lamp turned low, so he could see only what I chose.",
+    "framing": "wide",
+    "picture": "WIDER shot of the same room from a low angle, emphasising the single lamp casting a soft, selective glow. Inés stands silhouetted near the window, a shape in the intimate darkness.",
+    "characters": [
+      "Inés"
+    ],
+    "sound": "",
+    "motion": "",
+    "scare": false,
+    "importance": 3,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [],
+    "tension": 3,
+    "threat": 1,
+    "reveal": 0.0
+  },
+  {
+    "index": 7,
+    "scene": 5,
+    "t0": 44.45843537414966,
+    "t1": 51.1584126984127,
+    "text": "On the night of the storm, the power failed across the whole street. Candles appeared in windows, one by one.",
+    "framing": "wide",
+    "picture": "A slow, tracking pan across the dark, rain-swept courtyard. One dark window lights up with a single candle, then another in a different building, a flickering chain of silent signals being born.",
+    "characters": [
+      "none"
+    ],
+    "sound": "heavy rain falling",
+    "motion": "",
+    "scare": false,
+    "importance": 2,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [
+      "flicker"
+    ],
+    "tension": 3,
+    "threat": 1,
+    "reveal": 0.0
+  },
+  {
+    "index": 8,
+    "scene": 5,
+    "t0": 51.1584126984127,
+    "t1": 56.02843537414966,
+    "text": "His was the last. He held it up, like a question.",
+    "framing": "medium",
+    "picture": "Through the rainy window, a medium shot of Tomás standing in his own window frame opposite. He holds a candle at chest height, its light illuminating his thoughtful, waiting expression as he looks out into the dark courtyard.",
+    "characters": [
+      "Tomás"
+    ],
+    "sound": "rain pattering on glass",
+    "motion": "",
+    "scare": false,
+    "importance": 3,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [
+      "flicker"
+    ],
+    "tension": 4,
+    "threat": 2,
+    "reveal": 0.0
+  },
+  {
+    "index": 9,
+    "scene": 6,
+    "t0": 56.02843537414966,
+    "t1": 58.22671201814059,
+    "text": "I answered it.",
+    "framing": "close",
+    "picture": "CLOSE on Inés raising her own lit candle into the frame of her window, mirroring his gesture. The warm glow is a clear, deliberate signal sent back across the dark, rainy courtyard.",
+    "characters": [
+      "Inés"
+    ],
+    "sound": "a soft breath",
+    "motion": "",
+    "scare": false,
+    "importance": 3,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [
+      "flicker"
+    ],
+    "tension": 4,
+    "threat": 1,
+    "reveal": 0.0
+  },
+  {
+    "index": 10,
+    "scene": 7,
+    "t0": 58.22671201814059,
+    "t1": 65.8956462585034,
+    "text": "I crossed the courtyard barefoot, rain on my shoulders, my heart louder than the thunder. He opened the door before I knocked.",
+    "framing": "wide",
+    "picture": "A low-angle, wide shot from inside a doorway. Inés is a silhouette crossing the wet courtyard tiles in the heavy rain, the wine-red silk of her slip visible under her linen shirt. She holds a candle. A warm, golden light spills from an open doorway ahead.",
+    "characters": [
+      "Inés"
+    ],
+    "sound": "rain on tiles, distant thunder",
+    "motion": "",
+    "scare": false,
+    "importance": 4,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [
+      "flicker"
+    ],
+    "tension": 4,
+    "threat": 2,
+    "reveal": 0.0
+  },
+  {
+    "index": 11,
+    "scene": 8,
+    "t0": 65.8956462585034,
+    "t1": 70.52380952380952,
+    "text": "\"I wondered when you'd come,\" he said. \"So did I,\" I told him.",
+    "framing": "medium",
+    "picture": "A medium two-shot in the candlelit doorway. Tomás, his hand still on the door, looks down at Inés with a soft, knowing smile. She looks up at him, her hair wet from the rain, a tentative but warm smile on her lips.",
+    "characters": [
+      "Tomás",
+      "Inés"
+    ],
+    "sound": "rain outside the open door",
+    "motion": "",
+    "scare": false,
+    "importance": 4,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [
+      "rain",
+      "flicker"
+    ],
+    "tension": 3,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 12,
+    "scene": 9,
+    "t0": 70.52380952380952,
+    "t1": 76.65380952380951,
+    "text": "For three summers I had been careful. That night, I was honest.",
+    "framing": "close",
+    "picture": "Close two-shot by candlelight. Their faces are inches apart, shallow focus. Inés speaks quietly, her expression serious and vulnerable. Tomás listens intently, his eyes soft. The rain-streaked window glows softly behind them.",
+    "characters": [
+      "Tomás",
+      "Inés"
+    ],
+    "sound": "the quiet crackle of a candle",
+    "motion": "",
+    "scare": false,
+    "importance": 5,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [
+      "flicker"
+    ],
+    "tension": 4,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 13,
+    "scene": 9,
+    "t0": 76.65380952380951,
+    "t1": 86.5905215419501,
+    "text": "I told him exactly what I wanted, and I watched it land in his eyes. Not surprise. Relief.",
+    "framing": "close",
+    "picture": "Extreme close-up on Tomás's face, lit by the candle. His eyes, full of warm understanding and profound relief, hold the camera's gaze. The corners of his eyes crinkle with a soft, confirming smile.",
+    "characters": [
+      "Tomás"
+    ],
+    "sound": "a gentle sigh",
+    "motion": "",
+    "scare": false,
+    "importance": 5,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [
+      "flicker"
+    ],
+    "tension": 3,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 14,
+    "scene": 10,
+    "t0": 86.5905215419501,
+    "t1": 96.84267573696144,
+    "text": "His hand found the small of my back. Mine found the buttons of his shirt, slowly, one at a time, because I wanted to remember every one.",
+    "framing": "extreme_close",
+    "picture": "Extreme close-up of her dark fingers slowly undoing the top button of a white linen shirt, his hand resting firmly at the small of her back on the wine-red silk, warm candlelight flickering on their skin.",
+    "characters": [
+      "Tomás",
+      "Inés"
+    ],
+    "sound": "",
+    "motion": "",
+    "scare": false,
+    "importance": 4,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [
+      "flicker"
+    ],
+    "tension": 4,
+    "threat": 4,
+    "reveal": 0.0
+  },
+  {
+    "index": 15,
+    "scene": 11,
+    "t0": 96.84267573696144,
+    "t1": 102.18238095238095,
+    "text": "The candle burned down. The rain didn't stop until morning.",
+    "framing": "close",
+    "picture": "Close-up of a windowsill: a single candle burned down to a small stub amidst smooth, soft pools of white wax; two empty wine glasses sit beside it, grey-blue dawn light and streaked rain visible on the glass behind.",
+    "characters": [],
+    "sound": "",
+    "motion": "",
+    "scare": false,
+    "importance": 3,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [
+      "flicker"
+    ],
+    "tension": 2,
+    "threat": 0,
+    "reveal": 0.0
+  },
+  {
+    "index": 16,
+    "scene": 12,
+    "t0": 102.18238095238095,
+    "t1": 112.83936507936508,
+    "text": "I don't know his last name. I know the sound he makes when he says mine. Some nights, the bravest thing a woman can do is ask.",
+    "framing": "medium",
+    "picture": "Morning light: Inés at an open window with blue shutters, wearing his oversized white linen shirt, looking with a quiet, certain smile across a courtyard to her own empty apartment window.",
+    "characters": [
+      "Inés"
+    ],
+    "sound": "",
+    "motion": "",
+    "scare": false,
+    "importance": 5,
+    "directed": true,
+    "view": "film",
+    "atmosphere": [],
+    "tension": 2,
+    "threat": 0,
+    "reveal": 0.0
+  }
+]

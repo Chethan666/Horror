@@ -1,0 +1,872 @@
+{
+  "mode": "stills",
+  "video": "/home/runner/work/Horror/Horror/out/story-9004/video.mp4",
+  "seconds": 123.7,
+  "story_seconds": 106.4,
+  "beats": 21,
+  "point_of_view": "first",
+  "voices": {
+    "engine": "elevenlabs",
+    "host": "Brian",
+    "teller": "Charlotte",
+    "teller_kind": "woman",
+    "characters": {
+      "June": "Alice",
+      "Mr. Pell": "Bill"
+    }
+  },
+  "usd": 2.58,
+  "usd_by_task": {
+    "art_review": 0.04,
+    "choose": 0.05,
+    "picture_sheet": 0.17,
+    "picture_shot": 2.03,
+    "preflight": 0.0,
+    "reference_check": 0.01,
+    "screening": 0.08,
+    "sound_music": 0.12,
+    "staging": 0.02,
+    "thumbnail_check": 0.0,
+    "translate": 0.01,
+    "vision": 0.04
+  },
+  "fal_balance_ran_out": true,
+  "vertex_fallbacks": 0,
+  "answers_reused": {
+    "planner": 5,
+    "paid_models": 5
+  },
+  "beat_times": [
+    {
+      "beat": 0,
+      "start": 9.24,
+      "end": 14.28,
+      "scene": 0,
+      "tension": 2,
+      "scare": false,
+      "line": "A guest book that knows who is coming. The lantern is lit."
+    },
+    {
+      "beat": 1,
+      "start": 14.28,
+      "end": 21.6,
+      "scene": 1,
+      "tension": 2,
+      "scare": false,
+      "line": "I work the night desk at the Wayside Motel, out on Route 9, where the road runs between tw"
+    },
+    {
+      "beat": 2,
+      "start": 21.6,
+      "end": 25.5,
+      "scene": 1,
+      "tension": 2,
+      "scare": false,
+      "line": "Twelve rooms. Most nights, nobody comes."
+    },
+    {
+      "beat": 3,
+      "start": 25.5,
+      "end": 32.06,
+      "scene": 2,
+      "tension": 2,
+      "scare": false,
+      "line": "The guest book sits open on the counter. The owner, Mr. Pell, likes ink. He says a name in"
+    },
+    {
+      "beat": 4,
+      "start": 32.06,
+      "end": 41.04,
+      "scene": 3,
+      "tension": 3,
+      "scare": false,
+      "line": "Every morning, when I hand over the keys, there's a new line in it. Room six. Signed at tw"
+    },
+    {
+      "beat": 5,
+      "start": 41.04,
+      "end": 46.01,
+      "scene": 4,
+      "tension": 4,
+      "scare": false,
+      "line": "Room six has been boarded up since before I was hired."
+    },
+    {
+      "beat": 6,
+      "start": 46.01,
+      "end": 52.75,
+      "scene": 5,
+      "tension": 3,
+      "scare": false,
+      "line": "The first week, I blamed the day staff. The second week, I stopped blaming anyone. I start"
+    },
+    {
+      "beat": 7,
+      "start": 52.75,
+      "end": 57.58,
+      "scene": 6,
+      "tension": 4,
+      "scare": false,
+      "line": "Last night, at two thirteen, the lights in the parking lot flickered."
+    },
+    {
+      "beat": 8,
+      "start": 57.58,
+      "end": 60.95,
+      "scene": 6,
+      "tension": 5,
+      "scare": false,
+      "line": "At two fourteen, the pen moved."
+    },
+    {
+      "beat": 9,
+      "start": 60.95,
+      "end": 65.66,
+      "scene": 7,
+      "tension": 4,
+      "scare": false,
+      "line": "Not much. Just a roll. Like someone had brushed it with a sleeve."
+    },
+    {
+      "beat": 10,
+      "start": 65.66,
+      "end": 71.31,
+      "scene": 8,
+      "tension": 4,
+      "scare": false,
+      "line": "I didn't look at the book. I looked at the camera. On the screen, I was sitting at the des"
+    },
+    {
+      "beat": 11,
+      "start": 71.31,
+      "end": 74.93,
+      "scene": 8,
+      "tension": 5,
+      "scare": true,
+      "line": "And behind me, close enough to breathe on my neck, a"
+    },
+    {
+      "beat": 12,
+      "start": 74.93,
+      "end": 78.55,
+      "scene": 8,
+      "tension": 5,
+      "scare": false,
+      "line": "man in a wet raincoat was leaning over my shoulder to write."
+    },
+    {
+      "beat": 13,
+      "start": 78.55,
+      "end": 81.37,
+      "scene": 9,
+      "tension": 5,
+      "scare": false,
+      "line": "I didn't turn around. I couldn't."
+    },
+    {
+      "beat": 14,
+      "start": 81.37,
+      "end": 84.91,
+      "scene": 10,
+      "tension": 4,
+      "scare": false,
+      "line": "When the lights came back, the office was empty."
+    },
+    {
+      "beat": 15,
+      "start": 84.91,
+      "end": 88.11,
+      "scene": 10,
+      "tension": 5,
+      "scare": false,
+      "line": "The book was open. The ink was still wet."
+    },
+    {
+      "beat": 16,
+      "start": 88.11,
+      "end": 92.31,
+      "scene": 10,
+      "tension": 5,
+      "scare": false,
+      "line": "Room six. Two fourteen a.m. And the name was mine."
+    },
+    {
+      "beat": 17,
+      "start": 92.31,
+      "end": 96.36,
+      "scene": 11,
+      "tension": 3,
+      "scare": false,
+      "line": "Mr. Pell came in at six. He read the line very quietly."
+    },
+    {
+      "beat": 18,
+      "start": 96.36,
+      "end": 100.68,
+      "scene": 11,
+      "tension": 4,
+      "scare": false,
+      "line": "Then he took a key off the hook. A key I had never seen."
+    },
+    {
+      "beat": 19,
+      "start": 100.68,
+      "end": 105.93,
+      "scene": 11,
+      "tension": 5,
+      "scare": false,
+      "line": "\"It's always the one at the desk,\" he said. \"Your room's ready.\""
+    },
+    {
+      "beat": 20,
+      "start": 105.93,
+      "end": 115.68,
+      "scene": 12,
+      "tension": 3,
+      "scare": false,
+      "line": "The Wayside Motel is still open. The night desk is always staffed. And if you sign the boo"
+    }
+  ],
+  "qa": {
+    "status": "check",
+    "issues": [
+      "16 lines fell back to Kokoro",
+      "a take matched its script only 78% (listen to it)"
+    ],
+    "video_seconds": 123.7,
+    "loudness_lufs": -14.1,
+    "true_peak_dbtp": -1.1,
+    "vertex_fallbacks": 0,
+    "seconds": 13.3
+  },
+  "agents": {
+    "preflight": {
+      "paid": true,
+      "estimate": {
+        "words": 291,
+        "seconds": 116,
+        "beats": 15,
+        "pictures": 31,
+        "usd": 1.87,
+        "usd_with_retries": 2.77
+      },
+      "voice": "failed: POST https://queue.fal.run/fal-ai/elevenlabs/tts/eleven-v3: HTTP 403: {\"detail\":\"User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing.\"}",
+      "checker": "ok",
+      "seconds": 0.2
+    },
+    "script_check": {
+      "words": 291,
+      "estimated_seconds": 116.4,
+      "target_seconds": 120.0,
+      "scenes": 13,
+      "issues": [],
+      "seconds": 0.0
+    },
+    "casting": {
+      "point_of_view": "first",
+      "teller": "woman",
+      "why": "The protagonist is named June and is explicitly stated to be 'a night clerk' in the story bible. The opening narration fits a young to middle-aged adult's perspective, focused on observation and quiet",
+      "engine": "elevenlabs",
+      "host_voice": "Brian",
+      "teller_voice": "Charlotte",
+      "quoted_lines": 2,
+      "character_voices": {
+        "June": "Alice",
+        "Mr. Pell": "Bill"
+      },
+      "seconds": 0.3
+    },
+    "voice": {
+      "seconds_of_speech": 106.4,
+      "chunks": 43,
+      "speakers": [
+        "Mr. Pell",
+        "host",
+        "narrator"
+      ],
+      "lines_read_by_kokoro": 16,
+      "words_per_minute": 164,
+      "performance": {
+        "directed": true,
+        "sentences": 36,
+        "plain": 15,
+        "tags": {
+          "[curious]": 1,
+          "[fearfully]": 4,
+          "[gasps]": 1,
+          "[hesitantly]": 4,
+          "[nervously]": 1,
+          "[ominously]": 3,
+          "[quietly]": 4,
+          "[urgently]": 1,
+          "[whispers]": 2
+        },
+        "unknown_tags": []
+      },
+      "listener": {
+        "model": "base.en",
+        "takes": 14,
+        "reread": 1,
+        "worst_match": 0.78
+      },
+      "seconds": 77.2
+    },
+    "storyboard": {
+      "beats": 21,
+      "directed_by_model": 21,
+      "host_beats": 2,
+      "scares": 1,
+      "scares_allowed": 1,
+      "check": {
+        "checked": true,
+        "fixed": [
+          {
+            "beat": 5,
+            "problem": "LINE describes \"I work the night desk at the Wayside Motel...\" but PICTURE is a long shot of the motel exterior with no desk, office interior, or June present, failing to show her at the night desk."
+          },
+          {
+            "beat": 9,
+            "problem": "LINE says \"I didn't look at the book...\" but PICTURE is a close-up of June's face looking at her phone, which matches the line, but she should be looking at the phone's camera screen, not just the pho"
+          },
+          {
+            "beat": 11,
+            "problem": "LINE says \"behind me, close enough to breathe on my neck, a...\" but PICTURE is a phone screen showing the figure behind her; it should show the figure in relation to her, but the line is incomplete, s"
+          },
+          {
+            "beat": 13,
+            "problem": "LINE says \"I didn't turn around. I couldn't.\" but PICTURE shows an extreme close-up of June's face with a drop of water falling, which matches her not turning, but the water drop implies an action not"
+          }
+        ]
+      },
+      "reveal_ladder": {
+        "climax": 11,
+        "lowered": 0
+      },
+      "tension": [
+        2,
+        2,
+        2,
+        2,
+        3,
+        4,
+        3,
+        4,
+        5,
+        4,
+        4,
+        5,
+        5,
+        5,
+        4,
+        5,
+        5,
+        3,
+        4,
+        5,
+        3
+      ],
+      "average_seconds": 5.1,
+      "seconds": 55.9
+    },
+    "continuity": {
+      "facts": 19,
+      "beats_with_facts": 17,
+      "sheet": [
+        {
+          "fact": "The guest book is open",
+          "from": 3,
+          "until": 19
+        },
+        {
+          "fact": "The fountain pen is on the counter",
+          "from": 3,
+          "until": 8
+        },
+        {
+          "fact": "A fresh, dark blood-red ink line is in the guest book",
+          "from": 4,
+          "until": 16
+        },
+        {
+          "fact": "A new name is written in red ink in the guest book",
+          "from": 4,
+          "until": 9
+        },
+        {
+          "fact": "Room six is boarded up",
+          "from": 5,
+          "until": 15
+        },
+        {
+          "fact": "June's left hand clutches her phone",
+          "from": 6,
+          "until": 10
+        },
+        {
+          "fact": "The parking lot lights are flickering/strobing",
+          "from": 7,
+          "until": 7
+        },
+        {
+          "fact": "The fountain pen has rolled to a new angle",
+          "from": 8,
+          "until": 9
+        },
+        {
+          "fact": "June is looking at her phone screen",
+          "from": 9,
+          "until": 11
+        },
+        {
+          "fact": "The security feed is displayed on June's phone",
+          "from": 10,
+          "until": 11
+        },
+        {
+          "fact": "A tall, hooded figure in a wet raincoat stands behind June",
+          "from": 11,
+          "until": 12
+        },
+        {
+          "fact": "June is frozen, not turning around",
+          "from": 13,
+          "until": 14
+        },
+        {
+          "fact": "The office lights are on",
+          "from": 14,
+          "until": 19
+        },
+        {
+          "fact": "The fresh ink in the guest book is still wet",
+          "from": 15,
+          "until": 16
+        },
+        {
+          "fact": "The name 'June Marsh' is written in red ink in the guest book",
+          "from": 15,
+          "until": 19
+        },
+        {
+          "fact": "June is at the counter facing the guest book",
+          "from": 16,
+          "until": 16
+        },
+        {
+          "fact": "Mr. Pell is reading the guest book",
+          "from": 17,
+          "until": 17
+        },
+        {
+          "fact": "The single brass key is off its hook",
+          "from": 18,
+          "until": 19
+        },
+        {
+          "fact": "Mr. Pell holds the brass key",
+          "from": 19,
+          "until": 19
+        }
+      ],
+      "seconds": 8.9
+    },
+    "art": {
+      "style_frame": true,
+      "style_frame_by": "fal:reference",
+      "sheets": [
+        "June",
+        "Mr. Pell",
+        "The Storyteller"
+      ],
+      "portraits": [
+        "June",
+        "Mr. Pell",
+        "The Storyteller"
+      ],
+      "host_references": true,
+      "designs": {
+        "June": "a woman in her late twenties, night-shift tired, pale, straight black hair in a low ponytail, a dark green motel uniform polo shirt under an open grey hoodie, a name badge, no jewellery; Cast a woman of Chinese or Japanese descent, late 20s. Medium build, oval face with prominent under-eye shadows from fatigue. Her black hair is high on her crown. The polo shirt's exact shade is forest green. The hoodie's grey is a weathered charcoal. No makeup, no rings. Pale skin.",
+        "Mr. Pell": "a man in his seventies, thin white hair combed flat, deep-set grey eyes, a brown buttoned wool cardigan over a white shirt, reading glasses on a cord around his neck; Cast a Caucasian man, early 70s. Thin, slight build, with a long face and a pronounced nose. His white hair is fine and receding, combed precisely. His cardigan is a true, muted brown. His shirt is a slightly yellowed optic white. His trousers are dark, indeterminate grey wool. Pale, thin skin.",
+        "The Storyteller": "a tall, gaunt man of indeterminate age with a long, lined, hollow-cheeked face, sunken tired eyes and grey stubble, in a long, worn charcoal greatcoat and a battered black felt hat with a wide brim (never a cowboy hat); his face is lit red from below by his lantern, the brim's shadow over his brow; he always carries a plain old iron railway lantern with glass panes (no faces, masks or carvings on it) whose flame burns blood red"
+      },
+      "places": [
+        {
+          "name": "The Motel Office",
+          "scenes": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "design": "A cramped, wood-paneled motel office, aged and worn. Colors are muted browns and teal-grey shadows. On the worn wooden counter: a leather-bound guest book, an old brass desk bell, a dark wood fountain pen. A single, aged desk lamp with an amber-tinted glass shade provides the only direct light at night, its bulb dim and prone to flickering. Outside the large front window, the sodium-vapor parking lot lights cast a sickly yellow-orange glow. The room is perpetually cold.",
+          "sheet": true
+        },
+        {
+          "name": "The Motel Exterior",
+          "scenes": [
+            1
+          ],
+          "design": "Outside: A single-story, low-slung motel with a long, straight row of identical, weathered pale green doors under a flat overhang. The yellow soffit lighting is weak and uneven. A single, brighter warm-yellow lamp glows in the front office window. The narrow two-lane asphalt road stretches into thick, damp fog. A 'WAYSIDE MOTEL' sign is old and faded. The night is still and foggy.",
+          "sheet": true
+        }
+      ],
+      "reference_checks": [
+        {
+          "sheet": "June",
+          "kind": "character",
+          "ok": true,
+          "why": "The reference sheet consistently depicts June matching the specified character design, mood, and clothing across all views."
+        },
+        {
+          "sheet": "Mr. Pell",
+          "kind": "character",
+          "ok": true,
+          "why": ""
+        },
+        {
+          "sheet": "The Motel Office",
+          "kind": "location",
+          "ok": false,
+          "why": "The image contains written words and labels, such as 'GUEST REGISTER' and neon signs, which are not allowed."
+        },
+        {
+          "sheet": "The Motel Exterior",
+          "kind": "location",
+          "ok": true,
+          "why": "The image accurately depicts the creepy, foggy single-story motel exterior with the glowing office window and faded sign as described."
+        },
+        {
+          "sheet": "The Motel Office",
+          "kind": "location",
+          "ok": true,
+          "why": "The reference sheet correctly depicts the dark, aged wood-paneled motel office across both consistent views."
+        },
+        {
+          "sheet": "June",
+          "kind": "portrait",
+          "ok": true,
+          "why": ""
+        },
+        {
+          "sheet": "Mr. Pell",
+          "kind": "portrait",
+          "ok": true,
+          "why": "The portrait matches the reference sheet design for Mr. Pell in age, attire, hair, facial features, and tone."
+        }
+      ],
+      "seconds": 115.3
+    },
+    "staging": {
+      "staged": true,
+      "places": 2,
+      "rewritten": [],
+      "seconds": 130.9
+    },
+    "illustrator": {
+      "look": "cinematic",
+      "warned": "the exact action the line describes; no writing of any kind; faces show the line's feeling clearly",
+      "faults_seen": {
+        "text": 4
+      },
+      "retry_usd": 0.275,
+      "retries_stopped": 0,
+      "cameras": {},
+      "pictures": 21,
+      "borrowed_neighbour": 0,
+      "placeholders": 0,
+      "scare_shots": [
+        11
+      ],
+      "key_beats": [
+        8,
+        10,
+        12,
+        13,
+        16
+      ],
+      "redone": [],
+      "by_painter": {
+        "fal:reference (doubted)": 1,
+        "fal:sheet": 5,
+        "fal:sheet (corrected)": 1,
+        "fal:shot (best of 2)": 8,
+        "fal:shot": 8,
+        "fal:shot (corrected)": 5
+      },
+      "doubted_beats": [],
+      "painter_sizes": {
+        "fal:reference": "2752x1536",
+        "fal:sheet": "2752x1536",
+        "fal:shot": "2752x1536"
+      },
+      "rejected": [
+        "style_frame (fal:reference): serious: The image contains visible readable text on the neon sign.",
+        "style_frame (fal:reference): serious: The image contains readable text on the neon sign, wall notice, and guest register.",
+        "place_the_motel_office (fal:sheet): The image contains written words and labels, such as 'GUEST REGISTER' and neon signs, which are not allowed.",
+        "beat_019 (fal:shot): serious: The image contains visible readable text on the guest book pages, which should not be present.",
+        "beat_015 (fal:shot): serious: The image contains clearly readable text and letters, which violates the strict rule against readable text.",
+        "beat_014 (fal:shot): serious: contradicts the line: June is shown sitting at the desk, but the line states the office was empty.",
+        "beat_001 (fal:shot): serious: The image contains readable text on the motel sign.",
+        "beat_002 (fal:shot): serious: The image contains readable text on the motel sign and door, which breaks channel rules."
+      ],
+      "seconds": 1851.6
+    },
+    "art_review": {
+      "reviewed": true,
+      "looks": 4,
+      "score": 7,
+      "scores": [
+        7,
+        8,
+        10,
+        10
+      ],
+      "flagged": [
+        {
+          "picture": 5,
+          "problem": "Shows June in the office instead of Room six; it should show the exterior door of Room six boarded up."
+        },
+        {
+          "picture": 2,
+          "problem": "Nearly identical framing and lighting to #1; should offer a distinct angle of the empty motel row or parking lot."
+        },
+        {
+          "picture": 14,
+          "problem": "A green uniform polo shirt with a 'JUNE' nametag is draped on the chair, even though June is wearing her uniform in the surrounding frames. Show the empty desk area without the duplicate uniform shirt"
+        }
+      ],
+      "redrawn": [
+        {
+          "picture": 5,
+          "problem": "Shows June in the office instead of Room six; it should show the exterior door of Room six boarded up."
+        },
+        {
+          "picture": 2,
+          "problem": "Nearly identical framing and lighting to #1; should offer a distinct angle of the empty motel row or parking lot."
+        }
+      ],
+      "strongest_picture": 8,
+      "seconds": 550.1
+    },
+    "colorist": {
+      "graded": 4,
+      "pictures": 21,
+      "film_brightness": 40.0,
+      "printed_down": 0.0,
+      "film_contrast": 36.2,
+      "changes": {
+        "1": {
+          "contrast": 1.13
+        },
+        "3": {
+          "brightness": -20.0,
+          "colour": 1.3
+        },
+        "8": {
+          "brightness": -26.4,
+          "colour": 2.1
+        },
+        "15": {
+          "brightness": -26.4,
+          "colour": 2.3
+        }
+      },
+      "seconds": 11.3
+    },
+    "motion": {
+      "enabled": false,
+      "seconds": 0.0
+    },
+    "depth": {
+      "enabled": false,
+      "seconds": 0.0
+    },
+    "edit_plan": {
+      "cold_open_beats": [
+        11,
+        12
+      ],
+      "cold_open_seconds": 7.2,
+      "total_seconds": 123.7,
+      "scares_built": [
+        11
+      ],
+      "seconds": 0.0
+    },
+    "sound": {
+      "music": [
+        "dread",
+        "terror",
+        "unease"
+      ],
+      "ambience": 0,
+      "effects": 6,
+      "synthesized": [],
+      "stereo": {
+        "near": 4,
+        "off": 2
+      },
+      "library": {
+        "library_sounds": 283,
+        "needs": 19,
+        "decided_by_model": 19,
+        "from_library": 4,
+        "made_new": 15,
+        "left_out": 0,
+        "from_library_by_kind": {
+          "music": 2,
+          "ambience": 0,
+          "sfx": 1,
+          "sting": 1
+        },
+        "picks": {
+          "music_unease": "music-measured-paces-10bb0bc5",
+          "music_dread": "music-tense-horror-film-score-building-0b79d8d5",
+          "sting": "sting-horror-hit-dd612c9d",
+          "fx_020": "sfx-creaky-light-wooden-door-ff732a2b"
+        },
+        "made": {
+          "music_terror": "dark ambient horror score, filtered synths, low pulsing bass, subtle build to intense climax, instrumental",
+          "room_b9d1c7a39a8e47b3": "quiet, hollow wind, subtle rustling, faint insect sounds, isolated nighttime ambience",
+          "room_449e92e9991b8d65": "outside at night, distant highway sound, light wind, occasional cricket chirp, isolated rural motel feel",
+          "room_376905ccc7d0a693": "motel office at night, low humming of a small refrigerator, faint electric buzz, distant clock tick, quiet room tone",
+          "fx_000": "faint, cold wind through barren tree branches, subtle rustle and whistle",
+          "fx_006": "faint electronic hum and soft buzz of fluorescent lights",
+          "fx_007": "lights buzzing briefly, then popping sharply, followed by a fading electric crackle",
+          "fx_011": "single, distinct droplet of water hitting linoleum floor",
+          "fx_013": "one clear, solitary water drip in a silent room",
+          "fx_014": "subtle, steady electrical buzzing of a single lamp",
+          "fx_015": "tiny, wet settling sound like thick ink in an open well",
+          "fx_016": "slow, stagnant drip of water into a small puddle",
+          "fx_017": "early morning wind, light gusts outside a window",
+          "fx_018": "sharp, metallic jingle of a single key on a ring",
+          "fx_019": "quiet, weary sigh of an older man"
+        },
+        "library": true,
+        "fetched": 4,
+        "credits": 3
+      },
+      "generated": 6,
+      "saved_for_library": 6,
+      "mix": {
+        "checked": true,
+        "voice_over_bed_db": 15.0,
+        "after_db": 15.0,
+        "bed_lowered_db": 0
+      },
+      "original_score": true,
+      "seconds": 97.9
+    },
+    "edit": {
+      "segments": 26,
+      "size": "2560x1440",
+      "motion": "drift",
+      "moves": {
+        "push_in": 14,
+        "push_in_fast": 1,
+        "pan_left": 3,
+        "pull_out": 5,
+        "jolt": 1,
+        "pan_right": 1,
+        "none": 1
+      },
+      "atmosphere": {
+        "fog": 2
+      },
+      "seconds": 267.9
+    },
+    "screening": {
+      "watched": true,
+      "score": 7,
+      "hook": "The cold open immediately hooks you by showing the terrifying visual of someone standing behind the protagonist on her phone screen.",
+      "notes": [
+        {
+          "at": "0:04",
+          "beat": null,
+          "kind": "scare",
+          "severity": 2,
+          "note": "Showing the peak twist image (the figure leaning over her shoulder on the phone) in the opening cold open spoils the climax when it reoccurs at 1:15."
+        },
+        {
+          "at": "1:21",
+          "beat": 13,
+          "kind": "continuity",
+          "severity": 2,
+          "note": "At 1:21 her green polo shirt with 'JUNE' name tag is draped over the chair as if she vanished, but at 1:28 she is still standing there wearing that exact same polo shirt under her hoodie."
+        },
+        {
+          "at": "1:46",
+          "beat": 19,
+          "kind": "drags",
+          "severity": 1,
+          "note": "The host outro at 1:46 slows down the momentum immediately after a strong narrative ending."
+        }
+      ],
+      "scares": [
+        {
+          "at": "1:13",
+          "beat": 11,
+          "landed": true,
+          "why": "The loud audio stinger combined with the realization that the entity is standing right behind her creates a effective jump scare, though slightly diminished by "
+        }
+      ],
+      "leave_at": "",
+      "leave_beat": null,
+      "redo_hint": "",
+      "seconds": 23.4
+    },
+    "packager": {
+      "thumbnails": 2,
+      "chapters": 3,
+      "thumbnail_checks": [
+        {
+          "thumbnail": 1,
+          "ok": true,
+          "why": "The text 'ROOM SIX' is clear and legible, and the horror-themed image has a clear focal point with no AI warping or competing text."
+        },
+        {
+          "thumbnail": 2,
+          "ok": true,
+          "why": "The thumbnail meets all criteria: 'ROOM SIX' is spelled correctly, large, and readable, with no distracting logos, competing text, or warped features."
+        }
+      ],
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "id",
+        "pt"
+      ],
+      "caption_languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "id",
+        "pt"
+      ],
+      "seconds": 140.6
+    },
+    "qa": {
+      "status": "check",
+      "issues": [
+        "16 lines fell back to Kokoro",
+        "a take matched its script only 78% (listen to it)"
+      ],
+      "video_seconds": 123.7,
+      "loudness_lufs": -14.1,
+      "true_peak_dbtp": -1.1,
+      "vertex_fallbacks": 0,
+      "seconds": 13.3
+    }
+  },
+  "review": "pending",
+  "render_minutes": 55.7
+}

@@ -1,0 +1,53 @@
+{
+  "story_id": 9004,
+  "title": "Room Six",
+  "other_titles": [
+    "The Guest Book Signed My Name"
+  ],
+  "description": "Every night at 2:14 a.m., someone signs for a room that has been boarded up for years. A Hollow Lines story.\n\nMusic and sound:\n\"Aftermath\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\"One of Them\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/\n\n0:00 The Hollow\n0:48 Sealed Room Six\n1:37 The Pen Writes",
+  "tags": [
+    "horror",
+    "scary story",
+    "motel horror",
+    "night shift",
+    "creepy",
+    "horror story"
+  ],
+  "pinned_comment": "Would you have turned around?",
+  "end_screen_line": "Room six is ready.",
+  "credit": "",
+  "made_for_kids": false,
+  "duration_seconds": 148.8,
+  "chapters": [
+    [
+      0.0,
+      "The Hollow"
+    ],
+    [
+      48.5,
+      "Sealed Room Six"
+    ],
+    [
+      97.6,
+      "The Pen Writes"
+    ]
+  ],
+  "sound_credits": [
+    "\"Aftermath\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/",
+    "\"One of Them\" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/"
+  ],
+  "sounds_used": [
+    "music-aftermath-2afdab1d",
+    "music-a-lurking-evil-horror-ambience-d7e8b785",
+    "music-one-of-them-6a3b69f9",
+    "sting-unleeched-sound-effects-pack-sci-c6f40de9"
+  ],
+  "thumbnails": [
+    "thumbnail_1.jpg",
+    "thumbnail_2.jpg"
+  ],
+  "end_screen_starts": 140.8,
+  "synthetic_media": true,
+  "localizations": {},
+  "captions": {}
+}

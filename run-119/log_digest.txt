@@ -1,0 +1,5 @@
+2026-11-20 17:09:46,874 INFO face_tom_s from model:sheet rejected (The image includes another person and is a cinematic scene rather than a single close portrait of Tomás alone.); next painter
+2026-11-20 17:11:24,436 INFO face_tom_s from model:sheet rejected (The image shows two people instead of a single portrait of one person.); next painter
+2026-11-20 17:53:40,819 INFO Made stills video: {'mode': 'stills', 'video': '/home/runner/work/Horror/Horror/out/story-9005/video.mp4', 'seconds': 120.8, 'story_seconds': 112.8, 'beats': 17, 'point_of_view': 'first', 'voices': {'engine': 'elevenlabs', 'host': 'Brian', 'teller': 'Charlotte', 'teller_
+      "line": "On the night of the storm, the power failed across the whole street. Candles appeared in w"
+      "rejected": [
