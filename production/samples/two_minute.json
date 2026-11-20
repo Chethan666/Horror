@@ -237,7 +237,7 @@
   "thumbnails": 2,
   "shorts": 1,
   "max_effects": 14,
-  "parallel": 3,
+  "parallel": 2,
   "target_seconds": 120,
   "voice_pace": 1.08
  }

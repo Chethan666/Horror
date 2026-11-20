@@ -136,8 +136,10 @@ class StoryboardAgent:
         allowed = limit_scares(beats, timeline.duration / 60.0, float(cfg.get("scares_per_minute", 0.35)),
                                int(cfg.get("max_scares", 3)))
         climb = ladder(beats, host_beats, int(cfg.get("max_full_reveals", 1)))
+        kept_safe = keep_children_safe(beats, d.get("cast") or [], host_beats)
         d.update(beats=beats, host_beats=host_beats)
         return {"beats": len(beats), "directed_by_model": directed, "host_beats": len(host_beats),
+                "children_kept_safe": kept_safe,
                 "scares": sum(1 for b in beats if b.scare), "scares_allowed": allowed, "check": checked,
                 "reveal_ladder": climb, "tension": [b.tension for b in beats],
                 "average_seconds": round(timeline.duration / max(len(beats), 1), 1)}
@@ -215,6 +217,30 @@ def limit_scares(beats: list[Shot], minutes: float, per_minute: float = 0.35, mo
     for b in scares[allowed:]:
         b.scare = False
     return allowed
+
+
+def keep_children_safe(beats: list[Shot], cast: list[dict[str, Any]], host_beats: set[int]) -> list[int]:
+    """A child is never in a frightening frame: in a picture with a child, the threat leaves the frame
+    (threat 0, no scare) and the prompt says the child is safe. The fear stays in the words, the sound
+    and the pictures of the adults. Photorealistic children in peril are where Google's rules are
+    strictest; returns the beats changed."""
+    from .art import child_age
+    from .wording import CHILD_SAFE, mentions_child
+
+    children = {str(c.get("name")) for c in cast
+                if isinstance(c, dict) and c.get("name") and child_age(str(c.get("look") or c.get("design") or ""))}
+    changed = []
+    for b in beats:
+        if b.index in host_beats:
+            continue
+        has_child = any(n in children for n in b.characters) or mentions_child(b.picture)
+        frightening = b.threat > 0 or b.scare or b.tension >= 4
+        if has_child and frightening:
+            b.threat, b.scare = 0, False
+            if CHILD_SAFE.strip() not in b.picture:
+                b.picture = b.picture.rstrip() + CHILD_SAFE
+            changed.append(b.index)
+    return changed
 
 
 def ladder(beats: list[Shot], host_beats: set[int], max_full: int = 1) -> dict[str, Any]:

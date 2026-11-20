@@ -181,7 +181,7 @@ class ProvidersTests(unittest.TestCase):
         fal, google = self.EmptyFal(), self.BusyThenFree(busy=2)
         p = Providers(fal, google, {"vertex:nb": ["google/nano-banana-2.1"]})
         waits = []
-        p.sleep = waits.append
+        p.sleep, p.jitter = waits.append, lambda: 1.0
         self.assertIn("images", p.run("vertex:nb", {"prompt": "x"}))
         self.assertEqual((google.asked, fal.asked, p.fal_empty), (3, ["google/nano-banana-2.1"], True))
         self.assertEqual(waits, [90.0, 180.0])

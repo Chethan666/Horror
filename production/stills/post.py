@@ -18,6 +18,7 @@ from ..edit import FPS, Segment, _ff, probe
 from ..look import W, H
 from ..library import Library
 from ..score import Score
+from ..vertex import traffic
 from ..shots import Shot
 from .board import Board
 from .checks import thumbnail_ok
@@ -565,6 +566,15 @@ class QAAgent:
         fell = int(getattr(getattr(board.studio, "fal", None), "fell_back", 0) or 0)
         if fell > int(board.cfg.get("max_fallbacks", 5)):
             issues.append(f"{fell} pictures or checks went to fal because Vertex failed (at fal's price)")
+        google = traffic(getattr(board.studio, "fal", None))
+        if google.get("stopped"):
+            issues.append(f"Google stopped for this run: {google['stopped']}")
+        refused = board.reports.get("illustrator", {}).get("google_refused") or {}
+        if refused:
+            issues.append(f"Google refused {len(refused)} picture(s) for their content ({', '.join(sorted(refused)[:5])}): "
+                          "change those lines or pictures in the script; they are never asked for again")
+        if int(google.get("busy_answers", 0)) > 10:
+            issues.append(f"Google answered 'busy' {google['busy_answers']} times: lower stills.parallel")
         for warning in (board.reports.get("illustrator", {}).get("redo_warnings") or [])[:3]:
             issues.append(warning)
         screen = board.reports.get("screening", {})

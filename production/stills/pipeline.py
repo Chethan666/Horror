@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from ..paid import Budget, Studio
+from ..vertex import traffic
 from ..replay import Replay, ReplayRouter, cache_root
 from .art import ArtDirectorAgent, IllustratorAgent
 from .board import Board, Showrunner, _json
@@ -66,6 +67,7 @@ def produce(story: dict[str, Any], out_dir: Path, kokoro: Any, router: Any, cfg:
         "fal_balance_ran_out": bool(studio and studio.balance_ran_out),
         # pictures and checks Vertex could not make, sent to fal instead (at fal's price)
         "vertex_fallbacks": int(getattr(fal, "fell_back", 0) or 0) if fal is not None else 0,
+        "google": traffic(studio.fal if studio is not None else fal),
         "answers_reused": {"planner": planner.replayed if planner else 0,
                            "paid_models": answers.replayed if answers else 0},
         "beat_times": d.get("beat_times", []),

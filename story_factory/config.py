@@ -368,6 +368,10 @@ DEFAULTS: dict[str, Any] = {
             # nothing is sent to fal's copy of the same model. fal is for ElevenLabs alone (voices, music,
             # effects). True sends a failed picture or check to the fal model it replaced, as before.
             "fallback_to_fal": False,
+            # Staying in good standing with Google (the project was blocked on 19 November 2026):
+            # Google's default safety level (never lowered); every Google request stops for the run at a
+            # terms block, after `max_failures_in_a_row` failures, or at `max_requests` requests.
+            "safety": "BLOCK_MEDIUM_AND_ABOVE", "max_requests": 600, "max_failures_in_a_row": 8,
             "models": {"google/nano-banana-2.1/edit": "gemini-nano-banana-2.1",
                        "google/nano-banana-2.1": "gemini-nano-banana-2.1",
                        "fal-ai/any-llm/vision": "gemini-3.6-flash"},  # run 111: 2.5 Flash is retired
@@ -507,7 +511,7 @@ DEFAULTS: dict[str, Any] = {
                        "old_man": ["bm_daniel", "bm_lewis"], "old_woman": ["bf_alice", "bf_isabella"],
                        "boy": ["am_puck"], "girl": ["af_sky", "af_bella"]},
         },
-        "parallel": 4, "render_workers": 3, "max_effects": 30,
+        "parallel": 2, "render_workers": 3, "max_effects": 30,  # 2 requests at a time: calm traffic to Google
         "music_max_seconds": 60,  # each score cue is made this long and looped (ElevenLabs bills whole minutes)
         # The opening: the story's scariest moment (cold open), a 2-second title card that differs between
         # episodes, then the host's short ritual (under ten seconds) and the story.

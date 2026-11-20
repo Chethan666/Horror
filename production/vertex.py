@@ -26,6 +26,7 @@ import copy
 import json
 import logging
 import os
+import random
 import re
 import threading
 import time
@@ -39,10 +40,33 @@ log = logging.getLogger(__name__)
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 SCOPE = "https://www.googleapis.com/auth/cloud-platform"
 PREFIX = "vertex:"
-# Horror is the channel's genre: block only what is clearly harmful, so a dark scene is not refused.
-SAFETY = [{"category": c, "threshold": "BLOCK_ONLY_HIGH"} for c in (
-    "HARM_CATEGORY_HARASSMENT", "HARM_CATEGORY_HATE_SPEECH", "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-    "HARM_CATEGORY_DANGEROUS_CONTENT")]
+# Google's own default safety level. It was lowered to BLOCK_ONLY_HIGH so dark scenes were never
+# refused; on 19 November 2026 the project was then shut off for a terms violation. A refused picture
+# now costs one picture, never the account. `stills.vertex.safety` sets another level.
+SAFETY_CATEGORIES = ("HARM_CATEGORY_HARASSMENT", "HARM_CATEGORY_HATE_SPEECH", "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                     "HARM_CATEGORY_DANGEROUS_CONTENT")
+SAFETY = [{"category": c, "threshold": "BLOCK_MEDIUM_AND_ABOVE"} for c in SAFETY_CATEGORIES]
+LEVELS = ("BLOCK_LOW_AND_ABOVE", "BLOCK_MEDIUM_AND_ABOVE", "BLOCK_ONLY_HIGH")
+
+
+def set_safety(level: str) -> None:
+    """The safety level sent with every request (one of LEVELS; anything else keeps the default)."""
+    if level in LEVELS:
+        SAFETY[:] = [{"category": c, "threshold": level} for c in SAFETY_CATEGORIES]
+
+
+class PolicyRefusal(MediaError):
+    """Google refused a request for its content (a safety filter, a prohibited-content block). Final: the
+    same picture is never asked for again in other words, which reads as working around the filter."""
+
+
+TERMS_BLOCK = "Request rejected in accordance with our t"  # the project itself is blocked ("terms of ...")
+
+
+def policy_refusal(exc: BaseException) -> bool:
+    text = str(exc)
+    return isinstance(exc, PolicyRefusal) or ("content refused" in text and any(
+        w in text for w in ("SAFETY", "PROHIBITED", "BLOCKLIST", "blocked:")))
 
 
 KEY_ENV = "GEMINI_PLATFORM_API_KEY"  # a Google Cloud API key for Vertex AI (not an AI Studio key)
@@ -142,8 +166,10 @@ class Vertex:
                 busy = any(w in text for w in ("HTTP 429", "HTTP 503", "RESOURCE_EXHAUSTED", "UNAVAILABLE"))
                 if not busy or k == len(self.WAITS):
                     raise
-                log.info("Vertex %s busy (%s); asking again in %.0f s", model, text[:120], self.WAITS[k])
-                time.sleep(self.WAITS[k])
+                wait = self.WAITS[k] * random.uniform(1.0, 1.5)  # spread out, so parallel workers do not return together
+                self.busy_answers = getattr(self, "busy_answers", 0) + 1
+                log.info("Vertex %s busy (%s); asking again in %.0f s", model, text[:120], wait)
+                time.sleep(wait)
         raise MediaError(f"vertex {model}: no answer")
 
     @staticmethod
@@ -295,8 +321,11 @@ class Vertex:
             finish = ", ".join(str(c.get("finishReason", "")) for c in reply.get("candidates") or [])
             blocked = (reply.get("promptFeedback") or {}).get("blockReason", "")
             # "content" in the message: the studio does not ask again for a refused picture
-            raise MediaError(f"vertex {model}: no picture, content refused or empty "
-                             f"(finish: {finish or 'none'}{', blocked: ' + blocked if blocked else ''})")
+            message = (f"vertex {model}: no picture, content refused or empty "
+                       f"(finish: {finish or 'none'}{', blocked: ' + blocked if blocked else ''})")
+            if blocked or any(w in finish for w in ("SAFETY", "PROHIBITED", "BLOCKLIST", "SPII")):
+                raise PolicyRefusal(message)
+            raise MediaError(message)
         raise last or MediaError(f"vertex {model}: no picture")
 
     # Checker models, newest first: a model Google has retired answers "not found" (run 110:
@@ -409,11 +438,32 @@ class Providers:
         self.fal_empty = False  # set once fal answers that its balance is empty: it cannot be the fallback
         self.waited_for_quota = 0
         self.sleep = time.sleep
+        self.jitter = lambda: random.uniform(1.0, 1.5)
+        # The circuit breaker: Google is not hammered. A terms block stops every Google request at once;
+        # so do `max_failures` failures in a row, or `max_requests` requests in one run.
+        self.max_failures, self.max_requests = 8, 600
+        self.requests = self.failures_in_a_row = self.policy_refusals = 0
+        self.stopped = ""
+        self.lock = threading.Lock()
 
     # A busy Vertex model (a per-minute quota) that fal cannot stand in for: wait for the quota to refill
     # and ask Vertex again, rather than lose the picture (run 114: nine beats got HTTP 429 from Nano
     # Banana, fal's balance was empty, and two beats were left showing a neighbour's picture).
     QUOTA_WAITS = (90.0, 180.0)
+
+    def _failed(self, exc: MediaError) -> None:
+        with self.lock:
+            if policy_refusal(exc):
+                self.policy_refusals += 1  # a refused picture: a normal answer, not a broken service
+                return
+            if TERMS_BLOCK in " ".join(str(exc).split()):
+                self.stopped = "Google refused the project (terms of use): see the Google Cloud console"
+            elif not self._busy(exc):
+                self.failures_in_a_row += 1
+                if self.failures_in_a_row >= self.max_failures:
+                    self.stopped = f"{self.failures_in_a_row} Google requests failed in a row"
+            if self.stopped:
+                log.warning("No more Google requests this run: %s", self.stopped)
 
     @staticmethod
     def _busy(exc: Exception) -> bool:
@@ -427,12 +477,16 @@ class Providers:
     def _wait_for_vertex(self, endpoint: str, args: dict[str, Any], first: MediaError) -> dict[str, Any]:
         last = first
         for wait in self.QUOTA_WAITS:
+            wait = wait * self.jitter()
             log.info("Vertex %s still busy and fal cannot stand in; asking again in %.0f s", endpoint, wait)
             self.sleep(wait)
             self.waited_for_quota += 1
+            with self.lock:
+                self.requests += 1
             try:
                 return self.vertex.run(endpoint, args)
             except MediaError as exc:
+                self._failed(exc)
                 if not self._busy(exc):
                     raise
                 last = exc
@@ -453,7 +507,21 @@ class Providers:
         try:
             if self.vertex is None:
                 raise MediaError("Vertex AI: no key")
-            return self.vertex.run(endpoint, args)
+            with self.lock:
+                if self.stopped:
+                    raise MediaError(f"Google requests stopped for this run: {self.stopped}")
+                if self.requests >= self.max_requests:
+                    self.stopped = f"the run reached its cap of {self.max_requests} Google requests"
+                    raise MediaError(f"Google requests stopped for this run: {self.stopped}")
+                self.requests += 1
+            try:
+                answer = self.vertex.run(endpoint, args)
+            except MediaError as exc:
+                self._failed(exc)
+                raise
+            with self.lock:
+                self.failures_in_a_row = 0
+            return answer
         except MediaError as exc:
             spares = self.fallback.get(endpoint) or []
             # with reference pictures, the fal model that takes them (".../edit"); without, the other
@@ -511,3 +579,18 @@ def use_vertex(cfg: dict[str, Any]) -> tuple[dict[str, Any], dict[str, list[str]
     if not settings.get("fallback_to_fal", False):
         return cfg, {}  # Google only: a refused picture or check is not sent to fal
     return cfg, fallback
+
+
+def traffic(client: Any) -> dict[str, Any]:
+    """How the run treated Google: requests sent, busy answers, pictures refused for their content, and
+    whether the circuit breaker stopped Google for the run. `client` may be wrapped (the replay cache)."""
+    seen = 0
+    while client is not None and not isinstance(client, Providers) and seen < 5:
+        client = getattr(client, "inner", None) or getattr(client, "fal", None)
+        seen += 1
+    if not isinstance(client, Providers) or client.vertex is None:
+        return {}
+    return {"requests": client.requests, "busy_answers": int(getattr(client.vertex, "busy_answers", 0) or 0),
+            "refused_for_content": client.policy_refusals, "stopped": client.stopped,
+            "waited_for_quota": client.waited_for_quota}
+

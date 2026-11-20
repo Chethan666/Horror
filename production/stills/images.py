@@ -38,6 +38,8 @@ from production.media import MediaError, _request, data_uri
 
 from ..look import H, W, fit
 from ..paid import OverBudget, Studio, _small
+from ..vertex import policy_refusal
+from .wording import soften
 
 log = logging.getLogger(__name__)
 
@@ -255,6 +257,19 @@ class Painter:
         self.rejections: list[str] = []
         self.lock = threading.Lock()
         self._refs: dict[tuple[str, int, int, int], str] = {}
+        # Pictures Google refused for their content: never asked for again, in any words, by any painter,
+        # the art review or a redo. Asking again reads as working around the safety filter.
+        self.refused: dict[str, str] = {}
+        self.softened = 0  # prompts whose wording was made safer before they were sent
+
+    @staticmethod
+    def _base(out: Path) -> str:
+        return re.sub(r"_fix\d+$", "", out.stem)
+
+    def _refuse(self, out: Path, exc: BaseException) -> None:
+        with self.lock:
+            self.refused.setdefault(self._base(out), " ".join(str(exc).split())[:200])
+        log.warning("%s: Google refused it for its content; it is not asked for again", out.stem)
 
     def _count(self, key: str) -> None:
         with self.lock:
@@ -295,6 +310,9 @@ class Painter:
             try:
                 made = self._one(step, prompt, refs, raw, [key, "take", t])
             except (OverBudget, MediaError, OSError, ValueError) as exc:
+                if policy_refusal(exc):
+                    self._refuse(out, exc)
+                    return None
                 log.warning("%s: take %d from %s failed: %s", out.stem, t + 1, step, str(exc)[:200])
                 return None
             if made is None:
@@ -351,11 +369,20 @@ class Painter:
         mild: tuple[Path, str] | None = None
         why = ""
         paid_picture = False
+        if self._base(out) in self.refused:
+            return None, "refused"
+        safer = soften(prompt)
+        if safer != prompt:
+            with self.lock:
+                self.softened += 1
+            prompt = safer
         if takes > 1 and isinstance(check, str) and not redraw and self.studio is not None:
             # the pictures that matter most: several takes, the best that passes (a planned cost, not a retry)
             got, step, why, mild = self._takes(prompt, refs, out, key, chain, check, faces, takes)
             if got is not None:
                 return got, step
+            if self._base(out) in self.refused:
+                return None, "refused"
             paid_picture = bool(step) and (mild is not None or bool(why))
             doubted = mild
         for k, step in enumerate(s for s in chain if self.available(s)):
@@ -382,6 +409,9 @@ class Painter:
                 continue
             except (MediaError, OSError, ValueError) as exc:
                 self._refund(extra, price)
+                if policy_refusal(exc):
+                    self._refuse(out, exc)
+                    break  # final: no other painter, no other words
                 log.warning("%s: %s failed: %s", out.stem, step, str(exc)[:200])
                 continue
             if made is None:
@@ -435,7 +465,7 @@ class Painter:
             self._count(keep[1] + " (doubted)")
             self.doubted.add(out.stem)
             return out, keep[1]
-        return None, "none"
+        return None, ("refused" if self._base(out) in self.refused else "none")
 
     def _price(self, step: str) -> float:
         if not step.startswith("fal:") or self.studio is None or step[4:] not in self.studio.models:

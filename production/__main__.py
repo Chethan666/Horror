@@ -339,7 +339,12 @@ def media_client(stills: dict) -> tuple[dict, object | None]:
         on_google = sorted({str(m) for m in moved.get("models", {}).values() if str(m).startswith(vertex.PREFIX)})
         print(f"Paid pictures and checks on Google ({client.project}, {client.location}): {on_google}; "
               f"fal as their fallback: {'yes' if fal and fallback else 'no'}", flush=True)
-        return moved, vertex.Providers(fal, client, fallback, others)
+        settings = stills.get("vertex") or {}
+        vertex.set_safety(str(settings.get("safety", "BLOCK_MEDIUM_AND_ABOVE")))
+        providers = vertex.Providers(fal, client, fallback, others)
+        providers.max_requests = int(settings.get("max_requests", 600))
+        providers.max_failures = int(settings.get("max_failures_in_a_row", 8))
+        return moved, providers
     if others:
         return stills, vertex.Providers(fal, None, {}, others)
     return stills, fal

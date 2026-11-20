@@ -626,6 +626,7 @@ class IllustratorAgent:
                 "pictures": len(beats) - borrowed - placeholders, "borrowed_neighbour": borrowed,
                 "placeholders": placeholders, "scare_shots": sorted(strongest), "key_beats": sorted(key_beats),
                 "redone": redone, "redone_lines": redone_lines, "redo_warnings": redo_warnings,
+                "google_refused": dict(painter.refused), "prompts_softened": painter.softened,
                 "by_painter": dict(painter.counts),
                 "doubted_beats": sorted(b.index for b in beats if f"beat_{b.index:03d}" in painter.doubted),
                 "painter_sizes": dict(painter.sizes), "rejected": painter.rejections[:30]}

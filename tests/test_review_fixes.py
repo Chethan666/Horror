@@ -144,5 +144,127 @@ class GoogleOnly(unittest.TestCase):
         self.assertEqual(DEFAULTS["stills"]["music_max_seconds"], 60)
 
 
+
+class GoodStanding(unittest.TestCase):
+    """Staying in good standing with Google (the project was blocked on 19 November 2026)."""
+
+    def test_google_keeps_its_default_safety_level(self):
+        from production import vertex
+
+        self.assertTrue(all(c["threshold"] == "BLOCK_MEDIUM_AND_ABOVE" for c in vertex.SAFETY))
+        vertex.set_safety("BLOCK_OFF_EVERYTHING")  # not a level: ignored
+        self.assertTrue(all(c["threshold"] == "BLOCK_MEDIUM_AND_ABOVE" for c in vertex.SAFETY))
+
+    def test_a_terms_block_stops_every_google_request_at_once(self):
+        from production.media import MediaError
+        from production.vertex import Providers
+
+        class Blocked:
+            asked = 0
+
+            def run(self, endpoint, args):
+                self.asked += 1
+                raise MediaError('HTTP 403: { "error": { "message": "Request rejected in accordance with our terms '
+                                 'of use and policies" } }')
+
+        google = Blocked()
+        p = Providers(None, google, {})
+        for _ in range(5):
+            with self.assertRaises(MediaError):
+                p.run("vertex:nb", {"prompt": "x"})
+        self.assertEqual(google.asked, 1)
+        self.assertIn("terms", p.stopped)
+
+    def test_repeated_failures_and_the_request_cap_stop_google(self):
+        from production.media import MediaError
+        from production.vertex import Providers
+
+        class Broken:
+            asked = 0
+
+            def run(self, endpoint, args):
+                self.asked += 1
+                raise MediaError("HTTP 500: internal")
+
+        google = Broken()
+        p = Providers(None, google, {})
+        p.max_failures = 3
+        for _ in range(6):
+            with self.assertRaises(MediaError):
+                p.run("vertex:nb", {"prompt": "x"})
+        self.assertEqual(google.asked, 3)
+
+        class Fine:
+            def run(self, endpoint, args):
+                return {"output": "ok"}
+
+        q = Providers(None, Fine(), {})
+        q.max_requests = 2
+        q.run("vertex:c", {})
+        q.run("vertex:c", {})
+        with self.assertRaises(MediaError):
+            q.run("vertex:c", {})
+
+    def test_a_picture_refused_for_its_content_is_never_asked_for_again(self):
+        import tempfile
+        from pathlib import Path
+
+        from production.stills.images import Painter
+        from production.vertex import PolicyRefusal
+
+        class Budget:
+            cap = 0.0
+
+            @staticmethod
+            def price(model, units=1.0):
+                return 0.05
+
+        class Studio:
+            models = {"shot": "vertex:nb", "shot_alt": "vertex:nb"}
+            budget = Budget()
+            asked = 0
+
+        studio = Studio()
+        with tempfile.TemporaryDirectory() as root:
+            painter = Painter(studio, {}, Path(root), critic=None)
+            painter.available = lambda step: True
+
+            def refuse(step, text, refs, raw, key, retry=0):
+                studio.asked += 1
+                raise PolicyRefusal("vertex nb: no picture, content refused or empty (finish: IMAGE_SAFETY)")
+
+            painter._one = refuse
+            out = Path(root) / "beat_005.png"
+            self.assertEqual(painter.paint("x", [], out, "k", ["fal:shot", "fal:shot_alt"], check=None),
+                             (None, "refused"))
+            self.assertEqual(studio.asked, 1)  # not handed to the second painter
+            fix = Path(root) / "beat_005_fix1234.png"  # the art review or a redo asking again
+            self.assertEqual(painter.paint("y", [], fix, "k2", ["fal:shot"], check=None), (None, "refused"))
+            self.assertEqual(studio.asked, 1)
+            self.assertIn("beat_005", painter.refused)
+
+    def test_prompts_are_said_as_a_film_would_say_them(self):
+        from production.stills.wording import soften
+        from story_factory.config import DEFAULTS
+
+        style = DEFAULTS["stills"]["looks"]["cinematic"]["style"]
+        self.assertEqual(soften(style), style)  # the house look, "never gory" and the blood-red accent, untouched
+        self.assertEqual(soften("close enough to breathe on my neck"), "standing close behind")
+        self.assertEqual(soften("She screams as he grabs her"), "She gasps as he reaches for her")
+        self.assertEqual(soften("a blood droplet on the page, never gory"), "a dark red droplet on the page, never gory")
+
+    def test_a_child_is_never_in_a_frightening_frame(self):
+        from production.stills.storyboard import keep_children_safe
+
+        beats = story(4)
+        beats[1].characters, beats[1].threat, beats[1].scare = ["Lily"], 2, True
+        beats[2].picture, beats[2].tension = "the baby monitor on the table, its light red", 5  # no child in it
+        beats[3].characters, beats[3].tension = ["Lily"], 2  # calm: unchanged
+        changed = keep_children_safe(beats, [{"name": "Lily", "look": "a four-year-old girl"}], set())
+        self.assertEqual(changed, [1])
+        self.assertEqual((beats[1].threat, beats[1].scare), (0, False))
+        self.assertIn("nothing threatening shares the frame", beats[1].picture)
+
+
 if __name__ == "__main__":
     unittest.main()
