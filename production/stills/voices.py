@@ -151,7 +151,8 @@ class VoiceAgent:
         marks, directed = {}, {"directed": False}
         if eleven is not None and cfg.get("performance_director", True):
             marks, directed = performance.direct(board.router, board.story, d["narration"], pauses, lines,
-                                                 d["scenes"], spans)
+                                                 d["scenes"], spans,
+                                                 tags=cfg.get("performance_tags"), guide=str(cfg.get("performance_guide") or ""))
         audio, timeline = voice.narrate(teller, d["narration"], pauses,
                                         _json(board.story.get("pronunciations"), []), d["scenes"], spans, lines,
                                         cast_voices, marks=marks, gap_scale=float(cfg.get("voice_gap_scale", 1.0)),

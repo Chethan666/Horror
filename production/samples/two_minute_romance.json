@@ -1,0 +1,291 @@
+{
+ "id": 9005,
+ "title": "The Window Across the Courtyard",
+ "kind": "long",
+ "intro": "",
+ "outro": "",
+ "body": "For three summers I had been careful. Careful with my words, careful with my heart, careful never to want anything I couldn't explain. Then the heat came to Lisbon, and with it, the man across the courtyard. Every evening at nine, his window opened. Every evening, I pretended not to watch. He read with his sleeves rolled, a glass of wine catching the last of the light. Once, he looked up. I didn't look away. Neither did he. I began to dress for that window. A silk slip the colour of wine. My hair down. The lamp turned low, so he could see only what I chose. On the night of the storm, the power failed across the whole street. Candles appeared in windows, one by one. His was the last. He held it up, like a question. I answered it. I crossed the courtyard barefoot, rain on my shoulders, my heart louder than the thunder. He opened the door before I knocked. \"I wondered when you'd come,\" he said. \"So did I,\" I told him. For three summers I had been careful. That night, I was honest. I told him exactly what I wanted, and I watched it land in his eyes. Not surprise. Relief. His hand found the small of my back. Mine found the buttons of his shirt, slowly, one at a time, because I wanted to remember every one. The candle burned down. The rain didn't stop until morning. I don't know his last name. I know the sound he makes when he says mine. Some nights, the bravest thing a woman can do is ask.",
+ "narration": "For three summers I had been careful. Careful with my words, careful with my heart, careful never to want anything I couldn't explain. Then the heat came to Lisbon, and with it, the man across the courtyard. Every evening at nine, his window opened. Every evening, I pretended not to watch. He read with his sleeves rolled, a glass of wine catching the last of the light. Once, he looked up. I didn't look away. Neither did he. I began to dress for that window. A silk slip the colour of wine. My hair down. The lamp turned low, so he could see only what I chose. On the night of the storm, the power failed across the whole street. Candles appeared in windows, one by one. His was the last. He held it up, like a question. I answered it. I crossed the courtyard barefoot, rain on my shoulders, my heart louder than the thunder. He opened the door before I knocked. \"I wondered when you'd come,\" he said. \"So did I,\" I told him. For three summers I had been careful. That night, I was honest. I told him exactly what I wanted, and I watched it land in his eyes. Not surprise. Relief. His hand found the small of my back. Mine found the buttons of his shirt, slowly, one at a time, because I wanted to remember every one. The candle burned down. The rain didn't stop until morning. I don't know his last name. I know the sound he makes when he says mine. Some nights, the bravest thing a woman can do is ask.",
+ "cast": [
+  {
+   "name": "Inés",
+   "look": "a Portuguese woman in her mid-thirties, olive skin, dark wavy shoulder-length hair, dark brown eyes, natural features, a wine-red silk slip dress with thin straps under a loose open white-and-blue striped linen shirt, a thin gold chain, barefoot at night"
+  },
+  {
+   "name": "Tomás",
+   "look": "a Portuguese man in his early forties, short dark hair greying at the temples, a short dark beard, warm brown eyes, a white linen shirt with the sleeves rolled to the elbow, dark trousers"
+  }
+ ],
+ "bible": {
+  "red_accent": "her wine-red silk slip and the candle flames",
+  "hero": {
+   "name": "Inés",
+   "who": "a woman in Lisbon who decides to ask for what she wants"
+  }
+ },
+ "scenes": [
+  {
+   "text": "For three summers I had been careful. Careful with my words, careful with my heart, careful never to want anything I couldn't explain.",
+   "visual": "Close on Inés at her apartment window in warm evening light, chin resting on her hand, gazing out over a narrow old Lisbon courtyard, terracotta rooftops and blue shutters glowing at dusk",
+   "location": "Inés's apartment",
+   "characters": [
+    "Inés"
+   ],
+   "mood": "wistful",
+   "delivery": "soft",
+   "sfx": [
+    "distant city evening, swallows, a tram bell far away"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "Then the heat came to Lisbon, and with it, the man across the courtyard.",
+   "visual": "Wide view across a small tiled courtyard at dusk: opposite, one tall window with blue shutters thrown open, warm lamplight inside, a man's silhouette moving in it",
+   "location": "the courtyard",
+   "characters": [],
+   "mood": "warm",
+   "delivery": "steady",
+   "sfx": [
+    "cicadas in the warm evening"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "Every evening at nine, his window opened. Every evening, I pretended not to watch. He read with his sleeves rolled, a glass of wine catching the last of the light.",
+   "visual": "Tomás in his window across the courtyard, reading a paperback, white linen sleeves rolled to the elbow, a glass of red wine on the sill catching the sunset, seen from a distance",
+   "location": "Tomás's window",
+   "characters": [
+    "Tomás"
+   ],
+   "mood": "warm",
+   "delivery": "steady",
+   "sfx": [
+    "a page turning"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "Once, he looked up. I didn't look away. Neither did he.",
+   "visual": "Close on Tomás lifting his eyes from the book and looking straight across the courtyard, a slow, curious half-smile, warm lamplight on his face",
+   "location": "Tomás's window",
+   "characters": [
+    "Tomás"
+   ],
+   "mood": "charged",
+   "delivery": "slow",
+   "sfx": [],
+   "key_moment": true
+  },
+  {
+   "text": "I began to dress for that window. A silk slip the colour of wine. My hair down. The lamp turned low, so he could see only what I chose.",
+   "visual": "Inés in her dim bedroom in front of an old mirror, letting her dark hair down, a wine-red silk slip dress with thin straps under a loose linen shirt, one low lamp, seen from behind in soft focus",
+   "location": "Inés's apartment",
+   "characters": [
+    "Inés"
+   ],
+   "mood": "sensual",
+   "delivery": "soft",
+   "sfx": [
+    "silk rustling softly"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "On the night of the storm, the power failed across the whole street. Candles appeared in windows, one by one. His was the last. He held it up, like a question.",
+   "visual": "Night, heavy rain over the dark courtyard, every window black except small candle flames appearing one by one; in the window opposite, Tomás holds a single candle up toward her",
+   "location": "the courtyard",
+   "characters": [
+    "Tomás"
+   ],
+   "mood": "anticipation",
+   "delivery": "slow",
+   "sfx": [
+    "rain on old roof tiles",
+    "distant rolling thunder"
+   ],
+   "key_moment": true
+  },
+  {
+   "text": "I answered it.",
+   "visual": "Close on Inés's face lit by a single candle she has just lit, rain streaking the window glass in front of her, her eyes fixed across the courtyard",
+   "location": "Inés's apartment",
+   "characters": [
+    "Inés"
+   ],
+   "mood": "anticipation",
+   "delivery": "slow",
+   "sfx": [
+    "a match striking"
+   ],
+   "key_moment": true
+  },
+  {
+   "text": "I crossed the courtyard barefoot, rain on my shoulders, my heart louder than the thunder. He opened the door before I knocked.",
+   "visual": "Inés barefoot crossing the wet tiled courtyard in the rain at night, the linen shirt over her wine-red slip, holding her candle, a warm doorway opening ahead of her",
+   "location": "the courtyard",
+   "characters": [
+    "Inés"
+   ],
+   "mood": "anticipation",
+   "delivery": "quick",
+   "sfx": [
+    "rain",
+    "bare feet on wet tiles",
+    "a door opening"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "\"I wondered when you'd come,\" he said. \"So did I,\" I told him.",
+   "visual": "In a candlelit doorway, Tomás and Inés face each other close, her hair wet from the rain, his hand still on the door, both smiling a little, warm golden light",
+   "location": "Tomás's apartment",
+   "characters": [
+    "Tomás",
+    "Inés"
+   ],
+   "mood": "tender",
+   "delivery": "soft",
+   "sfx": [],
+   "key_moment": true
+  },
+  {
+   "text": "For three summers I had been careful. That night, I was honest. I told him exactly what I wanted, and I watched it land in his eyes. Not surprise. Relief.",
+   "visual": "Close two-shot by candlelight: Inés speaking quietly, Tomás listening, their faces inches apart, shallow focus, rain-streaked window glowing behind them",
+   "location": "Tomás's apartment",
+   "characters": [
+    "Tomás",
+    "Inés"
+   ],
+   "mood": "sensual",
+   "delivery": "soft",
+   "sfx": [],
+   "key_moment": true
+  },
+  {
+   "text": "His hand found the small of my back. Mine found the buttons of his shirt, slowly, one at a time, because I wanted to remember every one.",
+   "visual": "Extreme close-up of her fingers slowly undoing the top button of a white linen shirt, his hand resting at the small of her back on wine-red silk, warm candlelight",
+   "location": "Tomás's apartment",
+   "characters": [
+    "Tomás",
+    "Inés"
+   ],
+   "mood": "sensual",
+   "delivery": "soft",
+   "sfx": [
+    "fabric moving softly",
+    "rain"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "The candle burned down. The rain didn't stop until morning.",
+   "visual": "A candle burned down to a small stub on a windowsill, wax pooled, grey-blue dawn light and rain on the glass, two wine glasses beside it",
+   "location": "Tomás's apartment",
+   "characters": [],
+   "mood": "tender",
+   "delivery": "slow",
+   "sfx": [
+    "gentle rain at dawn"
+   ],
+   "key_moment": false
+  },
+  {
+   "text": "I don't know his last name. I know the sound he makes when he says mine. Some nights, the bravest thing a woman can do is ask.",
+   "visual": "Morning light: Inés at the open window with blue shutters, wearing his white linen shirt, looking across the courtyard to her own empty window, a quiet, certain smile",
+   "location": "Tomás's apartment",
+   "characters": [
+    "Inés"
+   ],
+   "mood": "warm",
+   "delivery": "soft",
+   "sfx": [
+    "swallows at morning",
+    "a tram bell far away"
+   ],
+   "key_moment": false
+  }
+ ],
+ "pauses": [
+  {
+   "after": "the man across the courtyard.",
+   "ms": 700
+  },
+  {
+   "after": "Neither did he.",
+   "ms": 800
+  },
+  {
+   "after": "I answered it.",
+   "ms": 900
+  },
+  {
+   "after": "Relief.",
+   "ms": 900
+  },
+  {
+   "after": "until morning.",
+   "ms": 1000
+  }
+ ],
+ "packaging": {
+  "titles": [
+   "The Window Across the Courtyard",
+   "She Answered His Candle"
+  ],
+  "thumbnail_text": "SHE ASKED",
+  "thumbnail_brief": "a woman with dark wet hair holding a candle at a rain-streaked window at night, warm candlelight on her face, a man's lit window far behind her",
+  "description": "Three summers of being careful. One night of rain, a candle in the window across the courtyard, and a woman who decides to ask. A short cinematic story for adults.",
+  "tags": [
+   "romance",
+   "short story",
+   "cinematic",
+   "love story",
+   "Lisbon",
+   "storytelling"
+  ],
+  "end_screen_line": "Some nights, ask."
+ },
+ "comment_question": "Would you have crossed the courtyard?",
+ "stills": {
+  "max_usd": 7.0,
+  "cold_open": false,
+  "title_seconds": 2.0,
+  "end_screen_seconds": 6.0,
+  "thumbnails": 2,
+  "shorts": 0,
+  "max_effects": 12,
+  "parallel": 2,
+  "target_seconds": 120,
+  "voice_pace": 1.08,
+  "point_of_view": "first",
+  "teller_default": "woman",
+  "max_scares": 0,
+  "style": "A still frame from an intimate, sensual art-house romance shot on 35mm: photorealistic real adults and real places in Lisbon, warm low-key light from one motivated source (a lamp, a candle, the last sun, dawn through rain), soft shadows, shallow depth of field, rich amber, honey and deep blue tones, fine film grain, anamorphic 16:9 composition. Tender, adult and suggestive, never explicit: everyone stays clothed; closeness is shown by glances, hands, light and shadow.",
+  "genre": {
+   "adjective": "romantic",
+   "note": "This episode is a sensual, cinematic romantic drama about an adult woman's desire and her decision to ask for it, told tastefully. It is NOT horror: no fear, threat, scares, monsters, dread or darkness for its own sake. Pictures are warm, intimate and suggestive but never explicit: everyone stays clothed; intimacy is shown through glances, hands, candlelight, rain and shadow. The narrator sounds warm, intimate and unhurried, never afraid. Music is tender and romantic, never ominous.",
+   "words": {
+    "threat": "tension",
+    "unease": "longing"
+   }
+  },
+  "music_cues": [
+   "unease",
+   "dread"
+  ],
+  "music_prompts": {
+   "unease": "Intimate late-evening film score: warm solo piano, soft sustained strings, a hint of Portuguese guitar, slow, tender and sensual, instrumental, gentle and spacious under a voice",
+   "dread": "Building romantic tension film score: warm cello and soft piano over a slow pulse, rain-like piano figures, swelling gently with longing, lush but restrained, instrumental"
+  },
+  "performance_tags": [
+   "[softly]",
+   "[quietly]",
+   "[whispers]",
+   "[sighs]",
+   "[exhales]",
+   "[curious]",
+   "[hesitantly]"
+  ],
+  "performance_guide": "How a warm, intimate narrator sounds: plain, natural speech carries most of the story (leave at least half the sentences \"\"); [hesitantly] or [curious] early, as she starts to watch; [softly] for tender lines; [whispers] for at most two intimate lines, never twice in a row; one [sighs] or [exhales] where she really would; [quietly] for the last line. Never fearful."
+ }
+}

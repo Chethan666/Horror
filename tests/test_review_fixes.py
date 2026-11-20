@@ -251,5 +251,60 @@ class GoodStanding(unittest.TestCase):
         self.assertTrue(left and all("elevenlabs" in v for v in left.values()), left)
 
 
+
+class OtherGenres(unittest.TestCase):
+    GENRE = {"adjective": "romantic", "note": "A sensual romance, not horror.", "words": {"threat": "tension"}}
+
+    def test_instructions_are_retoned_and_say_what_the_episode_is(self):
+        from production.stills.genre import GenreClient, GenreRouter
+
+        seen = {}
+
+        class Planner:
+            def generate_json(self, task, system, prompt, schema):
+                seen.update(system=system, prompt=prompt)
+                return {}
+
+        class Router:
+            def one(self, role):
+                return Planner()
+
+        GenreRouter(Router(), self.GENRE).one("planner").generate_json(
+            "storyboard", "You are the storyboard artist of a horror storytelling channel; stage for dread.",
+            "Keep the threat half-seen; one scare.", {})
+        self.assertNotIn("horror", seen["system"].split("THIS EPISODE")[0].lower())
+        self.assertIn("THIS EPISODE: A sensual romance, not horror.", seen["system"])
+        self.assertIn("anticipation", seen["system"])
+        self.assertEqual(seen["prompt"], "Keep the tension half-seen; one turning point.")
+
+        sent = []
+
+        class Client:
+            def run(self, endpoint, args):
+                sent.append((endpoint, args))
+                return {}
+
+        c = GenreClient(Client(), self.GENRE)
+        c.run("vertex:gemini-3.6-flash", {"prompt": "a dark horror picture", "system_prompt": "a horror channel"})
+        c.run("fal-ai/elevenlabs/tts/eleven-v3", {"text": "The horror of it."})  # the story's words: untouched
+        self.assertEqual(sent[0][1]["prompt"], "a dark romantic picture")
+        self.assertTrue(sent[0][1]["system_prompt"].startswith("a cinematic storytelling channel"))
+        self.assertEqual(sent[1][1]["text"], "The horror of it.")
+
+    def test_no_scares_and_the_episodes_own_delivery(self):
+        from production.stills import performance
+        from production.stills.storyboard import limit_scares
+
+        beats = story(6)
+        for b in beats:
+            b.scare = True
+        self.assertEqual(limit_scares(beats, minutes=2, most=0), 0)
+        self.assertFalse(any(b.scare for b in beats))
+        text = performance.prompt("T", [], [], ("[softly]",), "Warm and unhurried.")
+        self.assertIn("one of [softly]", text)
+        self.assertIn("Warm and unhurried.", text)
+        self.assertNotIn("horror", text)
+
+
 if __name__ == "__main__":
     unittest.main()

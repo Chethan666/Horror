@@ -126,6 +126,8 @@ class SoundAgent:
                               music_made="music" in kinds)
         library_report: dict[str, Any] = dict(decided.report, library=library is not None)
         score.prompts, score.skip = dict(decided.make), set(decided.skip)
+        # a script's own score (e.g. an episode that is not horror): its words for each cue win
+        score.prompts.update({f"music_{k}": str(v) for k, v in (board.cfg.get("music_prompts") or {}).items()})
         if library is not None:
             score.chosen = sounds.fetch_all(library, decided.chosen, int(board.cfg.get("parallel", 4)))
             used = [decided.chosen[n].id for n in score.chosen]

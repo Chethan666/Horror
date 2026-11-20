@@ -36,27 +36,34 @@ def sentences(narration: str, pauses: list[dict[str, Any]], lines: list[Any]) ->
     return [c for c in chunks if c.speaker == "narrator"]
 
 
-def prompt(title: str, chunks: list[timing.Chunk], scene_of: list[dict[str, Any]]) -> str:
+HORROR_GUIDE = ("How a gripping horror narrator sounds:\n"
+                "- Plain, natural speech carries most of the story: leave at least half the sentences \"\".\n"
+                "- Change the colour from sentence to sentence; never the same tag more than twice in a row.\n"
+                "- [whispers] only for one or two short lines that land a chill (never twice in a row).\n"
+                "- Build: calm and curious early, [nervously]/[hesitantly] as things turn wrong, "
+                "[fearfully]/[urgently] at the scare, [quietly] or [ominously] for the final line.\n"
+                "- [sighs], [exhales], [gasps] at most once each, where a person really would.\n")
+
+
+def prompt(title: str, chunks: list[timing.Chunk], scene_of: list[dict[str, Any]],
+           tags: tuple[str, ...] = ALLOWED, guide: str = "") -> str:
     rows = []
     for i, (c, sc) in enumerate(zip(chunks, scene_of), 1):
         rows.append(f"{i}. [{sc.get('mood', '')}/{sc.get('delivery', 'steady')}"
                     f"{', KEY MOMENT' if sc.get('key_moment') else ''}] {c.text}")
     return (f"Story: {title}\n\n" + "\n".join(rows) +
             "\n\nIn brackets: the scene's mood and delivery. For every numbered sentence choose its delivery "
-            f"tag: one of {', '.join(ALLOWED)}, or \"\" to say it plainly.\n"
-            "How a gripping horror narrator sounds:\n"
-            "- Plain, natural speech carries most of the story: leave at least half the sentences \"\".\n"
-            "- Change the colour from sentence to sentence; never the same tag more than twice in a row.\n"
-            "- [whispers] only for one or two short lines that land a chill (never twice in a row).\n"
-            "- Build: calm and curious early, [nervously]/[hesitantly] as things turn wrong, "
-            "[fearfully]/[urgently] at the scare, [quietly] or [ominously] for the final line.\n"
-            "- [sighs], [exhales], [gasps] at most once each, where a person really would.\n"
+            f"tag: one of {', '.join(tags)}, or \"\" to say it plainly.\n"
+            + (guide.strip() + "\n" if guide.strip() else HORROR_GUIDE) +
             "Return every sentence once: {\"marks\": [{\"n\": 1, \"tag\": \"\"}, ...]}")
 
 
 def direct(router: Any, story: dict[str, Any], narration: str, pauses: list[dict[str, Any]], lines: list[Any],
-           scenes: list[dict[str, Any]], spans: list[tuple[int, int]]) -> tuple[dict[int, str], dict[str, Any]]:
-    """Chunk start -> tag ("" = plain) for every narrator sentence, and a short report."""
+           scenes: list[dict[str, Any]], spans: list[tuple[int, int]], tags: Any = None,
+           guide: str = "") -> tuple[dict[int, str], dict[str, Any]]:
+    """Chunk start -> tag ("" = plain) for every narrator sentence, and a short report. `tags` and `guide`
+    (a script's performance_tags / performance_guide) replace the horror narrator's set and advice."""
+    allowed = tuple(tags) if tags else ALLOWED
     chunks = sentences(narration, pauses, lines)
     if router is None or not chunks:
         return {}, {"directed": False}
@@ -66,7 +73,7 @@ def direct(router: Any, story: dict[str, Any], narration: str, pauses: list[dict
         scene_of.append(sc)
     try:
         result = router.one("planner").generate_json(
-            "performance", SYSTEM, prompt(str(story.get("title", "")), chunks, scene_of), SCHEMA)
+            "performance", SYSTEM, prompt(str(story.get("title", "")), chunks, scene_of, allowed, guide), SCHEMA)
     except (LLMError, ValueError, TypeError) as exc:
         log.warning("Performance by scene cues: %s", exc)
         return {}, {"directed": False, "error": str(exc)[:200]}
@@ -78,8 +85,8 @@ def direct(router: Any, story: dict[str, Any], narration: str, pauses: list[dict
         except (AttributeError, TypeError, ValueError):
             continue
         if 1 <= n <= len(chunks):
-            raw[n] = tag if tag in ALLOWED else ""
-            if tag and tag not in ALLOWED:
+            raw[n] = tag if tag in allowed else ""
+            if tag and tag not in allowed:
                 unknown.append(tag)
     if len(raw) < len(chunks) / 2:  # too little answered to trust: keep the scene cues
         return {}, {"directed": False, "answered": len(raw)}

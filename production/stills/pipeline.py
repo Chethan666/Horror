@@ -48,6 +48,10 @@ def produce(story: dict[str, Any], out_dir: Path, kokoro: Any, router: Any, cfg:
     work.mkdir(parents=True, exist_ok=True)
     root = cache_root(cfg, work)  # kept between runs when MEDIA_CACHE_DIR is set: a rerun pays nothing twice
     budget = Budget(float(cfg.get("max_usd", 0.0)), cfg.get("prices", {}), conn)
+    if cfg.get("genre"):  # an episode that is not horror: every instruction re-toned (production/stills/genre.py)
+        from .genre import GenreClient, GenreRouter
+        fal = GenreClient(fal, cfg["genre"]) if fal is not None else None
+        router = GenreRouter(router, cfg["genre"]) if router is not None else None
     answers = Replay(fal, root / "answers") if fal is not None else None
     studio = Studio(answers, budget, root / "media", cfg) if answers is not None else None
     if studio is not None:

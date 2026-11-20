@@ -212,7 +212,7 @@ def _level(value: Any, low: int, high: int, default: int) -> int:
 def limit_scares(beats: list[Shot], minutes: float, per_minute: float = 0.35, most: int = 3) -> int:
     """At most `per_minute` scares a minute (never fewer than one, never more than `most`): the most
     important keep their stinger and the strongest painter; the rest stay tense beats."""
-    allowed = max(1, min(most, round(minutes * per_minute)))
+    allowed = 0 if most <= 0 else max(1, min(most, round(minutes * per_minute)))  # max_scares 0: none
     scares = sorted((b for b in beats if b.scare), key=lambda b: (-b.importance, -b.tension, b.index))
     for b in scares[allowed:]:
         b.scare = False
