@@ -336,8 +336,9 @@ def media_client(stills: dict) -> tuple[dict, object | None]:
             log.warning("Vertex AI not used: %s", exc)
     if client is not None:
         moved, fallback = vertex.use_vertex(stills)
-        print(f"Paid pictures on Google ({client.project}, {client.location}): "
-              f"{sorted(set(fallback))}; fal as the fallback: {'yes' if fal else 'no'}", flush=True)
+        on_google = sorted({str(m) for m in moved.get("models", {}).values() if str(m).startswith(vertex.PREFIX)})
+        print(f"Paid pictures and checks on Google ({client.project}, {client.location}): {on_google}; "
+              f"fal as their fallback: {'yes' if fal and fallback else 'no'}", flush=True)
         return moved, vertex.Providers(fal, client, fallback, others)
     if others:
         return stills, vertex.Providers(fal, None, {}, others)

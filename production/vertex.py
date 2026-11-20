@@ -508,4 +508,6 @@ def use_vertex(cfg: dict[str, Any]) -> tuple[dict[str, Any], dict[str, list[str]
     prices = cfg.setdefault("prices", {})
     for target, usd in (settings.get("prices") or {}).items():
         prices[PREFIX + str(target)] = float(usd)
+    if not settings.get("fallback_to_fal", False):
+        return cfg, {}  # Google only: a refused picture or check is not sent to fal
     return cfg, fallback

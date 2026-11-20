@@ -116,5 +116,13 @@ class PreflightAgent:
                 if usd:
                     studio.budget.settle(usd, "preflight", model, ok=False)
                 report["checker"] = f"failed: {str(exc)[:200]}"
+                google_only = str(model).startswith("vertex:") and not (cfg.get("vertex") or {}).get("fallback_to_fal", False)
+                if google_only and cfg.get("require_google", True):
+                    # Pictures and checks are made on Google only: a refused test means every picture
+                    # would fail, so nothing more is bought (run 118: "Request rejected" on every request).
+                    raise PreflightFailed(
+                        f"Google Vertex AI refused the test check ({model}): {' '.join(str(exc).split())[:300]}. "
+                        "Pictures are made on Google only, so the run stops here. Fix the Google Cloud project "
+                        "(billing, the Vertex AI API, the key), or set stills.vertex.fallback_to_fal=true.") from exc
                 log.warning("The checker did not answer: pictures will be used unchecked (%s)", str(exc)[:200])
         return report

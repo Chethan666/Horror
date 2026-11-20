@@ -364,11 +364,13 @@ DEFAULTS: dict[str, Any] = {
         # picture against $0.08 on fal); a Vertex failure goes back to the fal model.
         "vertex": {
             "enabled": True,
+            # Pictures and checks on Google only (the channel's choice, November 2026): when Vertex refuses,
+            # nothing is sent to fal's copy of the same model. fal is for ElevenLabs alone (voices, music,
+            # effects). True sends a failed picture or check to the fal model it replaced, as before.
+            "fallback_to_fal": False,
             "models": {"google/nano-banana-2.1/edit": "gemini-nano-banana-2.1",
                        "google/nano-banana-2.1": "gemini-nano-banana-2.1",
-                       "fal-ai/any-llm/vision": "gemini-3.6-flash",  # run 111: 2.5 Flash is retired
-                       # the original score: Lyria (about 30 s of instrumental music a piece)
-                       "fal-ai/ace-step-1.5": "lyria-002"},
+                       "fal-ai/any-llm/vision": "gemini-3.6-flash"},  # run 111: 2.5 Flash is retired
             # A role's own model on Vertex, whatever its fal endpoint (the newest Pro answering is used).
             "roles": {"vision_pro": "gemini-3.6-pro"},
             # estimates (check the Google Cloud console): Lyria about $0.06 a piece, Veo Fast per second, no sound
@@ -411,7 +413,9 @@ DEFAULTS: dict[str, Any] = {
             "sfx": "fal-ai/elevenlabs/sound-effects/v2",
             # Music the sound library lacks: ACE-Step 1.5 (open source, ~$0.0003 a second). For
             # ElevenLabs instead: "fal-ai/elevenlabs/music" ($0.80 a minute, whole minutes).
-            "music": "fal-ai/ace-step-1.5",
+            # The score: ElevenLabs Music on fal ($0.80 a minute, billed in whole minutes: one minute a cue,
+            # looped under the story by `music_max_seconds`). "fal-ai/ace-step-1.5" is the cheap open one.
+            "music": "fal-ai/elevenlabs/music",
             "vision": "fal-ai/any-llm/vision",                   # the critic's eye
             # the stronger eye: the cinematographer, side-by-side choices, the art review and the screening
             "vision_pro": "fal-ai/any-llm/vision",
@@ -504,6 +508,7 @@ DEFAULTS: dict[str, Any] = {
                        "boy": ["am_puck"], "girl": ["af_sky", "af_bella"]},
         },
         "parallel": 4, "render_workers": 3, "max_effects": 30,
+        "music_max_seconds": 60,  # each score cue is made this long and looped (ElevenLabs bills whole minutes)
         # The opening: the story's scariest moment (cold open), a 2-second title card that differs between
         # episodes, then the host's short ritual (under ten seconds) and the story.
         "cold_open": True, "title_seconds": 2.0, "title_variety": True, "end_screen_seconds": 20.0,

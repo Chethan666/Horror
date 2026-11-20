@@ -123,5 +123,26 @@ class Run118(unittest.TestCase):
         self.assertEqual(fal.asked, ["fal-ai/any-llm/vision"])
 
 
+
+class GoogleOnly(unittest.TestCase):
+    def test_pictures_and_checks_have_no_fal_fallback_and_elevenlabs_makes_the_score(self):
+        from production.vertex import use_vertex
+        from story_factory.config import DEFAULTS
+
+        cfg, fallback = use_vertex(DEFAULTS["stills"])
+        self.assertEqual(fallback, {})
+        for role in ("reference", "sheet", "shot", "shot_alt", "hero", "thumbnail", "vision", "vision_pro"):
+            self.assertTrue(cfg["models"][role].startswith("vertex:"), role)
+        for role in ("voice", "sfx", "music"):
+            self.assertIn("elevenlabs", cfg["models"][role], role)
+        on, back = use_vertex(dict(DEFAULTS["stills"], vertex=dict(DEFAULTS["stills"]["vertex"], fallback_to_fal=True)))
+        self.assertTrue(back)  # the old behaviour, when asked for
+
+    def test_a_score_cue_is_one_billed_minute(self):
+        from story_factory.config import DEFAULTS
+
+        self.assertEqual(DEFAULTS["stills"]["music_max_seconds"], 60)
+
+
 if __name__ == "__main__":
     unittest.main()

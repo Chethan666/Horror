@@ -285,7 +285,8 @@ class StrongerChecker(unittest.TestCase):
         cfg = {"models": {"vision": "fal-ai/any-llm/vision", "vision_pro": "fal-ai/any-llm/vision",
                           "music": "vertex:lyria-002"},
                "vertex": {"models": {"fal-ai/any-llm/vision": "gemini-3.6-flash"},
-                          "roles": {"vision_pro": "gemini-3.6-pro"}, "prices": {"gemini-3.6-pro": 0.01}}}
+                          "roles": {"vision_pro": "gemini-3.6-pro"}, "prices": {"gemini-3.6-pro": 0.01},
+                          "fallback_to_fal": True}}
         moved, fallback = use_vertex(cfg)
         self.assertEqual(moved["models"]["vision"], PREFIX + "gemini-3.6-flash")
         self.assertEqual(moved["models"]["vision_pro"], PREFIX + "gemini-3.6-pro")

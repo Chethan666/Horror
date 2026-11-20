@@ -130,7 +130,7 @@ class Score:
             return None
 
     def music(self, seconds: float) -> dict[str, np.ndarray]:
-        length = int(min(max(seconds, self.min_music), 150))
+        length = int(min(max(seconds, self.min_music), float(getattr(self, "max_music", 150) or 150), 150))
         model = self.studio.models.get("music", "") if self.studio is not None else ""
 
         def one(item: tuple[str, str]) -> tuple[str, np.ndarray | None]:

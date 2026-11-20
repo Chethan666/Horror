@@ -213,6 +213,8 @@ class ProvidersTests(unittest.TestCase):
         cfg, fallback = use_vertex(DEFAULTS["stills"])
         self.assertEqual(cfg["models"]["shot"], "vertex:gemini-nano-banana-2.1")
         self.assertEqual(cfg["models"]["vision"], "vertex:gemini-3.6-flash")
+        self.assertEqual(fallback, {})  # Google only by default
+        _, fallback = use_vertex(dict(DEFAULTS["stills"], vertex=dict(DEFAULTS["stills"]["vertex"], fallback_to_fal=True)))
         self.assertEqual(sorted(fallback["vertex:gemini-nano-banana-2.1"]),
                          ["google/nano-banana-2.1", "google/nano-banana-2.1/edit"])
         self.assertEqual(cfg["prices"]["vertex:gemini-nano-banana-2.1"], 0.055)

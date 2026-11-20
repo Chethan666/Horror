@@ -111,7 +111,8 @@ class SoundAgent:
         # cue is made for this episode first; the library's pick plays only if making fails.
         music_model = str(board.studio.models.get("music", "")) if board.studio is not None else ""
         original = (can_make and lib_cfg.get("music_source", "original") == "original"
-                    and music_model.startswith("vertex:"))
+                    and (music_model.startswith("vertex:") or "elevenlabs/music" in music_model))
+        score.max_music = float(board.cfg.get("music_max_seconds", 150))
         if original:
             kinds.add("music")
             score.prefer_made = {f"music_{c}" for c in score.cue_names}
