@@ -564,7 +564,15 @@ class QAAgent:
         fell = int(getattr(getattr(board.studio, "fal", None), "fell_back", 0) or 0)
         if fell > int(board.cfg.get("max_fallbacks", 5)):
             issues.append(f"{fell} pictures or checks went to fal because Vertex failed (at fal's price)")
+        for warning in (board.reports.get("illustrator", {}).get("redo_warnings") or [])[:3]:
+            issues.append(warning)
         screen = board.reports.get("screening", {})
+        tried = str(screen.get("why", "")) and not str(screen.get("why", "")).startswith(("only Gemini", "no budget"))
+        if screen and screen.get("watched") is False and tried:  # it tried to watch and failed
+            issues.append(f"nobody watched the cut (screening: {str(screen['why'])[:100]})")
+        review = board.reports.get("art_review", {})
+        if review and review.get("reviewed") is False:
+            issues.append("the art review did not run: the pictures were never compared side by side")
         for note in [n for n in screen.get("notes", []) if n.get("severity") == 3][:3]:
             where = f" (beat {note['beat']})" if note.get("beat") is not None else ""
             issues.append(f"screening at {note.get('at')}{where}: {note['note'][:120]}")

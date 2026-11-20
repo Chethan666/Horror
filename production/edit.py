@@ -141,9 +141,11 @@ def pick_cold_open(shots: list[Shot], scenes: list[dict[str, Any]], min_s: float
     last_scene = story[-1].scene
     start_t, end_t = story[0].t0, story[-1].t1
     cutoff = start_t + before * max(end_t - start_t, 0.0)
-    pool = ([s for s in story if s.scene != last_scene and s.t0 > 20 and s.t0 < cutoff]
-            or [s for s in story if s.scene != last_scene and s.t0 < cutoff]
-            or [s for s in story if s.scene != last_scene] or story)
+    # a tease, not the reveal: the picture that shows the threat in full (threat 4) is kept for its moment
+    teases = [s for s in story if s.threat < 4] or story
+    pool = ([s for s in teases if s.scene != last_scene and s.t0 > 20 and s.t0 < cutoff]
+            or [s for s in teases if s.scene != last_scene and s.t0 < cutoff]
+            or [s for s in teases if s.scene != last_scene] or story)
     def rank(s: Shot) -> tuple:
         # What the viewer sees of the threat counts most: run 115 opened on a boarded door the storyboard
         # had called its one scare, over the figure leaning over her shoulder (threat 3) a minute later.
@@ -154,7 +156,7 @@ def pick_cold_open(shots: list[Shot], scenes: list[dict[str, Any]], min_s: float
     chosen = [start.index]
     covered = start.seconds
     i = start.index + 1
-    while covered < min_s and i < len(shots) and shots[i].scene == start.scene:
+    while covered < min_s and i < len(shots) and shots[i].scene == start.scene and shots[i].threat < 4:
         if covered + shots[i].seconds > max_s:
             break
         chosen.append(i)

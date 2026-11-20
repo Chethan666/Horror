@@ -146,18 +146,50 @@ def pack(src: Path, dst: Path, quality: int = 95, min_bytes: int = 1_000_000) ->
             "mb": round(after / 1e6, 1)}
 
 
-def parse_redo(text: str) -> dict[int, str]:
+def parse_redo(text: str) -> dict[int | str, str]:
     """Pictures a person asked to have repainted, from the workflow's overrides:
     "12,31:no_text_on_the_wall" -> {12: "", 31: "no text on the wall"} (underscores are spaces,
-    since overrides are split at spaces). A beat with no note is simply painted again."""
-    out: dict[int, str] = {}
+    since overrides are split at spaces). A beat with no note is simply painted again.
+
+    "@close_enough_to_breathe:show_the_figure" names the beat by words of its spoken line instead
+    -> {"close enough to breathe": "show the figure"}. Prefer it after a script or voice change: a
+    resumed run may cut the story into different beats, and a number then points at another picture
+    (run 118: a note for the empty office landed on the build-up to the scare)."""
+    out: dict[int | str, str] = {}
     for item in (text or "").replace(";", ",").split(","):
         item = item.strip()
         if not item:
             continue
         number, _, note = item.partition(":")
+        note = note.replace("_", " ").strip()
+        if number.startswith("@") and len(number) > 1:
+            out[number[1:].replace("_", " ").strip().lower()] = note
+            continue
         try:
-            out[int(number)] = note.replace("_", " ").strip()
+            out[int(number)] = note
         except ValueError:
-            log.warning("redo: %r is not a beat number; ignored", item)
+            log.warning("redo: %r is not a beat number or @words of a line; ignored", item)
     return out
+
+
+def redo_targets(redo: dict[int | str, str], beats: list) -> tuple[dict[int, str], list[str]]:
+    """The beats to repaint, by number or by words of their line, and a warning for each words that
+    match no line (or more than one, when the first is taken)."""
+    by_index = {b.index: b for b in beats}
+    out: dict[int, str] = {}
+    warnings: list[str] = []
+    for key, note in redo.items():
+        if isinstance(key, int):
+            if key in by_index:
+                out[key] = note
+            else:
+                warnings.append(f"redo {key}: there is no beat {key}")
+            continue
+        found = [b for b in beats if key in " ".join(str(b.text).lower().split())]
+        if not found:
+            warnings.append(f"redo @{key}: no line says that")
+            continue
+        if len(found) > 1:
+            warnings.append(f"redo @{key}: {len(found)} lines say that; the first (beat {found[0].index}) is repainted")
+        out[found[0].index] = note
+    return out, warnings

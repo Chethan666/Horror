@@ -237,7 +237,7 @@ jobs:
               theme=make) THEME_MAKE=1 ;;  # make candidates for the channel's theme with Lyria (~$0.20)
               host=loop) HOST_LOOP=1 ;;  # make candidates for the host's looping clip with Veo (a few dollars)
               resume=*) ;;  # handled by "Restore an earlier run's media cache"
-              redo=*) REDO=(--redo "${kv#redo=}") ;;  # repaint these beats (with resume=<the run you watched>)
+              redo=*) REDO=(--redo "${kv#redo=}") ;;  # repaint beats (with resume=<run>): numbers, or @words_of_the_line:note
               *) SETS+=(--set "$kv") ;;
             esac
           done

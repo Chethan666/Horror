@@ -28,6 +28,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from story_factory.llm import LLMError
 
 from ..look import W, H
+from ..replay import redo_targets
 from ..shots import Shot
 from .board import Board
 from .checks import sheet_ok
@@ -605,15 +606,18 @@ class IllustratorAgent:
         # their note leads the prompt, and the retry allowance does not hold them back.
         redone = []
         by_index = {b.index: b for b in beats}
-        for index, note in sorted((d.get("redo") or {}).items()):
-            beat = by_index.get(index)
-            if beat is None:
-                continue
+        targets, redo_warnings = redo_targets(d.get("redo") or {}, beats)
+        for warning in redo_warnings:
+            log.warning(warning)
+        redone_lines = {}
+        for index, note in sorted(targets.items()):
+            beat = by_index[index]
             fix = note or "a reviewer asked for a better picture of this moment"
             path = one(beat, fix, capped=False)[1]
             if path is not None:
                 pictures[index] = path
                 redone.append(index)
+                redone_lines[index] = str(beat.text)[:80]  # what each repaint was shown over, to check it
         d["pictures"] = pictures
         refused = [r.split("): ", 1)[1] for r in painter.rejections if r.startswith("beat_") and "): " in r]
         learned = lessons.record(board.conn, refused) if cfg.get("lessons", True) else {}
@@ -621,7 +625,7 @@ class IllustratorAgent:
                 "retry_usd": round(painter.retry_spent, 3), "retries_stopped": painter.retries_stopped, "cameras": {b.index: b.view for b in beats if b.view != "film"},
                 "pictures": len(beats) - borrowed - placeholders, "borrowed_neighbour": borrowed,
                 "placeholders": placeholders, "scare_shots": sorted(strongest), "key_beats": sorted(key_beats),
-                "redone": redone,
+                "redone": redone, "redone_lines": redone_lines, "redo_warnings": redo_warnings,
                 "by_painter": dict(painter.counts),
                 "doubted_beats": sorted(b.index for b in beats if f"beat_{b.index:03d}" in painter.doubted),
                 "painter_sizes": dict(painter.sizes), "rejected": painter.rejections[:30]}

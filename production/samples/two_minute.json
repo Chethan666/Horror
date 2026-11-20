@@ -50,7 +50,7 @@
   },
   {
    "text": "The guest book sits open on the counter. The owner, Mr. Pell, likes ink. He says a name in ink is a promise.",
-   "visual": "Close on an old leather guest book lying open on a worn wooden front-desk counter, its columns of handwriting too small and faded to read, a fountain pen beside it, a brass desk bell, a single desk lamp",
+   "visual": "Close on an old leather guest book lying open on a worn wooden front-desk counter, its columns of handwriting too small and faded to read, a fountain pen beside it, a brass desk bell, a single desk lamp, the front window behind it black with no sign in it",
    "location": "the motel office",
    "characters": [],
    "mood": "uneasy",
@@ -239,6 +239,6 @@
   "max_effects": 14,
   "parallel": 3,
   "target_seconds": 120,
-  "voice_pace": 1.0
+  "voice_pace": 1.08
  }
 }

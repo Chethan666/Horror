@@ -226,8 +226,15 @@ def ladder(beats: list[Shot], host_beats: set[int], max_full: int = 1) -> dict[s
     if not story:
         return {}
     scares = [b for b in story if b.scare]
-    climax = max(scares or story[len(story) // 2:], key=lambda b: (b.importance, b.tension, b.index))
+    seen = [b for b in story if b.threat >= 3]  # pictures staged to show the threat itself
+    # The climax is where the threat is shown, not only where the scare flag sits: run 118 flagged "I looked
+    # at the camera" and capped the real reveal a few seconds later ("leaning over my shoulder to write")
+    # at "mostly in darkness", so the checker refused every picture of the figure and kept a hand.
+    climax = max(seen + scares or story[len(story) // 2:],
+                 key=lambda b: (b.threat >= 3, b.scare, b.importance, b.tension, b.index))
     at = next(k for k, b in enumerate(story) if b.index == climax.index)
+    if climax.threat == 3:
+        climax.threat = 4  # the reveal: seen, in low light and partly in shadow, never refused as "too clear"
     lowered = full = 0
     for k, b in enumerate(story):
         cap = 2 if k < at / 2 else 3 if k < at else 4

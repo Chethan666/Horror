@@ -200,6 +200,28 @@ class ContinuityAndStaging(unittest.TestCase):
         self.assertEqual(sheet[5], ["The hallway light is off"])  # held to the last picture
         self.assertNotIn(1, sheet)
 
+    def test_a_fact_about_a_place_stays_there_and_one_about_a_person_travels(self):
+        from production.stills.board import Board
+        from production.stills.continuity import ContinuityAgent
+
+        class Planner:
+            def generate_json(self, task, system, prompt, schema):
+                return {"facts": [{"fact": "Room 6's door is nailed shut with planks", "from": 1, "until": 5},
+                                  {"fact": "June holds her phone in both hands", "from": 1, "until": 5}]}
+
+        board = Board(story={}, out=self.root, work=self.root, cfg={},
+                      router=SimpleNamespace(one=lambda role: Planner()))
+        beats = [beat(i) for i in range(6)]
+        for b in beats:
+            b.scene = 0 if b.index < 3 else 1
+        board.data.update(beats=beats, host_beats=set(), cast=[{"name": "June"}],
+                          scenes=[{"location": "the motel, outside"}, {"location": "the motel office"}])
+        report = ContinuityAgent().run(board)
+        sheet = board.data["continuity"]
+        self.assertIn("Room 6's door is nailed shut with planks", sheet[2])
+        self.assertEqual(sheet[4], ["June holds her phone in both hands"])  # the planks stay outside
+        self.assertEqual(report["kept_in_their_place"], 3)
+
     def test_continuity_reaches_the_prompt_and_the_check(self):
         from production.stills.art import IllustratorAgent
 

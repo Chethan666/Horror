@@ -447,7 +447,9 @@ DEFAULTS: dict[str, Any] = {
             "voice": {"stability": 0.5},
             "host_voice": {"stability": 0.5},
             "vision": {"model": "google/gemini-2.5-flash"},
-            "vision_pro": {"model": "google/gemini-2.5-pro"},
+            # fal refuses this model without reasoning (run 118: the staging, art review and side-by-side
+            # choices all failed with HTTP 422 while Vertex was down)
+            "vision_pro": {"model": "google/gemini-2.5-pro", "reasoning": True},
             "judge": {"model": "google/gemini-2.5-pro", "reasoning": True},  # this model refuses without it
             "seedream": {"image_size": {"width": 2752, "height": 1548}, "num_images": 1},
             "pro": {"aspect_ratio": "16:9", "resolution": "2K", "num_images": 1},

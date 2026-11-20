@@ -63,6 +63,11 @@ class ContinuityAgent:
             return {"facts": 0, "error": str(exc)[:200]}
         known = {b.index for b in story}
         last = max(known)
+        scenes = d.get("scenes") or []
+        place = {b.index: " ".join(str((scenes[b.scene] if b.scene < len(scenes) else {}).get("location", "")).lower().split())
+                 for b in story}
+        names = [str(c.get("name", "")).lower() for c in d.get("cast", []) if isinstance(c, dict) and c.get("name")]
+        skipped = 0
         per_beat: dict[int, list[str]] = {}
         kept = []
         for item in (result.get("facts") or [])[:20] if isinstance(result, dict) else []:
@@ -77,8 +82,19 @@ class ContinuityAgent:
                 continue
             end = min(max(end, start), last)
             kept.append({"fact": fact, "from": start, "until": end})
+            # A fact about a place stays in that place; one about a person travels with them. Run 118:
+            # "Room 6's door is nailed shut with planks" reached every office picture after it, and the
+            # office was painted with a boarded door in it.
+            personal = any(n and n in fact.lower() for n in names)
             for i in range(start, end + 1):
-                if i in known and len(per_beat.setdefault(i, [])) < 4 and fact not in per_beat[i]:
+                if i not in known:
+                    continue
+                if not personal and place.get(i) and place.get(start) and place[i] != place[start]:
+                    skipped += 1
+                    continue
+                if len(per_beat.setdefault(i, [])) < 4 and fact not in per_beat[i]:
                     per_beat[i].append(fact)
+        per_beat = {i: facts for i, facts in per_beat.items() if facts}
         d["continuity"] = per_beat
-        return {"facts": len(kept), "beats_with_facts": len(per_beat), "sheet": kept[:20]}
+        return {"facts": len(kept), "beats_with_facts": len(per_beat), "kept_in_their_place": skipped,
+                "sheet": kept[:20]}

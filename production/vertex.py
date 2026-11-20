@@ -460,7 +460,9 @@ class Providers:
             refs = bool(args.get("image_urls"))
             spare = next((e for e in spares if e.endswith("/edit") == refs), spares[0] if spares else "")
             busy = self.vertex is not None and self._busy(exc)
-            if self.fal is None or not spare or "content refused" in str(exc):
+            # fal's stand-in looks at pictures only: a video or a sound to watch (the screening) cannot go there
+            watches = any(args.get(k) for k in ("video_url", "audio_url"))
+            if self.fal is None or not spare or watches or "content refused" in str(exc):
                 if busy:
                     return self._wait_for_vertex(endpoint, args, exc)
                 raise
