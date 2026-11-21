@@ -96,7 +96,7 @@ class Run118(unittest.TestCase):
 
 
 class GoogleOnly(unittest.TestCase):
-    def test_pictures_and_checks_have_no_fal_fallback_and_elevenlabs_makes_the_score(self):
+    def test_pictures_and_checks_on_google_voice_and_effects_on_elevenlabs_music_from_the_library(self):
         from production.vertex import use_vertex
         from story_factory.config import DEFAULTS
 
@@ -104,8 +104,10 @@ class GoogleOnly(unittest.TestCase):
         self.assertEqual(fallback, {})
         for role in ("reference", "sheet", "shot", "shot_alt", "hero", "thumbnail", "vision", "vision_pro"):
             self.assertTrue(cfg["models"][role].startswith("vertex:"), role)
-        for role in ("voice", "sfx", "music"):
+        for role in ("voice", "sfx"):
             self.assertIn("elevenlabs", cfg["models"][role], role)
+        self.assertEqual(cfg["models"]["music"], "")  # music from the library only, never generated
+        self.assertEqual(DEFAULTS["stills"]["sound_library"]["music_source"], "library")
 
     def test_a_score_cue_is_one_billed_minute(self):
         from story_factory.config import DEFAULTS

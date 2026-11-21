@@ -432,10 +432,10 @@ class TeamTests(unittest.TestCase):
         self.assertEqual(beats[1]["atmosphere"], ["rain", "flicker"])
         self.assertEqual(summary["agents"]["edit"]["atmosphere"], {"rain": 1, "flicker": 1})
 
-    def test_the_score_is_made_by_elevenlabs_and_the_library_alone_pays_for_nothing(self):
+    def test_music_is_never_generated_and_the_library_alone_pays_for_nothing(self):
         summary, _, fal = self.make(FakeFal)
         endpoints = {e for e, _ in fal.calls}
-        self.assertIn("fal-ai/elevenlabs/music", endpoints)  # the channel's choice: ElevenLabs for all sound
+        self.assertNotIn("fal-ai/elevenlabs/music", endpoints)  # the channel's choice: music from the library only
         self.assertTrue(all(e.startswith("vertex:") or e.startswith("fal-ai/elevenlabs/") for e in endpoints), endpoints)
         off = dict(cfg()["sound_library"], generate_missing=False)  # library only: nothing made at all
         summary, _, fal = self.make(FakeFal, sound_library=off)

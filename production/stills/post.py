@@ -280,7 +280,9 @@ class EditAgent:
             key = max((b for b in beats if b.index not in d.get("host_beats", ()) and not b.scare),
                       key=lambda b: (b.importance, -b.index), default=None)  # never a scare: no spoilers
             background = d["pictures"].get(key.index) if key is not None else frame
-        title_card = edit.card(background or frame, [(CHANNEL, round(40 * k), draw.RED)] +
+        # the channel's name over the title: `title_brand` sets another, "" shows the title alone
+        brand = str(cfg.get("title_brand", CHANNEL) or "")
+        title_card = edit.card(background or frame, ([(brand, round(40 * k), draw.RED)] if brand else []) +
                                [(line, round(92 * k), draw.CHALK) for line in edit.wrap(str(titles[0]), 24)],
                                board.work / "title_card.png", left=left, size=size, anchor=anchor,
                                dim=0.25 if behind == "key" else 0.35)

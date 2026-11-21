@@ -26,7 +26,7 @@
  "scenes": [
   {
    "text": "For three summers I had been careful. Careful with my words, careful with my heart, careful never to want anything I couldn't explain.",
-   "visual": "Close on Inés at her apartment window in warm evening light, chin resting on her hand, gazing out over a narrow old Lisbon courtyard, terracotta rooftops and blue shutters glowing at dusk",
+   "visual": "Close on Inés at her apartment window in warm evening light, chin resting on her hand, gazing out over a narrow old Lisbon courtyard, terracotta rooftops and blue shutters glowing at dusk; a hot, dry summer evening",
    "location": "Inés's apartment",
    "characters": [
     "Inés"
@@ -40,7 +40,7 @@
   },
   {
    "text": "Then the heat came to Lisbon, and with it, the man across the courtyard.",
-   "visual": "Wide view across a small tiled courtyard at dusk: opposite, one tall window with blue shutters thrown open, warm lamplight inside, a man's silhouette moving in it",
+   "visual": "Wide view across a small tiled courtyard at dusk: opposite, one tall window with blue shutters thrown open, warm lamplight inside, a man's silhouette moving in it; dry sun-warmed tiles, a hot summer evening, no rain",
    "location": "the courtyard",
    "characters": [],
    "mood": "warm",
@@ -52,7 +52,7 @@
   },
   {
    "text": "Every evening at nine, his window opened. Every evening, I pretended not to watch. He read with his sleeves rolled, a glass of wine catching the last of the light.",
-   "visual": "Tomás in his window across the courtyard, reading a paperback, white linen sleeves rolled to the elbow, a glass of red wine on the sill catching the sunset, seen from a distance",
+   "visual": "Tomás in his window across the courtyard, reading a paperback, white linen sleeves rolled to the elbow, a glass of red wine on the dry sill catching the sunset, a hot summer evening, no rain, seen from a distance",
    "location": "Tomás's window",
    "characters": [
     "Tomás"
@@ -78,7 +78,7 @@
   },
   {
    "text": "I began to dress for that window. A silk slip the colour of wine. My hair down. The lamp turned low, so he could see only what I chose.",
-   "visual": "Inés in her dim bedroom in front of an old mirror, letting her dark hair down, a wine-red silk slip dress with thin straps under a loose linen shirt, one low lamp, seen from behind in soft focus",
+   "visual": "Inés in her dim bedroom in front of an old mirror, dressing for the evening: sliding the thin strap of her wine-red silk slip dress onto her shoulder, the open striped linen shirt in her other hand, letting her dark hair down, one low lamp, seen from behind in soft focus",
    "location": "Inés's apartment",
    "characters": [
     "Inés"
@@ -107,7 +107,7 @@
   },
   {
    "text": "I answered it.",
-   "visual": "Close on Inés's face lit by a single candle she has just lit, rain streaking the window glass in front of her, her eyes fixed across the courtyard",
+   "visual": "Close on Inés's face lit by a single candle she has just lit, the open striped linen shirt over her wine-red slip, rain streaking the window glass in front of her, her eyes fixed across the courtyard",
    "location": "Inés's apartment",
    "characters": [
     "Inés"
@@ -137,7 +137,7 @@
   },
   {
    "text": "\"I wondered when you'd come,\" he said. \"So did I,\" I told him.",
-   "visual": "In a candlelit doorway, Tomás and Inés face each other close, her hair wet from the rain, his hand still on the door, both smiling a little, warm golden light",
+   "visual": "In a candlelit doorway, Tomás and Inés face each other close, her hair wet from the rain, the open striped linen shirt over her wine-red slip, his hand still on the door, both smiling a little, warm golden light",
    "location": "Tomás's apartment",
    "characters": [
     "Tomás",
@@ -257,6 +257,7 @@
   "parallel": 2,
   "target_seconds": 120,
   "voice_pace": 1.08,
+  "title_brand": "",
   "point_of_view": "first",
   "teller_default": "woman",
   "max_scares": 0,

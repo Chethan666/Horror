@@ -168,6 +168,7 @@ def scene_limits(scenes: list[dict[str, Any]], low: float, high: float) -> dict[
 
 INSIDE = ("inside", "interior", "indoors", "window", "windscreen", "windshield", "through the glass", "room",
           "office", "desk", "counter", "lobby", "kitchen", "hallway", "corridor", "landing", "staircase",
+          "apartment", "flat", "doorway", "bedroom", "living room", "candlelit room", "by candlelight",
           "bed", "ceiling", "screen", "monitor", "security camera", "cctv")
 
 
@@ -179,7 +180,7 @@ def indoors(*texts: str) -> bool:
 
 
 OUTSIDE = ("outside", "exterior", "outdoors", "street", "road", "parking lot", "car park", "forest", "woods",
-           "field", "under the sky", "yard", "garden", "walkway")
+           "field", "under the sky", "yard", "courtyard", "garden", "walkway", "rooftop")
 
 
 def outside(picture: str) -> bool:

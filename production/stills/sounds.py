@@ -38,16 +38,21 @@ MOOD_TEXT = {"unease": "quiet unease: sparse, eerie, patient", "dread": "buildin
              "terror": "terror: intense, frantic, the climax"}
 
 
-def needs(board_data: dict[str, Any], cue_names: list[str], max_effects: int) -> list[dict[str, Any]]:
-    """What the video needs, each with the Score name it fills."""
+def needs(board_data: dict[str, Any], cue_names: list[str], max_effects: int,
+          music_texts: dict[str, str] | None = None) -> list[dict[str, Any]]:
+    """What the video needs, each with the Score name it fills. `music_texts` (a script's music_prompts)
+    describes each cue in the episode's own words: the library is searched by them, not by horror moods."""
+    music_texts = {str(k): str(v) for k, v in (music_texts or {}).items() if v}
     out: list[dict[str, Any]] = []
     scenes, beats = board_data["scenes"], board_data["beats"]
     moods_present = {tension(str(sc.get("mood", ""))) for sc in scenes} or {0}
     for k in cue_names:
         if k in CUES:
-            out.append({"need": f"music_{k}", "kind": "music", "mood": k, "text": MOOD_TEXT.get(k, k),
-                        "intensity": {"unease": 2, "dread": 3, "terror": 5}.get(k), "priority": k != "terror"
-                        or 2 in moods_present})
+            own = music_texts.get(k)
+            out.append({"need": f"music_{k}", "kind": "music", "mood": "" if own else k,
+                        "text": own or MOOD_TEXT.get(k, k),
+                        "intensity": None if own else {"unease": 2, "dread": 3, "terror": 5}.get(k),
+                        "priority": k != "terror" or 2 in moods_present})
     places: list[str] = []
     for b in beats:
         sc = scenes[b.scene] if b.scene < len(scenes) else {}
@@ -140,7 +145,7 @@ class Decisions:
 def pick(board: Any, library: Library | None, cue_names: list[str], max_effects: int,
          min_score: float = 0.55, can_make: bool = True, music_made: bool = True) -> Decisions:
     """For each need: a library sound, a new sound described by the director, or nothing."""
-    all_needs = needs(board.data, cue_names, max_effects)
+    all_needs = needs(board.data, cue_names, max_effects, getattr(board, "cfg", {}).get("music_prompts"))
     items = [(n, shortlist(library, n) if library is not None else []) for n in all_needs]
     out = Decisions()
     decided: set[str] = set()

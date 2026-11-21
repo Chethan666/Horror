@@ -109,6 +109,53 @@
       ]
     },
     {
+      "type": "incompetech",
+      "name": "Kevin MacLeod romantic and calm music (CC BY 4.0, credit added to each video's description), for episodes that are not horror",
+      "catalogue": "https://incompetech.com/music/royalty-free/pieces.json",
+      "files": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/",
+      "feels": [
+        "romantic",
+        "calming",
+        "relaxed",
+        "sentimental",
+        "hopeful",
+        "somber",
+        "mysterious"
+      ],
+      "need_feels": [
+        "romantic",
+        "calming",
+        "relaxed",
+        "sentimental"
+      ],
+      "genres": [],
+      "exclude_feels": [
+        "aggressive",
+        "action",
+        "humorous",
+        "silly",
+        "funny",
+        "bouncy",
+        "playful",
+        "intense",
+        "dark",
+        "grooving"
+      ],
+      "max": 40,
+      "titles": [
+        "Healing",
+        "Dreamer",
+        "Peaceful Desolation",
+        "Touching Moments Two - Higher",
+        "Meditation Impromptu 02",
+        "Lasting Hope",
+        "Long Road Ahead",
+        "Bossa Antigua",
+        "Vibing Over Venus",
+        "Fluidscape"
+      ]
+    },
+    {
       "type": "opengameart",
       "name": "OpenGameArt horror music (hand-picked pages; licenses checked per page)",
       "kind": "music",

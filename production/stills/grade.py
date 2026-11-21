@@ -75,7 +75,7 @@ def gamma_for(luma: np.ndarray, target: float) -> float:
 
 
 def grade(rgb: np.ndarray, want: tuple[float, float, float, float], strength: float,
-          colour: bool = True, exposure: float = 1.0) -> tuple[np.ndarray, dict[str, float]]:
+          colour: bool = True, exposure: float = 1.0, floor: float = 0.0) -> tuple[np.ndarray, dict[str, float]]:
     """A 0-1 picture brought within the film's tolerances, and what was changed ({} = nothing).
     `exposure` below 1 prints the whole film down first (every picture's brightness times it).
 
@@ -87,6 +87,8 @@ def grade(rgb: np.ndarray, want: tuple[float, float, float, float], strength: fl
     m = stats(small)[0]
     target = _toward(m * exposure, M - BRIGHTNESS_BAND, M + BRIGHTNESS_BAND, strength)
     target = min(max(target, m - MAX_BRIGHTNESS_MOVE), m + MAX_BRIGHTNESS_MOVE)
+    if floor and target < floor:  # a picture too dark to read is lifted further (twice the usual move)
+        target = min(floor, m + 2 * MAX_BRIGHTNESS_MOVE)
     if abs(target - m) >= 1.0:
         g = gamma_for(small @ LUMA, target / 255.0)
         rgb = np.clip(rgb, 1e-4, 1.0) ** g
@@ -140,7 +142,13 @@ class ColoristAgent:
             if src not in done:
                 with Image.open(src) as im:
                     rgb = np.asarray(im.convert("RGB"), dtype=np.float32) / 255.0
-                out, changed = grade(rgb, want, strength, colour=b.view == "film", exposure=exposure)
+                # No picture so dark the viewer sees nothing (run 119: the barefoot crossing in the rain, the
+                # story's turn, was near black for 7 s): a floor under every picture, higher for key beats.
+                scene = (d.get("scenes") or [{}] * (b.scene + 1))[b.scene] if b.scene < len(d.get("scenes") or []) else {}
+                key = b.importance >= 4 or bool(scene.get("key_moment"))
+                ratio = float(cfg.get("key_brightness_floor", 0.8) if key else cfg.get("brightness_floor", 0.6))
+                out, changed = grade(rgb, want, strength, colour=b.view == "film", exposure=exposure,
+                                     floor=want[0] * ratio)
                 done[src] = src
                 if changed:
                     done[src] = folder / f"beat_{b.index:03d}.png"

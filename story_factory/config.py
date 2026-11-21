@@ -403,9 +403,9 @@ DEFAULTS: dict[str, Any] = {
             "voice": "fal-ai/elevenlabs/tts/eleven-v3",
             "host_voice": "elevenlabs:eleven_v3",  # the channel's own host voice (used only when set up, above)
             "sfx": "fal-ai/elevenlabs/sound-effects/v2",
-            # The score: ElevenLabs Music on fal ($0.80 a minute, billed in whole minutes: one minute a cue,
-            # looped under the story by `music_max_seconds`).
-            "music": "fal-ai/elevenlabs/music",
+            # Music comes from the channel's sound library only (the channel's choice, November 2026): no
+            # score is ever generated for an episode. "fal-ai/elevenlabs/music" here would allow it again.
+            "music": "",
             "vision": "vertex:gemini-3.6-flash",                 # the critic's eye (run 111: 2.5 Flash is retired)
             # the stronger eye: the cinematographer, side-by-side choices, the art review and the screening
             "vision_pro": "vertex:gemini-3.6-pro",
@@ -506,9 +506,9 @@ DEFAULTS: dict[str, Any] = {
             # Missing sounds: effects, room tone and the sting may be made by ElevenLabs Sound Effects on
             # fal (a few cents a video); music always comes from the library (no paid music).
             "generate_missing": True, "generate_kinds": ["sfx"],
-            # "original": with Lyria on Vertex (Google credits), every cue of the score is made for the episode
-            # (the library's track plays only if that fails); "library": music from the library only.
-            "music_source": "original",
+            # "library" (the channel's choice): every score cue is a track from the library, never generated.
+            # "original" makes each cue for the episode (needs a music model in `models.music`).
+            "music_source": "library",
             "save_generated": True,  # paid-for sounds go into the library after the run
         },
         # YouTube's "altered or synthetic content" flag: None follows the look (on for cinematic).
